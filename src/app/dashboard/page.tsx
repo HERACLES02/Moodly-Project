@@ -68,7 +68,7 @@ export default function Dashboard() {
       if (response.ok) {
         const newNote = await response.json()
         setNotes([newNote, ...notes])
-        setActiveNote(newNote.title)
+        setActiveNote("Note: " + newNote.content)
         setIsNoteOpen(false)
         setTitle('')
         setContent('')
