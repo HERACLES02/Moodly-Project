@@ -2,8 +2,19 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import ProfileDropdown from '@/components/ProfileDropdown'
+import { auth } from "@/auth"
+import { useGetUser } from '@/hooks/useGetUser'
+import { useTest } from '@/hooks/useTest'
+import "./dashboard.css"
+import NotesSection from '@/components/NotesSection'
+console.log("📦 useGetUser import:", typeof useGetUser)
+
+import NavbarComponent from '@/components/NavbarComponent'
+
+
 
 export default function Dashboard() {
+
   const [activeNote, setActiveNote] = useState<string | null>(null)
   const [isNoteOpen, setIsNoteOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -14,10 +25,15 @@ export default function Dashboard() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null)
   const [isMounted, setIsMounted] = useState(false)
 
+
   const backgroundImage = '/images/background.jpg'
-  const userName = "AnonTofu"
+
   const userInitials = "AT"
 
+
+  const { user, setUser} = useGetUser()
+  const userName = user?.anonymousName
+  
   const moodOptions = [
     { name: 'Happy', color: 'bg-yellow-300' },
     { name: 'Calm', color: 'bg-blue-300' },
@@ -26,11 +42,13 @@ export default function Dashboard() {
   ]
 
   useEffect(() => {
+    
     setIsMounted(true)
   }, [])
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+
       if (noteRef.current && !noteRef.current.contains(event.target as Node)) {
         setIsNoteOpen(false)
       }
@@ -94,10 +112,12 @@ export default function Dashboard() {
         </div>
       )}
 
+      <NavbarComponent/>
+
       {/* Header */}
       <header className="bg-[#815FD0]/90 shadow-sm sticky top-0 z-10 backdrop-blur-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-white">Moodly</h1>
+          <h1 className="moodlyTitle">Moodly</h1>
           
           <div className="flex items-center space-x-4">
             {/* Mood indicator */}
@@ -184,6 +204,8 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+
       </main>
     </div>
   )

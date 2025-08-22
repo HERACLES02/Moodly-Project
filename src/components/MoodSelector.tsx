@@ -16,6 +16,11 @@ export default function MoodSelector() {
   const handleSelect = (mood: string) => {
     setSelectedMood(mood)
     setShowDropdown(false)
+
+    //update user moood in database
+    
+
+    
     console.log('Selected mood:', mood)
   }
 

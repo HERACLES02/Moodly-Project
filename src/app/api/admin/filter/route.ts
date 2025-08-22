@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   return NextResponse.json({ success: `Filtered ${word}` })
 }
 
-export async function GET(req: Request){
+export async function GET(req: Request){  
     const filter= await prisma.filteredWord.findMany()
 
     return NextResponse.json(filter)
