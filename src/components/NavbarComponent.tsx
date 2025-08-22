@@ -22,24 +22,35 @@ export default function NavbarComponent() {
 
     function handleAddNote(){
         console.log("Add Note Clicked")
-            setNoteSelected(!noteSelected)
+        if (noteSelected){    
+        setNoteSelected(false)
+            setTimeout(() => 
+                setNoteSelected(true), 100)
+        } else {
+            setNoteSelected(true)
+        }
+
             setMoodSelected(false)
         console.log(noteSelected)
 
     }
     
     function handleSelectMood(){
-        if (user){
-            user.mood = "sad"
-        
-        console.log("Change Mood Clicked")
-        console.log(`Current User Mood: ${user.mood}`)
-        setMoodSelected(!moodSelected)
-        setNoteSelected(false)
+        console.log("Select Mood Clicked")
+            setMoodSelected(!moodSelected)
+            setNoteSelected(false)
         console.log(moodSelected)
-        }
+        
         
     }
+
+    function handleCloseMood() {
+        setMoodSelected(false)
+    }
+
+    function handleCloseNotes() {
+        setNoteSelected(false)
+    }    
 
 
     return (
@@ -78,17 +89,17 @@ export default function NavbarComponent() {
         </nav>
         
 
-        {/* clicking add note activates the NoteSelectionComponent */}
+
         <div>
             {noteSelected && (
-                        <NotesSection/>
+                        <NotesSection onClose={handleCloseNotes} />
             )
             }
         </div>
-            {/* clicking Select mood activates the MoodSelectionComponent */}
+            
             <div>
             {moodSelected && (
-                        <MoodSelector/>
+                        <MoodSelector onClose={handleCloseMood} />
             )
             }
         </div>

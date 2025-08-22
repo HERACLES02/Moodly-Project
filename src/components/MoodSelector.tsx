@@ -1,52 +1,108 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useGetUser } from '@/hooks/useGetUser'
 
-export default function MoodSelector() {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null)
-  const [showDropdown, setShowDropdown] = useState(false)
-  
+interface MoodSelectorProps {
+  onClose?: () => void
+}
+
+export default function MoodSelector({ onClose }: MoodSelectorProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+  const { user, setUser } = useGetUser()
 
   const moodOptions = [
     { name: 'Happy', color: 'bg-yellow-300' },
     { name: 'Calm', color: 'bg-blue-300' },
     { name: 'Energetic', color: 'bg-red-300' },
-    { name: 'Anxious', color: 'bg-purple-300' }
+    { name: 'Anxious', color: 'bg-purple-300' },
+    { name: 'Sad', color: 'bg-gray-400' },
+    { name: 'Excited', color: 'bg-orange-300' },
+    { name: 'Tired', color: 'bg-indigo-300' },
+    { name: 'Grateful', color: 'bg-green-300' }
   ]
 
-  const handleSelect = (mood: string) => {
-    setSelectedMood(mood)
-    setShowDropdown(false)
-
-    //update user moood in database
+  // Close modal when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        handleClose()
+      }
+    }
     
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [onClose]) // Added dependency
 
+  const handleMoodSelect = async (moodName: string) => {
+    setIsLoading(true)
     
-    console.log('Selected mood:', mood)
+    try {
+      const response = await fetch('/api/moods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moodName })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Update user mood in context
+        if (user) {
+          setUser({ ...user, mood: moodName })
+        }
+        
+        console.log('Mood saved to user:', data.message)
+        
+        // Close immediately after successful save
+        handleClose()
+      } else {
+        console.error('Failed to save mood:', data.error)
+        alert(data.error || 'Failed to save mood. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error recording mood:', error)
+      alert('Error saving mood. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose()
+    }
   }
 
   return (
-    <div className="relative inline-block">
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="px-4 py-2 bg-gray-100 rounded-md"
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
+      <div 
+        ref={modalRef}
+        className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 mx-4"
       >
-        {selectedMood || 'Select Mood'}
-      </button>
-      
-      {showDropdown && (
-        <div className="absolute mt-1 w-full bg-white border rounded-md shadow-md">
+        <h3 className="text-xl font-bold text-[#815FD0] mb-4">Select Your Mood</h3>
+        
+        <div className="space-y-2">
           {moodOptions.map((mood) => (
-            <div
+            <button
               key={mood.name}
-              onClick={() => handleSelect(mood.name)}
-              className="flex items-center p-2 hover:bg-gray-50 cursor-pointer"
+              onClick={() => handleMoodSelect(mood.name)}
+              disabled={isLoading}
+              className="flex items-center w-full p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <span className={`w-3 h-3 rounded-full mr-2 ${mood.color}`} />
-              {mood.name}
-            </div>
+              <span className={`w-4 h-4 rounded-full mr-3 ${mood.color}`} />
+              <span className="text-gray-800">{mood.name}</span>
+            </button>
           ))}
         </div>
-      )}
+        
+        <button
+          onClick={handleClose}
+          className="mt-6 px-4 py-2 text-gray-500 hover:text-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   )
 }

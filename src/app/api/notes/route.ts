@@ -1,22 +1,53 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { auth } from '@/auth'
 
 export async function GET() {
   try {
-    const notes = await prisma.note.findMany()
-    return NextResponse.json(notes)
+    // Get the current user's session
+    const session = await auth()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    // Get the user's current note
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { 
+        note: true,
+        anonymousName: true
+      }
+    })
+
+    return NextResponse.json({ 
+      note: user?.note || '',
+      userName: user?.anonymousName
+    })
     
   } catch (error) {
-    console.error('Error fetching notes:', error)
+    console.error('Error fetching note:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch notes' },
+      { error: 'Failed to fetch note' },
       { status: 500 }
     )
   }
 }
+
 export async function POST(req: Request) {
   try {
-    // 1. Check content type
+    const session = await auth()
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
     const contentType = req.headers.get('content-type')
     if (contentType !== 'application/json') {
       return NextResponse.json(
@@ -26,6 +57,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
+    
     if (!body?.content || typeof body.content !== 'string') {
       return NextResponse.json(
         { error: 'Content is required and must be a string' },
@@ -33,20 +65,39 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log('Creating note with content:', body.content)
-    const note = await prisma.note.create({
+    const updatedUser = await prisma.user.update({
+      where: { email: session.user.email },
+      data: { note: body.content },
+      select: {
+        id: true,
+        email: true,
+        note: true,
+        anonymousName: true
+      }
+    })
+
+    console.log('User note updated:', {
+      user: updatedUser.anonymousName,
+      note: updatedUser.note
+    })
+
+    await prisma.note.create({
       data: {
         content: body.content
       }
     })
-    console.log('Note created:', note)
-
-    return NextResponse.json(note, { status: 201 })
-
+    
+    return NextResponse.json({
+      success: true,
+      note: updatedUser.note,
+      message: 'Note saved successfully',
+      user: updatedUser.anonymousName
+    }, { status: 200 })
+    
   } catch (error) {
     console.error('Database error:', error)
     return NextResponse.json(
-      { error: 'Failed to create note' },
+      { error: 'Failed to save note' },
       { status: 500 }
     )
   }
