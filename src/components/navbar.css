@@ -1,0 +1,63 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    background: linear-gradient(135deg, #eadfee 0%, #f0e6f7 100%);
+    font-family: Arial, sans-serif;
+}
+
+.moodlyImage {
+    font-size: 32px;
+    font-weight: bold;
+    color: #000;
+    letter-spacing: 1px;
+}
+
+.UserSection {
+    display: flex;
+    align-items: center;
+
+}
+
+.PointsSection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    border: 2px solid #ddd;
+    font-weight: 500;
+    color: #333;
+    margin-right: 10px;
+}
+
+.PointsSection span:first-child {
+    font-size: 16px;
+}
+
+.PointsSection span:last-child {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.separator {
+    display: inline-block;
+    width: 2px;
+    height: 30px;
+    background-color: #999;
+    margin: 0 5px;
+}
+
+.UserSection > div:last-child {
+    font-family: Arial;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight:bold;
+    font-size: 16px;
+    color: #000;
+}
+

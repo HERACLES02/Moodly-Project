@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 
 interface ProfileDropdownProps {
   userName: string
-  userInitials: string
+  isAdmin?: boolean,
   onAddNote: () => void
   onSelectMood: () => void
 }
 
 export default function ProfileDropdown({ 
   userName, 
-  userInitials,
+  isAdmin = false,
   onAddNote, 
   onSelectMood
 }: ProfileDropdownProps) {
@@ -26,13 +26,25 @@ export default function ProfileDropdown({
     router.push('/login')
   }
 
+  const handleAdmin = () =>{
+    router.push('/admin')
+  }
+
+  const handleDashboard = () =>{
+    router.push('/dashboard')
+  }
+
   const menuItems = [
     { label: 'Add/Update Notes', action: onAddNote },
     { label: 'Select Mood', action:  onSelectMood },
-    { label: 'Go to Dashboard', action: () => console.log('Dashboard clicked') },
+    { label: 'Dashboard', action: handleDashboard },
     { label: 'Edit Profile', action: () => console.log('Profile clicked') },
-    { label: 'Log Out', action: handleLogout },
+    
   ]
+  if (isAdmin) {
+  menuItems.push({ label: 'Admin Panel', action: handleAdmin })
+}
+menuItems.push({ label: 'Log Out', action: handleLogout })
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -48,9 +60,9 @@ export default function ProfileDropdown({
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 bg-[#815FD0] hover:bg-[#9479d9] transition-colors rounded-lg px-4 py-2"
+        className="flex items-center space-x-2 hover:bg-[#ffffff] transition-colors rounded-lg px-4 py-2"
       >
-        <span className="text-white font-medium">{userName}</span>
+        <span> 👤 {userName}</span>
       </button>
 
       {isOpen && (
