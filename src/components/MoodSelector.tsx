@@ -4,9 +4,10 @@ import { useGetUser } from '@/hooks/useGetUser'
 
 interface MoodSelectorProps {
   onClose?: () => void
+  onMoodSelect: (mood: string) => void
 }
 
-export default function MoodSelector({ onClose }: MoodSelectorProps) {
+export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProps) {
   const [isLoading, setIsLoading] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const { user, setUser } = useGetUser()
@@ -51,10 +52,12 @@ export default function MoodSelector({ onClose }: MoodSelectorProps) {
         if (user) {
           setUser({ ...user, mood: moodName })
         }
+        onMoodSelect(moodName)
         
         console.log('Mood saved to user:', data.message)
         
         // Close immediately after successful save
+        onMoodSelect?.(moodName)
         handleClose()
       } else {
         console.error('Failed to save mood:', data.error)

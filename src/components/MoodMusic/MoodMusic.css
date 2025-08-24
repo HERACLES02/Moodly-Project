@@ -1,0 +1,139 @@
+.mood-music-container {
+  margin: 2rem 0;
+  padding: 1.0rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mood-music-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #815FD0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mood-music-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  max-width: 800px;
+}
+
+@media (min-width: 768px) {
+  .mood-music-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.mood-music-card {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.mood-music-card:hover {
+  transform: translateY(-5px);
+}
+
+.mood-music-album-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* 1:1 aspect ratio for album covers */
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background: #f0f0f0;
+}
+
+.mood-music-album-art {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.mood-music-card:hover .mood-music-album-art {
+  transform: scale(1.05);
+  filter: brightness(0.7);
+}
+
+.mood-music-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: rgba(129, 95, 208, 0.2);
+}
+
+.mood-music-card:hover .mood-music-play-overlay {
+  opacity: 1;
+}
+
+.mood-music-play-button {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #815FD0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.mood-music-card:hover .mood-music-play-button {
+  transform: scale(1.1);
+}
+
+.mood-music-info {
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.mood-music-track-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mood-music-artist {
+  font-size: 0.8rem;
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mood-music-loading,
+.mood-music-error {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.mood-music-error {
+  color: #e74c3c;
+}

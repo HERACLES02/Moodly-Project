@@ -58,6 +58,7 @@ model User {
   sessions      Session[]
   mood          String    @default("")
   note          String    @default("")
+  interactions  UserInteraction[]
 }
 
 
@@ -77,4 +78,18 @@ model RandomWord {
 model FilteredWord {
   id   Int    @id @default(autoincrement())
   word String @unique
+}
+
+model UserInteraction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  itemId    String
+  itemName  String
+  mood      String
+
+  @@index([userId])
+  @@index([userId, type])
+  
 }

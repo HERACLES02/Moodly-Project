@@ -1,0 +1,109 @@
+.mood-movies-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mood-movies-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #815FD0;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mood-movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  max-width: 800px;
+}
+
+@media (min-width: 768px) {
+  .mood-movies-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.mood-movie-card {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.mood-movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(129, 95, 208, 0.3);
+}
+
+.mood-movie-poster-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 150%; /* 2:3 aspect ratio */
+  overflow: hidden;
+}
+
+.mood-movie-poster {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mood-movie-card:hover .mood-movie-poster {
+  transform: scale(1.05);
+}
+
+.mood-movie-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  color: white;
+  padding: 1rem 0.75rem 0.75rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.mood-movie-card:hover .mood-movie-overlay {
+  transform: translateY(0);
+}
+
+.mood-movie-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mood-movie-rating {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.mood-movies-loading,
+.mood-movies-error {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.mood-movies-error {
+  color: #e74c3c;
+}

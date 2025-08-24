@@ -63,5 +63,5 @@ export const {
     strategy: "jwt"  // Make sure we're using JWT
   },
   secret: process.env.NEXTAUTH_SECRET!,
-  debug: true  // Enable debug mode to see what's happening
+  
 })
