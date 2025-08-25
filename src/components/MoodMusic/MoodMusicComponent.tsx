@@ -15,9 +15,10 @@ interface Track {
 
 interface MoodMusicProps {
   mood: string
+  onSongClick: (songId: String) => void
 }
 
-export default function MoodMusic({ mood }: MoodMusicProps) {
+export default function MoodMusic({ mood, onSongClick }: MoodMusicProps) {
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,6 +60,8 @@ export default function MoodMusic({ mood }: MoodMusicProps) {
             mood: mood
           })
         })
+      console.log("Movie click tracked in Database")
+
       } catch (err) {
         console.error('Error tracking interaction:', err)
       }
@@ -75,6 +78,7 @@ export default function MoodMusic({ mood }: MoodMusicProps) {
       spotifyUrl: track.external_url
     })
     await trackInteraction(track)
+    onSongClick(track.id)
   }
 
   if (loading)

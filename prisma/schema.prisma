@@ -59,6 +59,7 @@ model User {
   mood          String    @default("")
   note          String    @default("")
   interactions  UserInteraction[]
+  playlists     Playlist[]
 }
 
 
@@ -92,4 +93,39 @@ model UserInteraction {
   @@index([userId])
   @@index([userId, type])
   
+}
+
+enum PlaylistType {
+  SONG
+  MOVIE
+}
+
+// Playlist model linked to User
+model Playlist {
+  id          String          @id @default(cuid())
+  name        String
+  type        PlaylistType
+  isDefault   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       PlaylistItem[]  // A playlist can have many items
+
+  @@index([userId])
+}
+
+// Join table between Playlist & items (songs or movies)
+model PlaylistItem {
+  id          String   @id @default(cuid())
+  playlistId  String
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  
+  itemId      String   // ID of song or movie (from external source or internal storage)
+  itemName    String   // Optional: name of song or movie
+  addedAt     DateTime @default(now())
+
+  @@index([playlistId])
 }

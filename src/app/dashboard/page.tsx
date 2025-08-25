@@ -7,6 +7,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
+import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -33,6 +34,10 @@ export default function Dashboard() {
   }
   const handleMovieClick = (movieId: number) => {
   router.push(`/movie/watch/${movieId}`)
+}
+  const handleSongClick = (songId: number) => {
+    //there is type issue here
+  router.push(`/song/listen/${songId}`)
 }
 
   const supportedMoods = ['happy', 'sad']
@@ -64,7 +69,9 @@ export default function Dashboard() {
         {showRecommendations ? (
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
-            <MoodMusic mood={normalizedMood} />
+            {/* There is type issue with music onSongClick type */}
+            <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
+            
           </div>
         ) : currentMood ? (
           <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg text-center">
@@ -85,7 +92,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        
+
       </main>
     </div>
   )

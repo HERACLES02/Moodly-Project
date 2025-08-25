@@ -21,6 +21,7 @@ export async function GET() {
     })
     if (!user?.isBanned){
     return NextResponse.json({
+            id: user?.id,
             email: user?.email,
             anonymousName: user?.anonymousName,
             note: user?.note,
