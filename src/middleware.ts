@@ -8,10 +8,12 @@ export default auth((req) => {
  
   const isPublicRoute = nextUrl.pathname === "/login" ||
                         nextUrl.pathname === "/register" ||
-                        nextUrl.pathname === "/"
+                        nextUrl.pathname === "/" ||
+                        nextUrl.pathname.startsWith("/movie")  // Add this line
  
   const isProtectedRoute = nextUrl.pathname.startsWith("/dashboard") ||
-                           nextUrl.pathname.startsWith("/admin")
+                           nextUrl.pathname.startsWith("/admin") 
+                           
  
   // If not logged in and trying to access protected route
   if (!isLoggedIn && isProtectedRoute) {

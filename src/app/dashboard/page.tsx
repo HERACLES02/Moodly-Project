@@ -6,12 +6,14 @@ import "./dashboard.css"
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
+import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
   const backgroundImage = '/images/background.jpg'
   const { user } = useGetUser()
+  const router = useRouter()
 
   useEffect(() => {
     if (user?.mood) {
@@ -29,6 +31,9 @@ export default function Dashboard() {
     if (mood) {setCurrentMood(mood)}
     
   }
+  const handleMovieClick = (movieId: number) => {
+  router.push(`/movie/watch/${movieId}`)
+}
 
   const supportedMoods = ['happy', 'sad']
   const normalizedMood = currentMood?.toLowerCase()
@@ -58,7 +63,7 @@ export default function Dashboard() {
         {/* Mood-Based Recommendations Section */}
         {showRecommendations ? (
           <div className="mood-recommendations-section">
-            <MoodMovies mood={normalizedMood} />
+            <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
             <MoodMusic mood={normalizedMood} />
           </div>
         ) : currentMood ? (

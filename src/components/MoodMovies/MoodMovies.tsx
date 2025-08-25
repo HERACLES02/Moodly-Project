@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import './MoodMovies.css'
 
+
 interface Movie {
   id: number
   title: string
@@ -14,12 +15,14 @@ interface Movie {
 
 interface MoodMoviesProps {
   mood: string
+  onMovieClick: (movieId: number) => void
 }
 
-export default function MoodMovies({ mood }: MoodMoviesProps) {
+export default function MoodMovies({ mood, onMovieClick }: MoodMoviesProps) {
   const [movies, setMovies] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
 
   useEffect(() => {
     if (!mood) return
@@ -59,6 +62,7 @@ export default function MoodMovies({ mood }: MoodMoviesProps) {
           mood: mood
         })
       })
+      console.log("Movie click tracked in Database")
     } catch (err) {
       console.error('Error tracking interaction:', err)
     }
@@ -74,6 +78,10 @@ export default function MoodMovies({ mood }: MoodMoviesProps) {
       mood
     })
     await trackInteraction(movie)
+    onMovieClick(movie.id)
+
+
+    
   }
 
   if (loading)
