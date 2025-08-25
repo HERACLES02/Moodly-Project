@@ -36,24 +36,27 @@ export default function Dashboard() {
   router.push(`/movie/watch/${movieId}`)
 }
   const handleSongClick = (songId: number) => {
-    //there is type issue here
-  router.push(`/song/listen/${songId}`)
+    router.push(`/song/listen/${songId}`)
 }
 
   const supportedMoods = ['happy', 'sad']
   const normalizedMood = currentMood?.toLowerCase()
   const showRecommendations = normalizedMood && supportedMoods.includes(normalizedMood)
 
+  const getDashboardTheme = () => {
+    if (!normalizedMood) return 'dashboard-default'
+    return `dashboard-${normalizedMood}`
+  }
+
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image */}
-      {isMounted && (
-        <div className="fixed inset-0 -z-10">
+    <div className={`dashboard-container ${getDashboardTheme()}`}>
+      {!normalizedMood && isMounted && (
+        <div className="background-image">
           <Image
             src={backgroundImage}
             alt="Background"
             fill
-            className="object-cover"
+            className="background-img"
             priority
             quality={100}
           />
@@ -62,37 +65,29 @@ export default function Dashboard() {
 
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
-
-      <main className="container mx-auto px-4 py-8">
-
-        {/* Mood-Based Recommendations Section */}
+      <main className="main-content">
         {showRecommendations ? (
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
-            {/* There is type issue with music onSongClick type */}
             <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
-            
           </div>
         ) : currentMood ? (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg text-center">
-            <h2 className="text-2xl font-bold text-[#815FD0] mb-4">
+          <div className="content-card">
+            <h2 className="content-title accent-text">
               Coming Soon for {currentMood} mood!
             </h2>
-            <p className="text-gray-600">
+            <p className="content-text mood-text">
               We're currently curating personalized movie and music recommendations for "{currentMood}" mood.
               <br /><br />
-              <span className="font-semibold">Currently available for:</span>
+              <span className="content-highlight">Currently available for:</span>
               <br />
               Happy and Sad moods
             </p>
           </div>
         ) : (
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg text-center">
-            
+          <div className="content-card">
           </div>
         )}
-
-
       </main>
     </div>
   )
