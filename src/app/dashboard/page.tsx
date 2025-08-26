@@ -8,6 +8,7 @@ import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
 import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
+import LiveStreamComponent from '@/components/LiveStreamComponent'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -70,6 +71,23 @@ export default function Dashboard() {
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
             <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+      <button 
+        onClick={() => router.push(`/livestream/${normalizedMood}`)}
+        style={{
+          padding: '0.75rem 2rem',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          background: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        🔴 Join Live Session
+      </button>
+    </div>
           </div>
         ) : currentMood ? (
           <div className="content-card">
