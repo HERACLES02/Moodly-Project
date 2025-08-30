@@ -33,6 +33,8 @@ export default function Dashboard() {
     if (mood) {setCurrentMood(mood)}
     
   }
+
+  
   const handleMovieClick = (movieId: number) => {
   router.push(`/movie/watch/${movieId}`)
 }
@@ -64,7 +66,11 @@ export default function Dashboard() {
         </div>
       )}
 
-      <NavbarComponent onSelectMoodClick={handleMoodSelected} />
+      
+
+      <NavbarComponent />
+
+     
 
       <main className="main-content">
         {showRecommendations ? (
