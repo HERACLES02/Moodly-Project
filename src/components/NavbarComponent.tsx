@@ -6,6 +6,7 @@ import ProfileDropdown from "./ProfileDropdown"
 import { useState, useEffect } from "react"
 import NotesSection from "./NotesSection"
 import MoodSelector from "./MoodSelector"
+import PointsDisplay from "@/components/PointsDisplay"
 
 interface NavbarProps {
   onSelectMoodClick?: (mood: string) => void
@@ -65,11 +66,11 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
         <>
             <nav className="navbar">
                 <div className="moodlyImage">Moodly</div>
+                
 
                 <div className="UserSection">
-                    <div className="PointsSection">
-                        <span>⭐</span>
-                        <span>Your Points</span>
+                    <div >
+                        <PointsDisplay />
                     </div>
                     <span className="separator"></span>
                     <div>

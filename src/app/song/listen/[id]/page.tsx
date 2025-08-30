@@ -5,12 +5,17 @@ import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusi
 
 import { useGetUser } from '@/hooks/useGetUser'
 import './page.css'
+import { usePoints } from '@/hooks/usePoints'
+import { Heart } from 'lucide-react'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
     const [song, setSong] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
+    const { addPoints, isAdding } = usePoints()
+    const [hasEarnedWatchPoints, setHasEarnedWatchPoints] = useState(false)
+    const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
         const getParams = async () => {
@@ -25,6 +30,28 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
             fetchSongData()
         }
     }, [id])
+
+    useEffect(() => {
+        if (!hasEarnedWatchPoints && id) {
+            // Wait 5 seconds after page loads (assuming they started watching)
+            const timer = setTimeout(() => {
+                console.log(' Adding points for watching song:', id)
+                addPoints("watch", id, "song")
+                setHasEarnedWatchPoints(true)
+            }, 3000)
+
+            return () => clearTimeout(timer)
+        }
+    }, [id, hasEarnedWatchPoints]) // Use 'id' here, not params.id
+
+    const handleFavorite = () => {
+        if (!isFavorited && !isAdding) {
+            console.log(' Adding points for favoriting sonh:', id)
+            addPoints("favorite", id, "song")
+            setIsFavorited(true)
+            // Here you would also save the favorite to your database
+        }
+    }
 
     const fetchSongData = async () => {
         try {
@@ -88,7 +115,25 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                 </div>
                 <div className="next-up-section">
                     <AddMusicToPlaylistComponent itemId={id}/>
+                    <button
+                        onClick={handleFavorite}
+                        disabled={isAdding}
+                        className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
+                        title={isFavorited ? 'Favorited' : 'Add to Favorites (+5 points)'}
+                    >
+                        <Heart 
+                            className={`heart-icon ${isFavorited ? 'filled' : ''}`}
+                            fill={isFavorited ? 'currentColor' : 'none'}
+                        />
+                    </button>
                 </div>
+                {hasEarnedWatchPoints && (
+                <div className="points-notification">
+                    ✨ You earned 10 points for listening!
+                </div>
+                )}
+
+                
                 
             </div>
         </div>

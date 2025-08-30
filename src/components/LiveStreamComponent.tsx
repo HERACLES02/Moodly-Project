@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { LiveChatComponent } from './LiveChatComponenet'
+import { LiveChatComponent } from './LiveChatComponent'
+
 import './LiveStreamComponent.css'
 
 interface LiveStreamComponentProps {

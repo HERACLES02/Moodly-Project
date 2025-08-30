@@ -117,6 +117,67 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
   line-height: 1.2;
 }
 
+.favorite-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.favorite-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.favorite-button.favorited {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.favorite-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.heart-icon {
+    width: 24px;
+    height: 24px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.heart-icon.filled {
+    color: #ef4444;
+}
+
+.points-notification {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #22c55e;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    text-align: center;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 body.mood-happy .section-heading {
   color: #2D2D5A;
 }

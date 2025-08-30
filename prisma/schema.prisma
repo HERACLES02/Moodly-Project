@@ -60,6 +60,7 @@ model User {
   note          String    @default("")
   interactions  UserInteraction[]
   playlists     Playlist[]
+  points        Int      @default(0)
 
 }
 

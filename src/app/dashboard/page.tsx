@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetUser } from '@/hooks/useGetUser'
-import "./dashboard.css"
+import "@/app/dashboard/dashboard.css"
+
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
@@ -68,11 +69,12 @@ export default function Dashboard() {
 
       
 
-      <NavbarComponent />
+      <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
      
 
       <main className="main-content">
+        
         {showRecommendations ? (
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
