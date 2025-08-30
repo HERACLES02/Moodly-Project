@@ -102,7 +102,7 @@ export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentPro
       <div className="messages-container">
         {messages.length === 0 ? (
           <div className="no-messages">
-            Be the first to say something! 👋
+            
           </div>
         ) : (
           messages.map((msg, index) => (

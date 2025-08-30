@@ -80,12 +80,9 @@ export default function Dashboard() {
           fontWeight: '600',
           background: '#3b82f6',
           color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer'
         }}
       >
-        🔴 Join Live Session
+        Join Live Session
       </button>
     </div>
           </div>

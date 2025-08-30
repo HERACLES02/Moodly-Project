@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
+import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusicToPlaylistComponent'
+
 import { useGetUser } from '@/hooks/useGetUser'
 import './page.css'
 
@@ -12,8 +14,8 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
 
     useEffect(() => {
         const getParams = async () => {
-            const resolvedParams = await params
-            setId(resolvedParams.id)
+            const p = await params
+            setId(p.id)
         }
         getParams()
     }, [params])
@@ -82,13 +84,12 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                             {song.artists.map((artist: any) => artist.name).join(', ')}
                         </p>
                     )}
+                    
                 </div>
-
                 <div className="next-up-section">
-                    <h1 className="section-heading">Next up</h1>
-                    <p className="song-title">Song Name</p>
-                    <p className="artist-name">Artist Name</p>
+                    <AddMusicToPlaylistComponent itemId={id}/>
                 </div>
+                
             </div>
         </div>
         </>

@@ -9,9 +9,10 @@ interface PlaylistModalProps {
 
   itemId: string;
   onClose: () => void;
+  type: string
 }
 
-const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId }) => {
+const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId, type }) => {
     const { user, setUser } = useGetUser()
     const [playlists, setPlaylists] = useState(null)
     const [showNewPlaylist, setShowNewPlaylist] = useState(false);
@@ -21,7 +22,7 @@ const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId }) =>
     useEffect(() => {
   const getPlaylist = async () => {
     if (user?.id) {
-      const response = await fetch(`/api/playlist/get-playlist?userid=${user.id}`);
+      const response = await fetch(`/api/playlist/get-playlist?userid=${user.id}&type=${type}`)
       const returned_playlists = await response.json();
       setPlaylists(returned_playlists);
     }
@@ -32,7 +33,7 @@ const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId }) =>
 
   const getPlaylistAgain = async () => {
     if (user?.id) {
-      const response = await fetch(`/api/playlist/get-playlist?userid=${user.id}`);
+      const response = await fetch(`/api/playlist/get-playlist?userid=${user.id}&type=${type}`);
       const returned_playlists = await response.json();
       setPlaylists(returned_playlists);
     }
@@ -43,7 +44,7 @@ const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId }) =>
     const handleCretePlaylist = async ( name: string ) => {
         const response = await fetch('/api/playlist/create-playlist',
             {   method : "POST",
-                body: JSON.stringify({userid: user?.id, name })
+                body: JSON.stringify({userid: user?.id, name, type: type })
             }
         )
         

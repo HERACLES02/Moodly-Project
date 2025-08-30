@@ -185,6 +185,7 @@ body:not(.mood-happy):not(.mood-sad) .artist-name {
   .main-content-area {
     max-width: 90%;
     padding: 0 1rem;
+    
   }
   
   .section-heading {

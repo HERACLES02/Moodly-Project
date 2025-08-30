@@ -76,7 +76,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                     )}
                 </div>
                 <div className="movie-actions">
-                    <AddToPlaylistComponent itemId={id}/>
+                    <AddToPlaylistComponent type = "MOVIE" itemId={id}/>
                 </div>
             </div>
 
