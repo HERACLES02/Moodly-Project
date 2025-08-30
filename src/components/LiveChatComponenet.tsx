@@ -1,145 +1,109 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import { io, Socket } from 'socket.io-client'
-import './LiveChatComponent.css'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { useGetUser } from '@/hooks/useGetUser'
+import "./dashboard.css"
+import NavbarComponent from '@/components/NavbarComponent'
+import MoodMovies from '@/components/MoodMovies/MoodMovies'
+import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
+import { useRouter } from 'next/navigation'
+import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
+import LiveStreamComponent from '@/components/LiveStreamComponent'
 
-interface ChatMessage {
-  message: string
-  username: string
-  timestamp: Date
-  type: 'user' | 'system'
-}
-
-interface LiveChatComponentProps {
-  streamId: string
-  user: any
-  mood: string
-}
-
-export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentProps) {
-    const userName = user?.anonymousName
-  const [socket, setSocket] = useState<Socket | null>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [inputMessage, setInputMessage] = useState('')
-  const [isConnected, setIsConnected] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+export default function Dashboard() {
+  const [isMounted, setIsMounted] = useState(false)
+  const [currentMood, setCurrentMood] = useState<string | null>(null)
+  const backgroundImage = '/images/background.jpg'
+  const { user } = useGetUser()
+  const router = useRouter()
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  useEffect(() => {
-    const newSocket = io('http://localhost:9513')
-
-    newSocket.on('connect', () => {
-      console.log('Connected to chat server')
-      setIsConnected(true)
-      
-      newSocket.emit('join-stream', {
-        streamId: streamId,
-        username: userName
-      })
-    })
-
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from chat server')
-      setIsConnected(false)
-    })
-
-    newSocket.on('new-message', (messageData: ChatMessage) => {
-      setMessages(prevMessages => [...prevMessages, messageData])
-    })
-
-    newSocket.on('user-joined', (messageData) => {
-      setMessages(prevMessages => [...prevMessages, messageData])
-    })
-
-    setSocket(newSocket)
-
-    return () => {
-      newSocket.close()
+    if (user?.mood) {
+      setCurrentMood(user.mood)
+      console.log('Dashboard: User mood from context:', user.mood)
     }
-  }, [streamId, userName])
+  }, [user?.mood])
 
-  const sendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const handleMoodSelected = (mood: string) => {
+    console.log('Dashboard received mood from navbar:', mood)
+    if (mood) {setCurrentMood(mood)}
     
-    if (!inputMessage.trim() || !socket || !isConnected) {
-      return
-    }
-
-    socket.emit('send-message', {
-      streamId: streamId,
-      message: inputMessage.trim(),
-      username: userName || 'Anonymous User'
-    })
-
-    setInputMessage('')
   }
+  const handleMovieClick = (movieId: number) => {
+  router.push(`/movie/watch/${movieId}`)
+}
+  const handleSongClick = (songId: number) => {
+    router.push(`/song/listen/${songId}`)
+}
 
-  const formatTime = (timestamp: Date) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    })
+  const supportedMoods = ['happy', 'sad']
+  const normalizedMood = currentMood?.toLowerCase()
+  const showRecommendations = normalizedMood && supportedMoods.includes(normalizedMood)
+
+  const getDashboardTheme = () => {
+    if (!normalizedMood) return 'dashboard-default'
+    return `dashboard-${normalizedMood}`
   }
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h3>Live Chat</h3>
-        <div className="connection-status">
-          <span className={`connection-dot ${isConnected ? 'connected' : 'disconnected'}`}>●</span>
-          <span className="connection-text">{isConnected ? 'Connected' : 'Connecting...'}</span>
+    <div className={`dashboard-container ${getDashboardTheme()}`}>
+      {!normalizedMood && isMounted && (
+        <div className="background-image">
+          <Image
+            src={backgroundImage}
+            alt="Background"
+            fill
+            className="background-img"
+            priority
+            quality={100}
+          />
         </div>
-      </div>
+      )}
 
-      <div className="messages-container">
-        {messages.length === 0 ? (
-          <div className="no-messages">
-            Be the first to say something! 👋
+      <NavbarComponent onSelectMoodClick={handleMoodSelected} />
+
+      <main className="main-content">
+        {showRecommendations ? (
+          <div className="mood-recommendations-section">
+            <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
+            <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+      <button 
+        onClick={() => router.push(`/livestream/${normalizedMood}`)}
+        style={{
+          padding: '0.75rem 2rem',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          background: '#3b82f6',
+          color: 'white',
+        }}
+      >
+        Join Live Session
+      </button>
+    </div>
+          </div>
+        ) : currentMood ? (
+          <div className="content-card">
+            <h2 className="content-title accent-text">
+              Coming Soon for {currentMood} mood!
+            </h2>
+            <p className="content-text mood-text">
+              We're currently curating personalized movie and music recommendations for "{currentMood}" mood.
+              <br /><br />
+              <span className="content-highlight">Currently available for:</span>
+              <br />
+              Happy and Sad moods
+            </p>
           </div>
         ) : (
-          messages.map((msg, index) => (
-            <div key={index} className={`message ${msg.type}`}>
-              {msg.type === 'system' ? (
-                <span className="system-message-text">{msg.message}</span>
-              ) : (
-                <>
-                  <span className="message-time">{formatTime(msg.timestamp)}</span>
-                  <span className="username">{msg.username}:</span>
-                  <span className="message-text">{msg.message}</span>
-                </>
-              )}
-            </div>
-          ))
+          <div className="content-card">
+          </div>
         )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <form onSubmit={sendMessage} className="message-input-form">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder={isConnected ? "Type your message..." : "Connecting..."}
-          disabled={!isConnected}
-          className="message-input"
-          maxLength={200}
-        />
-        <button 
-          type="submit" 
-          disabled={!isConnected || !inputMessage.trim()}
-          className="send-button"
-        >
-          Send
-        </button>
-      </form>
+      </main>
     </div>
   )
 }

@@ -6,10 +6,13 @@ export async function GET(request: Request){
 
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userid')
+    const playlistType = searchParams.get('type')
 
     if (userId){
         const playlists = await prisma.Playlist.findMany({
-        where: { userId: userId }
+        where: { userId: userId,
+            type: playlistType
+         }
         });
     
     console.log(playlists)
