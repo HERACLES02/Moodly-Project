@@ -10,14 +10,12 @@ export function usePoints() {
     mediaId?: string,
     mediaType?: "movie" | "song"
   ) => {
-    // Prevent double-clicking
     if (isAdding) return;
     
     setIsAdding(true);
 
     try {
-      // Log what we're doing
-      console.log( `Adding points for: ${action} ${mediaType || ''}`);
+      console.log(`Adding points for: ${action} ${mediaType || ''}`);
       
       const response = await fetch("/api/points/add", {
         method: "POST",
@@ -32,21 +30,30 @@ export function usePoints() {
       const data = await response.json();
 
       if (data.success) {
-        // Show success in terminal
-        console.log('✅ SUCCESS!');
-        console.log('🎉 Points Added: ',data.pointsAdded);
-        console.log('💰 Total Points Now: ',data.totalPoints);
-        console.log('📝 Message: ',data.message);
+        console.log(' SUCCESS!');
+        console.log(' Points Added:', data.pointsAdded);
+        console.log(' Total Points Now:', data.totalPoints);
+        console.log('Message:', data.message);
+        
+        if (data.weeklyBonus) {
+          console.log(' WEEKLY BONUS!');
+          console.log(' Bonus Points:', data.weeklyBonus.points);
+          console.log(' Bonus Message:', data.weeklyBonus.message);
+          
+          window.dispatchEvent(new CustomEvent("weeklyBonusEarned", {
+            detail: data.weeklyBonus
+          }));
+        }
+        
         console.log('------------------------');
 
-        // Trigger event to update points display
         window.dispatchEvent(new Event("pointsEarned"));
       } else {
-        console.error('❌ Failed to add points:', data.error);
+        console.error(' Failed to add points:', data.error);
       }
 
     } catch (error) {
-      console.error("❌ Error adding points:", error);
+      console.error(" Error adding points:", error);
     } finally {
       setIsAdding(false);
     }

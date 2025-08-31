@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusicToPlaylistComponent'
-
 import { useGetUser } from '@/hooks/useGetUser'
 import './page.css'
 import { usePoints } from '@/hooks/usePoints'
@@ -14,7 +13,7 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
     const { addPoints, isAdding } = usePoints()
-    const [hasEarnedWatchPoints, setHasEarnedWatchPoints] = useState(false)
+    const [hasEarnedListenPoints, setHasEarnedListenPoints] = useState(false)
     const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
@@ -32,24 +31,22 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
     }, [id])
 
     useEffect(() => {
-        if (!hasEarnedWatchPoints && id) {
-            // Wait 5 seconds after page loads (assuming they started watching)
+        if (!hasEarnedListenPoints && id) {
             const timer = setTimeout(() => {
-                console.log(' Adding points for watching song:', id)
-                addPoints("watch", id, "song")
-                setHasEarnedWatchPoints(true)
+                console.log(' Adding points for listening song:', id)
+                addPoints("listen", id, "song")
+                setHasEarnedListenPoints(true)
             }, 3000)
 
             return () => clearTimeout(timer)
         }
-    }, [id, hasEarnedWatchPoints]) // Use 'id' here, not params.id
+    }, [id, hasEarnedListenPoints]) 
 
     const handleFavorite = () => {
         if (!isFavorited && !isAdding) {
-            console.log(' Adding points for favoriting sonh:', id)
+            console.log(' Adding points for favoriting song:', id)
             addPoints("favorite", id, "song")
             setIsFavorited(true)
-            // Here you would also save the favorite to your database
         }
     }
 
@@ -127,9 +124,9 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                         />
                     </button>
                 </div>
-                {hasEarnedWatchPoints && (
+                {hasEarnedListenPoints && (
                 <div className="points-notification">
-                    ✨ You earned 10 points for listening!
+                     You earned 10 points for listening!
                 </div>
                 )}
 

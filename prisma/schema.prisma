@@ -61,6 +61,11 @@ model User {
   interactions  UserInteraction[]
   playlists     Playlist[]
   points        Int      @default(0)
+  lastLoginAt    DateTime?
+  loginStreak   Int      @default(0)
+  pointHistory  PointHistory[]
+  weeklyActvities WeeklyActivity[]
+
 
 }
 
@@ -132,4 +137,27 @@ model PlaylistItem {
   @@index([playlistId])
 }
 
+model PointHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int
+  reason    String
+  createdAt DateTime @default(now())
 
+  @@index([userId])
+}
+
+model WeeklyActivity {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart     DateTime
+  moviesWatched Int      @default(0)
+  songsListened Int      @default(0)
+  bonusClaimed  Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId, weekStart])
+}

@@ -1,0 +1,141 @@
+.weekly-progress-compact {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(74, 51, 134, 0.5); 
+  backdrop-filter: blur(10px);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Icons */
+.progress-icon {
+  width: 16px;
+  height: 16px;
+  color: #ffffff; 
+  flex-shrink: 0;
+}
+
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  width: 60px;
+  height: 6px;
+  background: rgb(55, 14, 131); 
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-fill-movie {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.progress-fill-song {
+  background: linear-gradient(90deg, #a855f7, #c084fc);
+}
+
+.progress-text {
+  font-size: 11px;
+  color: #ffffff;
+  white-space: nowrap;
+  min-width: 20px;
+}
+
+.bonus-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  margin-left: 0.25rem;
+  animation: pulse-glow 2s infinite;
+}
+
+.trophy-icon {
+  width: 14px;
+  height: 14px;
+  color: white;
+}
+
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0);
+  }
+}
+
+.progress-item:hover .progress-icon {
+  color: #d1d5db;
+}
+
+.progress-item:hover .progress-text {
+  color: #d1d5db;
+}
+
+@media (max-width: 768px) {
+  .weekly-progress-compact {
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .progress-bar {
+    width: 50px;
+  }
+  
+  .progress-text {
+    font-size: 10px;
+  }
+  
+  .progress-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .weekly-progress-compact {
+    gap: 0.25rem;
+    padding: 0.3rem 0.5rem;
+  }
+  
+  .progress-bar {
+    width: 40px;
+    height: 5px;
+  }
+  
+  .progress-text {
+    display: none; 
+  }
+  
+  .progress-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+
+

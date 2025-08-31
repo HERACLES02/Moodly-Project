@@ -8,8 +8,8 @@ import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
-import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
-import LiveStreamComponent from '@/components/LiveStreamComponent'
+
+
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -70,11 +70,12 @@ export default function Dashboard() {
       
 
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
+      
+
 
      
 
       <main className="main-content">
-        
         {showRecommendations ? (
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
