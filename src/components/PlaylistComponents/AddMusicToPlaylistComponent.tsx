@@ -3,16 +3,12 @@
 import { useState } from 'react'
 import './addtoplaylist.css'
 import PlaylistComponent from './PlaylistComponent'
-
-interface AddtoPlaylistProps {
+interface AddMusictoPlaylistProps {
   type: string,
   itemId: string
 }
 
-
-
-
-export default function MoodSelector({ itemId, type }:  AddtoPlaylistProps) {
+export default function AddMusicToPlaylistComponent({ itemId, type }:  AddMusictoPlaylistProps) {
   const [showPlaylist, setShowPlaylist ] = useState(false)
 
   const handlePlaylist = async () =>{
@@ -28,7 +24,7 @@ export default function MoodSelector({ itemId, type }:  AddtoPlaylistProps) {
 
     return (
         <>
-        {showPlaylist && <PlaylistComponent type = "MOVIE" itemId= {itemId} onClose={() => {setShowPlaylist(false)}}/>}
+        {showPlaylist && <PlaylistComponent type = "SONG" itemId= {itemId} onClose={() => {setShowPlaylist(false)}}/>}
         <button className="action-button" title="Add to favorites" onClick={handlePlaylist}>
                         +
                     </button>

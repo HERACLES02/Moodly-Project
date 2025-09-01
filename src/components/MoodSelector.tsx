@@ -23,7 +23,6 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
     { name: 'Grateful', color: 'bg-green-300' }
   ]
 
-  // Close modal when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -33,7 +32,7 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
     
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [onClose]) // Added dependency
+  }, [onClose]) 
 
   const handleMoodSelect = async (moodName: string) => {
     setIsLoading(true)
@@ -48,7 +47,6 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
       const data = await response.json()
 
       if (response.ok) {
-        // Update user mood in context
         if (user) {
           setUser({ ...user, mood: moodName })
         }
@@ -56,7 +54,6 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
         
         console.log('Mood saved to user:', data.message)
         
-        // Close immediately after successful save
         onMoodSelect?.(moodName)
         handleClose()
       } else {
@@ -83,7 +80,7 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
         ref={modalRef}
         className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 mx-4"
       >
-        <h3 className="text-xl font-bold text-[#815FD0] mb-4">Select Your Mood</h3>
+        <h3 className="text-xl font-bold text-[#815FD0] mb-4">Select Your Mood {user?.mood ? `(Current: ${user.mood})` : ''}</h3>
         
         <div className="space-y-2">
           {moodOptions.map((mood) => (
@@ -91,7 +88,7 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
               key={mood.name}
               onClick={() => handleMoodSelect(mood.name)}
               disabled={isLoading}
-              className="flex items-center w-full p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex items-center w-full p-3 hover:bg-[#9d5fd0] rounded-lg transition-colors"
             >
               <span className={`w-4 h-4 rounded-full mr-3 ${mood.color}`} />
               <span className="text-gray-800">{mood.name}</span>

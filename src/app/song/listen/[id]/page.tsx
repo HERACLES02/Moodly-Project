@@ -1,19 +1,25 @@
 'use client'
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
+import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusicToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import './page.css'
+import { usePoints } from '@/hooks/usePoints'
+import { Heart } from 'lucide-react'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
     const [song, setSong] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
+    const { addPoints, isAdding } = usePoints()
+    const [hasEarnedListenPoints, setHasEarnedListenPoints] = useState(false)
+    const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
         const getParams = async () => {
-            const resolvedParams = await params
-            setId(resolvedParams.id)
+            const p = await params
+            setId(p.id)
         }
         getParams()
     }, [params])
@@ -23,6 +29,26 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
             fetchSongData()
         }
     }, [id])
+
+    useEffect(() => {
+        if (!hasEarnedListenPoints && id) {
+            const timer = setTimeout(() => {
+                console.log(' Adding points for listening song:', id)
+                addPoints("listen", id, "song")
+                setHasEarnedListenPoints(true)
+            }, 3000)
+
+            return () => clearTimeout(timer)
+        }
+    }, [id, hasEarnedListenPoints]) 
+
+    const handleFavorite = () => {
+        if (!isFavorited && !isAdding) {
+            console.log(' Adding points for favoriting song:', id)
+            addPoints("favorite", id, "song")
+            setIsFavorited(true)
+        }
+    }
 
     const fetchSongData = async () => {
         try {
@@ -82,13 +108,30 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                             {song.artists.map((artist: any) => artist.name).join(', ')}
                         </p>
                     )}
+                    
                 </div>
-
                 <div className="next-up-section">
-                    <h1 className="section-heading">Next up</h1>
-                    <p className="song-title">Song Name</p>
-                    <p className="artist-name">Artist Name</p>
+                    <AddMusicToPlaylistComponent itemId={id}/>
+                    <button
+                        onClick={handleFavorite}
+                        disabled={isAdding}
+                        className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
+                        title={isFavorited ? 'Favorited' : 'Add to Favorites (+5 points)'}
+                    >
+                        <Heart 
+                            className={`heart-icon ${isFavorited ? 'filled' : ''}`}
+                            fill={isFavorited ? 'currentColor' : 'none'}
+                        />
+                    </button>
                 </div>
+                {hasEarnedListenPoints && (
+                <div className="points-notification">
+                     You earned 10 points for listening!
+                </div>
+                )}
+
+                
+                
             </div>
         </div>
         </>

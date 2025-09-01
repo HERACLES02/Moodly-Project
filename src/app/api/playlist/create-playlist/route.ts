@@ -3,12 +3,12 @@ import { NextResponse } from "next/server"
 
 export async function POST(request: Request){
     
-    const { userid, name} = await request.json()
+    const { userid, name, type} = await request.json()
     
     const playlist = await prisma.Playlist.create({
       data: {
         name: name,
-        type: "MOVIE",
+        type: type,
         userId: userid,
       },
     });

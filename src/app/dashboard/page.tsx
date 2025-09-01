@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetUser } from '@/hooks/useGetUser'
-import "./dashboard.css"
+import "@/app/dashboard/dashboard.css"
+
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
-import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
+
+
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -32,6 +34,8 @@ export default function Dashboard() {
     if (mood) {setCurrentMood(mood)}
     
   }
+
+  
   const handleMovieClick = (movieId: number) => {
   router.push(`/movie/watch/${movieId}`)
 }
@@ -56,13 +60,33 @@ export default function Dashboard() {
         </div>
       )}
 
+      
+
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
+      
+
+
+     
 
       <main className="main-content">
         {showRecommendations ? (
           <div className="mood-recommendations-section">
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
             <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+      <button 
+        onClick={() => router.push(`/livestream/${normalizedMood}`)}
+        style={{
+          padding: '0.75rem 2rem',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          background: '#3b82f6',
+          color: 'white',
+        }}
+      >
+        Join Live Session
+      </button>
+    </div>
           </div>
         ) : currentMood ? (
           <div className="content-card">
