@@ -58,6 +58,7 @@ model User {
   sessions      Session[]
   mood          String    @default("")
   note          String    @default("")
+  currentTheme  String    @default("default")
   interactions  UserInteraction[]
   playlists     Playlist[]
   points        Int      @default(0)
