@@ -50,9 +50,10 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
 
     const embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${id}`
     
-    return (
-        <div className={`watch-page-container ${getThemeClass()}`}>
-            <NavbarComponent/>
+    return (<>
+    <NavbarComponent/>
+     <div className={`watch-page-container ${getThemeClass()}`}>
+            
             
             <div className="video-container">
                 <iframe
@@ -108,5 +109,8 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                 )}
             </div>
         </div>
+    
+    </>
+       
     )
 }

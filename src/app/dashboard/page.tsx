@@ -52,14 +52,7 @@ export default function Dashboard() {
     <div className={`dashboard-container ${getDashboardTheme()}`}>
       {!normalizedMood && isMounted && (
         <div className="background-image">
-          <Image
-            src={backgroundImage}
-            alt="Background"
-            fill
-            className="background-img"
-            priority
-            quality={100}
-          />
+         
         </div>
       )}
 
