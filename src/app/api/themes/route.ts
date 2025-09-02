@@ -4,7 +4,8 @@ import { auth } from '@/auth'
 
 const AVAILABLE_THEMES = {
   'van-gogh': { pointsRequired: 3, name: 'Van Gogh' },
-  'cat': { pointsRequired: 6, name: 'Cat' }
+  'cat': { pointsRequired: 6, name: 'Cat' },
+  'default': { pointsRequired: 0, name: 'Default' },
 }
 
 export async function POST(req: Request) {
@@ -40,42 +41,58 @@ export async function POST(req: Request) {
     }
 
     const theme = AVAILABLE_THEMES[themeId as keyof typeof AVAILABLE_THEMES]
+// Replace the entire redeem section in your existing /api/themes/route.ts
 
-    if (action === 'redeem') {
-      // Check if user has enough points
-      if (user.points < theme.pointsRequired) {
-        return NextResponse.json(
-          { error: `Not enough points. Need ${theme.pointsRequired}, have ${user.points}` },
-          { status: 400 }
-        )
-      }
+if (action === 'redeem') {
+  // Check if user already owns this theme
+  const currentUnlocked = user.unlockedThemes ? user.unlockedThemes.split(',') : []
+  if (currentUnlocked.includes(themeId)) {
+    return NextResponse.json(
+      { error: 'You already own this theme!' },
+      { status: 400 }
+    )
+  }
 
-      // Deduct points and apply theme
-      const updatedUser = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          points: { decrement: theme.pointsRequired },
-          currentTheme: themeId
-        }
-      })
+  // Check if user has enough points
+  if (user.points < theme.pointsRequired) {
+    return NextResponse.json(
+      { error: `Not enough points. Need ${theme.pointsRequired}, have ${user.points}` },
+      { status: 400 }
+    )
+  }
 
-      // Record point history
-      await prisma.pointHistory.create({
-        data: {
-          userId: user.id,
-          points: -theme.pointsRequired,
-          reason: `theme_unlock_${themeId}`
-        }
-      })
+  // Add theme to unlocked themes
+  const newUnlockedThemes = currentUnlocked.length > 0 
+    ? `${user.unlockedThemes},${themeId}`
+    : themeId
 
-      return NextResponse.json({
-        success: true,
-        message: `${theme.name} theme unlocked and applied!`,
-        newPoints: updatedUser.points,
-        currentTheme: themeId
-      })
+  // Deduct points, add to unlocked themes, and apply theme
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      points: { decrement: theme.pointsRequired },
+      unlockedThemes: newUnlockedThemes,
+      currentTheme: themeId
+    }
+  })
 
-    } else if (action === 'apply') {
+  // Record point history
+  await prisma.pointHistory.create({
+    data: {
+      userId: user.id,
+      points: -theme.pointsRequired,
+      reason: `theme_unlock_${themeId}`
+    }
+  })
+
+  return NextResponse.json({
+    success: true,
+    message: `${theme.name} theme unlocked and applied!`,
+    newPoints: updatedUser.points,
+    currentTheme: themeId
+  })
+}
+     else if (action === 'apply') {
       // Just apply the theme (user already unlocked it)
       const updatedUser = await prisma.user.update({
         where: { id: user.id },

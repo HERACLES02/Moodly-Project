@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import NavbarComponent from '@/components/NavbarComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import './userpage.css'
+import '@/components/ThemeOverrides.css' 
 
 export default function UserPage() {
   const { user } = useGetUser()
@@ -20,6 +21,16 @@ export default function UserPage() {
       console.log('UserPage: User mood from context:', user.mood)
     }
   }, [user?.mood])
+
+  useEffect(() => {
+  if (user?.currentTheme) {
+    console.log('UserPage: Applying theme:', user.currentTheme)
+    // Remove any existing theme classes
+    document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default')
+    // Add the current theme class
+    document.body.classList.add(`theme-${user.currentTheme}`)
+  }
+}, [user?.currentTheme])
 
   useEffect(() => {
     if (user?.id) {

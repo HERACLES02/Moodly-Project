@@ -2,42 +2,100 @@
 
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
+import { useGetUser } from '@/hooks/useGetUser'  // Add this import
+import '@/components/ThemeOverrides.css'        // Add this import
 import './themes.css'
 
 export default function ThemesPage() {
   const [userPoints, setUserPoints] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [unlockedThemes, setUnlockedThemes] = useState<string[]>([])
+  const [currentTheme, setCurrentTheme] = useState('default')
+  const { user } = useGetUser()  // Add this line
+
+  // Add this useEffect for theme application
+  useEffect(() => {
+    if (user?.currentTheme) {
+      console.log('ThemesPage: Applying theme:', user.currentTheme)
+      // Remove any existing theme and mood classes
+      document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+      
+      // If it's default theme, apply mood class instead
+      if (user.currentTheme === 'default') {
+        if (user.mood) {
+          document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
+          console.log('ThemesPage: Applied mood class for default theme:', user.mood.toLowerCase())
+        }
+      } else {
+        // Apply premium theme class
+        document.body.classList.add(`theme-${user.currentTheme}`)
+      }
+    }
+  }, [user?.currentTheme, user?.mood])
 
   useEffect(() => {
-    fetchUserPoints()
+    fetchUserData()
   }, [])
 
-  const fetchUserPoints = async () => {
+  const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/points/get')
+      const response = await fetch('/api/themes')
       const data = await response.json()
       setUserPoints(data.points || 0)
+      setCurrentTheme(data.currentTheme || 'default')
+      
+      // Get unlocked themes
+      const userResponse = await fetch('/api/themes/unlocked')
+      const userData = await userResponse.json()
+      setUnlockedThemes(userData.unlockedThemes || [])
     } catch (error) {
-      console.error('Error fetching points:', error)
+      console.error('Error fetching user data:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleRedeemVanGogh = () => {
-    if (userPoints >= 3) {
-      alert('Van Gogh theme unlocked! (This will deduct 3 points)')
-    } else {
-      alert(`You need 3 points to unlock Van Gogh theme. You have ${userPoints} points.`)
+  const handleThemeAction = async (themeId: string, action: 'redeem' | 'apply') => {
+    try {
+      const response = await fetch('/api/themes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeId, action })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(data.message)
+        // Refresh user data
+        await fetchUserData()
+        // Refresh page to apply theme immediately
+        window.location.reload()
+      } else {
+        alert(data.error || 'Something went wrong')
+      }
+    } catch (error) {
+      console.error('Error with theme action:', error)
+      alert('Failed to process theme request')
     }
   }
 
-  const handleRedeemCat = () => {
-    if (userPoints >= 6) {
-      alert('Cat theme unlocked! (This will deduct 6 points)')
-    } else {
-      alert(`You need 6 points to unlock Cat theme. You have ${userPoints} points.`)
+  const isThemeUnlocked = (themeId: string) => {
+    return unlockedThemes.includes(themeId)
+  }
+
+  const getButtonText = (themeId: string, pointsRequired: number) => {
+    if (isThemeUnlocked(themeId)) {
+      return currentTheme === themeId ? 'CURRENTLY ACTIVE' : 'APPLY THEME'
     }
+    return userPoints >= pointsRequired ? 'REDEEM NOW' : `NEED ${pointsRequired - userPoints} MORE`
+  }
+
+  const getButtonClass = (themeId: string, pointsRequired: number) => {
+    if (isThemeUnlocked(themeId)) {
+      return currentTheme === themeId ? 'current-theme' : 'can-apply'
+    }
+    return userPoints >= pointsRequired ? 'can-redeem' : 'cannot-redeem'
   }
 
   if (loading) {
@@ -79,11 +137,11 @@ export default function ThemesPage() {
               
               <div className="theme-actions">
                 <button 
-                  onClick={handleRedeemVanGogh}
-                  className={`redeem-button ${userPoints >= 3 ? 'can-redeem' : 'cannot-redeem'}`}
-                  disabled={userPoints < 3}
+                  onClick={() => handleThemeAction('van-gogh', isThemeUnlocked('van-gogh') ? 'apply' : 'redeem')}
+                  className={`redeem-button ${getButtonClass('van-gogh', 3)}`}
+                  disabled={!isThemeUnlocked('van-gogh') && userPoints < 3}
                 >
-                  {userPoints >= 3 ? 'REDEEM NOW' : `NEED ${3 - userPoints} MORE`}
+                  {getButtonText('van-gogh', 3)}
                 </button>
               </div>
             </div>
@@ -98,11 +156,11 @@ export default function ThemesPage() {
               
               <div className="theme-actions">
                 <button 
-                  onClick={handleRedeemCat}
-                  className={`redeem-button ${userPoints >= 6 ? 'can-redeem' : 'cannot-redeem'}`}
-                  disabled={userPoints < 6}
+                  onClick={() => handleThemeAction('cat', isThemeUnlocked('cat') ? 'apply' : 'redeem')}
+                  className={`redeem-button ${getButtonClass('cat', 6)}`}
+                  disabled={!isThemeUnlocked('cat') && userPoints < 6}
                 >
-                  {userPoints >= 6 ? 'REDEEM NOW' : `NEED ${6 - userPoints} MORE`}
+                  {getButtonText('cat', 6)}
                 </button>
               </div>
             </div>

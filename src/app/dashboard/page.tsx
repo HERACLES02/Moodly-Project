@@ -3,13 +3,12 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetUser } from '@/hooks/useGetUser'
 import "@/app/dashboard/dashboard.css"
+import '@/components/ThemeOverrides.css'  // Add this import
 
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
-
-
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -25,6 +24,31 @@ export default function Dashboard() {
     }
   }, [user?.mood])
 
+  // Add this new useEffect for theme
+  useEffect(() => {
+    if (user?.currentTheme) {
+      console.log('Dashboard: Applying theme:', user.currentTheme)
+      // Remove any existing theme classes
+      document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default')
+      
+      // If it's default theme, apply mood class instead
+      if (user.currentTheme === 'default') {
+        // Remove any existing mood classes first
+        document.body.classList.remove('mood-happy', 'mood-sad')
+        // Apply current mood class if exists
+        if (user.mood) {
+          document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
+          console.log('Dashboard: Applied mood class for default theme:', user.mood.toLowerCase())
+        }
+      } else {
+        // Remove mood classes when using premium theme
+        document.body.classList.remove('mood-happy', 'mood-sad')
+        // Add the premium theme class
+        document.body.classList.add(`theme-${user.currentTheme}`)
+      }
+    }
+  }, [user?.currentTheme, user?.mood])
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -32,16 +56,15 @@ export default function Dashboard() {
   const handleMoodSelected = (mood: string) => {
     console.log('Dashboard received mood from navbar:', mood)
     if (mood) {setCurrentMood(mood)}
-    
   }
 
-  
   const handleMovieClick = (movieId: number) => {
-  router.push(`/movie/watch/${movieId}`)
-}
+    router.push(`/movie/watch/${movieId}`)
+  }
+
   const handleSongClick = (songId: number) => {
     router.push(`/song/listen/${songId}`)
-}
+  }
 
   const supportedMoods = ['happy', 'sad']
   const normalizedMood = currentMood?.toLowerCase()
@@ -56,17 +79,10 @@ export default function Dashboard() {
     <div className={`dashboard-container ${getDashboardTheme()}`}>
       {!normalizedMood && isMounted && (
         <div className="background-image">
-         
         </div>
       )}
 
-      
-
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
-      
-
-
-     
 
       <main className="main-content">
         {showRecommendations ? (
@@ -74,19 +90,19 @@ export default function Dashboard() {
             <MoodMovies mood={normalizedMood} onMovieClick = {handleMovieClick}/>
             <MoodMusic mood={normalizedMood} onSongClick= {handleSongClick}/>
             <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-      <button 
-        onClick={() => router.push(`/livestream/${normalizedMood}`)}
-        style={{
-          padding: '0.75rem 2rem',
-          fontSize: '1.1rem',
-          fontWeight: '600',
-          background: '#3b82f6',
-          color: 'white',
-        }}
-      >
-        Join Live Session
-      </button>
-    </div>
+              <button 
+                onClick={() => router.push(`/livestream/${normalizedMood}`)}
+                style={{
+                  padding: '0.75rem 2rem',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  background: '#3b82f6',
+                  color: 'white',
+                }}
+              >
+                Join Live Session
+              </button>
+            </div>
           </div>
         ) : currentMood ? (
           <div className="content-card">

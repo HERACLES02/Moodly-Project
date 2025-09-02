@@ -1,0 +1,296 @@
+/* Van Gogh Gothic Theme - Global Styles */
+
+/* Base Van Gogh Theme */
+body.theme-vangogh {
+  background: linear-gradient(135deg, 
+    rgba(13, 13, 35, 0.95) 0%, 
+    rgba(25, 25, 60, 0.9) 25%, 
+    rgba(45, 27, 105, 0.85) 50%, 
+    rgba(25, 25, 112, 0.9) 75%, 
+    rgba(13, 13, 35, 0.95) 100%
+  ), 
+  url('/images/themes/vangogh-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: #e6e6fa;
+  transition: all 0.8s ease;
+}
+
+/* Navbar Van Gogh Theme */
+body.theme-vangogh .navbar {
+  background: linear-gradient(90deg, 
+    rgba(13, 13, 35, 0.9) 0%, 
+    rgba(25, 25, 60, 0.8) 50%, 
+    rgba(13, 13, 35, 0.9) 100%
+  ) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.theme-vangogh .moodlyImage {
+  color: #ffd700 !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.7) !important;
+  font-weight: 800 !important;
+}
+
+body.theme-vangogh .points-display-container {
+  background: linear-gradient(45deg, 
+    rgba(25, 25, 60, 0.8), 
+    rgba(45, 27, 105, 0.6)
+  ) !important;
+  border: 2px solid rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2) !important;
+}
+
+body.theme-vangogh .points-label,
+body.theme-vangogh .points-value {
+  color: #ffd700 !important;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Dashboard Van Gogh Theme */
+body.theme-vangogh .dashboard-container {
+  background: linear-gradient(135deg, 
+    rgba(13, 13, 35, 0.95) 0%, 
+    rgba(25, 25, 60, 0.9) 25%, 
+    rgba(45, 27, 105, 0.85) 50%, 
+    rgba(25, 25, 112, 0.9) 75%, 
+    rgba(13, 13, 35, 0.95) 100%
+  ), 
+  url('/images/themes/vangogh-bg.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body.theme-vangogh .content-card {
+  background: linear-gradient(135deg, 
+    rgba(25, 25, 60, 0.8) 0%, 
+    rgba(45, 27, 105, 0.6) 100%
+  ) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6) !important;
+  color: #e6e6fa !important;
+}
+
+body.theme-vangogh .mood-text {
+  color: #dda0dd !important;
+  text-shadow: 0 0 8px rgba(221, 160, 221, 0.4) !important;
+}
+
+body.theme-vangogh .accent-text {
+  color: #ffd700 !important;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6) !important;
+}
+
+/* Movie/Music Containers Van Gogh Theme */
+body.theme-vangogh .mood-movies-container,
+body.theme-vangogh .mood-music-container {
+  background: linear-gradient(135deg, 
+    rgba(25, 25, 60, 0.7) 0%, 
+    rgba(45, 27, 105, 0.5) 100%
+  ), 
+  url('/images/themes/vangogh-bg.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(15px) !important;
+  border: 2px solid rgba(255, 215, 0, 0.2) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.theme-vangogh .mood-movies-title,
+body.theme-vangogh .mood-music-title {
+  color: #ffd700 !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.7) !important;
+}
+
+/* Movie/Music Cards Van Gogh Theme */
+body.theme-vangogh .mood-movie-card,
+body.theme-vangogh .mood-music-card {
+  background: rgba(13, 13, 35, 0.8) !important;
+  border: 1px solid rgba(255, 215, 0, 0.2) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.theme-vangogh .mood-movie-card:hover,
+body.theme-vangogh .mood-music-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.3) !important;
+  border-color: rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Song/Movie Watch Pages Van Gogh Theme */
+body.theme-vangogh .watch-page-container,
+body.theme-vangogh .listen-page-container {
+  background: linear-gradient(135deg, 
+    rgba(13, 13, 35, 0.95) 0%, 
+    rgba(25, 25, 60, 0.9) 25%, 
+    rgba(45, 27, 105, 0.85) 50%, 
+    rgba(25, 25, 112, 0.9) 75%, 
+    rgba(13, 13, 35, 0.95) 100%
+  ), 
+  url('/images/themes/vangogh-bg.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #e6e6fa !important;
+}
+
+body.theme-vangogh .movie-title-below,
+body.theme-vangogh .song-title-below {
+  color: #ffd700 !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.7) !important;
+}
+
+body.theme-vangogh .video-container,
+body.theme-vangogh .spotify-embed-container {
+  background: rgba(13, 13, 35, 0.9) !important;
+  border: 3px solid rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Playlist Components Van Gogh Theme */
+body.theme-vangogh .playlist-container {
+  background: linear-gradient(135deg, 
+    rgba(25, 25, 60, 0.8) 0%, 
+    rgba(45, 27, 105, 0.6) 100%
+  ), 
+  url('/images/themes/vangogh-bg.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: overlay;
+  backdrop-filter: blur(20px) !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.theme-vangogh .playlist-item {
+  background: rgba(13, 13, 35, 0.7) !important;
+  border: 1px solid rgba(255, 215, 0, 0.2) !important;
+  color: #e6e6fa !important;
+}
+
+body.theme-vangogh .playlist-item:hover {
+  background: rgba(25, 25, 60, 0.8) !important;
+  border-color: rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2) !important;
+}
+
+body.theme-vangogh .playlist-title {
+  color: #ffd700 !important;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6) !important;
+}
+
+/* Form Elements Van Gogh Theme */
+body.theme-vangogh input,
+body.theme-vangogh select,
+body.theme-vangogh textarea {
+  background: rgba(13, 13, 35, 0.8) !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  color: #e6e6fa !important;
+}
+
+body.theme-vangogh input:focus,
+body.theme-vangogh select:focus,
+body.theme-vangogh textarea:focus {
+  border-color: rgba(255, 215, 0, 0.6) !important;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Buttons Van Gogh Theme */
+body.theme-vangogh .btn,
+body.theme-vangogh button {
+  background: linear-gradient(45deg, 
+    rgba(25, 25, 60, 0.9), 
+    rgba(45, 27, 105, 0.8)
+  ) !important;
+  border: 2px solid rgba(255, 215, 0, 0.4) !important;
+  color: #ffd700 !important;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5) !important;
+}
+
+body.theme-vangogh .btn:hover,
+body.theme-vangogh button:hover {
+  background: linear-gradient(45deg, 
+    rgba(45, 27, 105, 0.9), 
+    rgba(25, 25, 60, 0.8)
+  ) !important;
+  border-color: rgba(255, 215, 0, 0.7) !important;
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Scrollbars Van Gogh Theme */
+body.theme-vangogh ::-webkit-scrollbar {
+  width: 12px;
+}
+
+body.theme-vangogh ::-webkit-scrollbar-track {
+  background: rgba(13, 13, 35, 0.8);
+}
+
+body.theme-vangogh ::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, 
+    rgba(255, 215, 0, 0.6), 
+    rgba(255, 215, 0, 0.4)
+  );
+  border-radius: 6px;
+}
+
+body.theme-vangogh ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, 
+    rgba(255, 215, 0, 0.8), 
+    rgba(255, 215, 0, 0.6)
+  );
+}
+
+/* Loading States Van Gogh Theme */
+body.theme-vangogh .loading,
+body.theme-vangogh .loading-text {
+  color: #ffd700 !important;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6) !important;
+}
+
+/* Animations for Van Gogh Theme */
+@keyframes vangoghGlow {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); 
+  }
+}
+
+body.theme-vangogh .glow-effect {
+  animation: vangoghGlow 3s ease-in-out infinite;
+}
+
+/* Starry Night Effect */
+body.theme-vangogh::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, #ffd700, transparent),
+    radial-gradient(2px 2px at 40% 70%, #ffd700, transparent),
+    radial-gradient(1px 1px at 90% 40%, #ffd700, transparent),
+    radial-gradient(1px 1px at 50% 50%, #ffd700, transparent),
+    radial-gradient(2px 2px at 10% 10%, #ffd700, transparent);
+  background-size: 300px 300px, 400px 400px, 200px 200px, 350px 350px, 250px 250px;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(1deg); }
+}

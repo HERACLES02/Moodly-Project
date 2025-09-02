@@ -17,6 +17,9 @@ export async function GET() {
         mood: true,
         note: true,
         isAdmin: true,
+        currentTheme: true,      // Add this line
+        unlockedThemes: true,    // Add this line
+        points: true,            // Add this line
         }
     })
     if (!user?.isBanned){
@@ -27,16 +30,14 @@ export async function GET() {
             note: user?.note,
             mood: user?.mood,
             isAdmin: user?.isAdmin,
-
-            
+            currentTheme: user?.currentTheme,    // Add this line
+            unlockedThemes: user?.unlockedThemes, // Add this line
+            points: user?.points,                 // Add this line
         })
     }
     else{
         return NextResponse.json("User Banned")
     }
-    
-    
-
   }else{
     NextResponse.json("Not Logged in")
   }
