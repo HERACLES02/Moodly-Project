@@ -14,64 +14,147 @@ interface LiveChatComponentProps {
   streamId: string
   user: any
   mood: string
+  sharedSocket?: Socket | null
+  isSocketConnected?: boolean
 }
 
-export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentProps) {
-    const userName = user?.anonymousName
-  const [socket, setSocket] = useState<Socket | null>(null)
+export function LiveChatComponent({ 
+  streamId, 
+  user, 
+  mood, 
+  sharedSocket, 
+  isSocketConnected 
+}: LiveChatComponentProps) {
+  const userName = user?.anonymousName
+  const [socket, setSocket] = useState<Socket | null>(sharedSocket || null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputMessage, setInputMessage] = useState('')
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(isSocketConnected || false)
+  const [showScrollButton, setShowScrollButton] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    
+    setShowScrollButton(false)
+  }
+
+  // Check if user has scrolled up and show scroll button
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50
+    setShowScrollButton(!isAtBottom && messages.length > 0)
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  useEffect(() => {
-    const newSocket = io('http://localhost:9513')
-
-    newSocket.on('connect', () => {
-      console.log('Connected to chat server')
-      setIsConnected(true)
+    // If we have a shared socket, use it instead of creating a new one
+    if (sharedSocket) {
+      console.log('💬 Using shared socket for chat')
+      setSocket(sharedSocket)
+      setIsConnected(isSocketConnected || false)
       
-      newSocket.emit('join-stream', {
-        streamId: streamId,
-        username: userName
+      // Set up chat-specific event listeners on the shared socket
+      const handleNewMessage = (messageData: ChatMessage) => {
+        console.log('📩 New chat message received:', messageData)
+        setMessages(prevMessages => [...prevMessages, messageData])
+      }
+
+      const handleUserJoined = (messageData: any) => {
+        console.log('👋 User joined chat:', messageData)
+        setMessages(prevMessages => [...prevMessages, messageData])
+      }
+
+      sharedSocket.on('new-message', handleNewMessage)
+      sharedSocket.on('user-joined', handleUserJoined)
+
+      // Cleanup function to remove listeners
+      return () => {
+        sharedSocket.off('new-message', handleNewMessage)
+        sharedSocket.off('user-joined', handleUserJoined)
+      }
+    } 
+    // Only create a new socket if no shared socket is provided (fallback)
+    else if (!socket) {
+      console.log('💬 Creating standalone chat socket connection...')
+      const newSocket = io('http://localhost:9513', {
+        forceNew: false,
+        transports: ['websocket', 'polling']
       })
-    })
 
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from chat server')
-      setIsConnected(false)
-    })
+      newSocket.on('connect', () => {
+        console.log('💬 Standalone chat socket connected')
+        setIsConnected(true)
+        
+        newSocket.emit('join-sync-session', {
+          streamId: streamId,
+          username: userName || 'Anonymous',
+          mood: mood
+        })
+      })
 
-    newSocket.on('new-message', (messageData: ChatMessage) => {
-      setMessages(prevMessages => [...prevMessages, messageData])
-    })
+      newSocket.on('connect_error', (error) => {
+        console.error('💬 Chat socket connection error:', error)
+        setIsConnected(false)
+      })
 
-    newSocket.on('user-joined', (messageData) => {
-      setMessages(prevMessages => [...prevMessages, messageData])
-    })
+      newSocket.on('disconnect', () => {
+        console.log('❌ Chat socket disconnected')
+        setIsConnected(false)
+      })
 
-    setSocket(newSocket)
+      newSocket.on('new-message', (messageData: ChatMessage) => {
+        console.log('📩 New chat message received:', messageData)
+        setMessages(prevMessages => [...prevMessages, messageData])
+      })
 
-    return () => {
-      newSocket.close()
+      newSocket.on('user-joined', (messageData) => {
+        console.log('👋 User joined chat:', messageData)
+        setMessages(prevMessages => [...prevMessages, messageData])
+      })
+
+      newSocket.on('session-sync', (sessionData) => {
+        console.log('✅ Chat confirmed sync session connection')
+      })
+
+      newSocket.on('chat-ready', (data) => {
+        console.log('💬 Chat is ready for messages')
+      })
+
+      newSocket.on('session-error', (error) => {
+        console.error('❌ Session error:', error)
+        setIsConnected(false)
+      })
+
+      setSocket(newSocket)
+
+      return () => {
+        if (newSocket) {
+          console.log('🧹 Cleaning up standalone chat socket')
+          newSocket.close()
+        }
+      }
     }
-  }, [streamId, userName])
+  }, [sharedSocket, isSocketConnected, streamId, userName, mood])
+
+  // Update connection status when shared socket changes
+  useEffect(() => {
+    if (sharedSocket && isSocketConnected !== undefined) {
+      setIsConnected(isSocketConnected)
+    }
+  }, [isSocketConnected, sharedSocket])
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!inputMessage.trim() || !socket || !isConnected) {
+      console.log('Cannot send message:', { 
+        hasMessage: !!inputMessage.trim(), 
+        hasSocket: !!socket, 
+        isConnected 
+      })
       return
     }
 
+    console.log('📤 Sending message:', inputMessage)
     socket.emit('send-message', {
       streamId: streamId,
       message: inputMessage.trim(),
@@ -79,6 +162,9 @@ export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentPro
     })
 
     setInputMessage('')
+    
+    // Only scroll to bottom when YOU send a message, not when others do
+    setTimeout(() => scrollToBottom(), 100)
   }
 
   const formatTime = (timestamp: Date) => {
@@ -99,10 +185,10 @@ export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentPro
         </div>
       </div>
 
-      <div className="messages-container">
+      <div className="messages-container" onScroll={handleScroll}>
         {messages.length === 0 ? (
           <div className="no-messages">
-            
+            <p>Welcome</p>
           </div>
         ) : (
           messages.map((msg, index) => (
@@ -120,6 +206,17 @@ export function LiveChatComponent({ streamId, user, mood }: LiveChatComponentPro
           ))
         )}
         <div ref={messagesEndRef} />
+        
+        {/* Scroll to Bottom Button */}
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="scroll-to-bottom"
+            title="Scroll to latest messages"
+          >
+            ↓ New Messages
+          </button>
+        )}
       </div>
 
       <form onSubmit={sendMessage} className="message-input-form">

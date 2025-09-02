@@ -172,3 +172,28 @@
   cursor: not-allowed;
   background: #9ca3af;
 }
+.scroll-to-bottom {
+  position: absolute;
+  bottom: 70px;
+  right: 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.scroll-to-bottom:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.messages-container {
+  position: relative;
+  /* ... your existing styles ... */
+}
