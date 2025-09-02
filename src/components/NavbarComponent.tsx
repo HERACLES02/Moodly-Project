@@ -1,5 +1,6 @@
 "use client"
 import "./navbar.css"
+import ThemeSelector from "./ThemeSelector"
 import { useGetUser } from "@/hooks/useGetUser"
 import ProfileDropdown from "./ProfileDropdown"
 import { useState, useEffect } from "react"
@@ -18,6 +19,7 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
     const { user, setUser } = useGetUser()
     const [moodSelected, setMoodSelected] = useState(false)
     const [noteSelected, setNoteSelected] = useState(false)
+    const [themeSelected, setThemeSelected] = useState(false)
 
     function handleAddNote() {
         console.log("Add Note Clicked")
@@ -44,6 +46,30 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
     function handleCloseMood() {
         setMoodSelected(false)
     }
+
+    // Add these functions to your NavbarComponent.tsx
+
+function handleSelectTheme() {
+    console.log("Select Theme Clicked")
+    setThemeSelected(prev => {
+        const newState = !prev
+        console.log("ThemeSelected will be:", newState)
+        return newState
+    })
+    setMoodSelected(false)
+    setNoteSelected(false)
+}
+
+function handleCloseTheme() {
+    setThemeSelected(false)
+}
+
+function handleThemeSelection(theme: string) {
+    console.log("Theme selected in Navbar:", theme)
+    // The theme selector component handles the API call
+    // We just need to close the selector
+    setThemeSelected(false)
+}
 
     function handleMoodSelection(mood: string) {
         console.log("Mood selected in Navbar:", mood)
@@ -79,6 +105,7 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
                             isAdmin={user?.isAdmin}
                             onAddNote={handleAddNote}
                             onSelectMood={handleSelectMood}
+                            onSelectTheme={handleSelectTheme}
                         />
                     </div>
                 </div>
@@ -91,6 +118,14 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
                     onMoodSelect={handleMoodSelection}
                 />
             )}
+            // Add this to the return statement in NavbarComponent.tsx, after the MoodSelector
+
+{themeSelected && (
+    <ThemeSelector
+        onClose={handleCloseTheme}
+        onThemeSelect={handleThemeSelection}
+    />
+)}
         </>
     )
 }

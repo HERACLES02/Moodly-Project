@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusicToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
-import './page.css'
 import { usePoints } from '@/hooks/usePoints'
 import { Heart } from 'lucide-react'
+import '@/components/ThemeOverrides.css'  // Add theme overrides
+import './page.css'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
@@ -33,7 +34,7 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
     useEffect(() => {
         if (!hasEarnedListenPoints && id) {
             const timer = setTimeout(() => {
-                console.log(' Adding points for listening song:', id)
+                console.log('🎵 Adding points for listening song:', id)
                 addPoints("listen", id, "song")
                 setHasEarnedListenPoints(true)
             }, 3000)
@@ -42,9 +43,35 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
         }
     }, [id, hasEarnedListenPoints]) 
 
+    // Theme/Mood handling useEffect
+    useEffect(() => {
+        // Handle theme vs mood styling
+        if (user?.currentTheme) {
+            console.log('SongListen: Applying theme:', user.currentTheme)
+            // Remove any existing theme and mood classes
+            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+            
+            // If it's default theme, apply mood class instead
+            if (user.currentTheme === 'default') {
+                if (user.mood) {
+                    document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
+                    console.log('SongListen: Applied mood class for default theme:', user.mood.toLowerCase())
+                }
+            } else {
+                // Apply premium theme class
+                document.body.classList.add(`theme-${user.currentTheme}`)
+            }
+        }
+        
+        // Cleanup function to remove classes when component unmounts
+        return () => {
+            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+        }
+    }, [user?.currentTheme, user?.mood])
+
     const handleFavorite = () => {
         if (!isFavorited && !isAdding) {
-            console.log(' Adding points for favoriting song:', id)
+            console.log('❤️ Adding points for favoriting song:', id)
             addPoints("favorite", id, "song")
             setIsFavorited(true)
         }
@@ -68,15 +95,6 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
         if (mood === 'sad') return 'mood-sad'
         return ''
     }
-
-    useEffect(() => {
-        const themeClass = getThemeClass()
-        document.body.className = themeClass
-        
-        return () => {
-            document.body.className = ''
-        }
-    }, [user?.mood])
 
     if (loading) {
         return <div>Loading...</div>
@@ -129,9 +147,6 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                      You earned 10 points for listening!
                 </div>
                 )}
-
-                
-                
             </div>
         </div>
         </>

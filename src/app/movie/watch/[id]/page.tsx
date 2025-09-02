@@ -5,6 +5,7 @@ import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylis
 import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
 import { Heart } from 'lucide-react'
+import '@/components/ThemeOverrides.css'  // Add theme overrides
 import './page.css'
 
 export default function WatchMovies({ params }: { params: Promise<{ id: string }> }) {
@@ -42,9 +43,35 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
         }
     }, [id, hasEarnedWatchPoints])
 
+    // Theme/Mood handling useEffect
+    useEffect(() => {
+        // Handle theme vs mood styling
+        if (user?.currentTheme) {
+            console.log('MovieWatch: Applying theme:', user.currentTheme)
+            // Remove any existing theme and mood classes
+            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+            
+            // If it's default theme, apply mood class instead
+            if (user.currentTheme === 'default') {
+                if (user.mood) {
+                    document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
+                    console.log('MovieWatch: Applied mood class for default theme:', user.mood.toLowerCase())
+                }
+            } else {
+                // Apply premium theme class
+                document.body.classList.add(`theme-${user.currentTheme}`)
+            }
+        }
+        
+        // Cleanup function to remove classes when component unmounts
+        return () => {
+            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+        }
+    }, [user?.currentTheme, user?.mood])
+
     const handleFavorite = () => {
         if (!isFavorited && !isAdding) {
-            console.log(' Adding points for favoriting movie:', id)
+            console.log('❤️ Adding points for favoriting movie:', id)
             addPoints("favorite", id, "movie")
             setIsFavorited(true)
         }
@@ -115,7 +142,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                     </button>
                 </div>
             </div>
-
 
             <div className="movie-info-section">
                 {movie?.vote_average && (
