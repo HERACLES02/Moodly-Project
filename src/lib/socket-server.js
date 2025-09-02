@@ -13,6 +13,19 @@ function initSocket(server) {
       }
     })
 
+    // Callback function to handle movie changes
+    const handleMovieChanged = (mood, sessionInfo) => {
+      console.log(`📢 Broadcasting movie change for ${mood} mood: ${sessionInfo.currentMovie.title}`)
+      io.to(`${mood}-sync-session`).emit('movie-changed', {
+        ...sessionInfo,
+        syncData: {
+          elapsedSeconds: 0,
+          shouldForceReload: false,
+          timestamp: Date.now()
+        }
+      })
+    }
+
     io.on('connection', (socket) => {
       console.log('🔌 User connected:', socket.id)
 
@@ -28,15 +41,15 @@ function initSocket(server) {
         console.log(`${username} joining ${mood} sync session: ${streamId}`)
         
         try {
-          // Get the sync manager for this specific mood
-          const moodSyncManager = getSyncManager(mood)
+          // Get the sync manager for this specific mood with callback
+          const moodSyncManager = getSyncManager(mood, handleMovieChanged)
           
           // Initialize session if it's the first viewer for this mood
           if (!moodSyncManager.isActive) {
             console.log(`Initializing new ${mood} session...`)
-            const initSuccess = await moodSyncManager.initializeQueue(mood)
+            const initSuccess = await moodSyncManager.initializeQueue()
             if (initSuccess) {
-              moodSyncManager.startSession(mood)
+              moodSyncManager.startSession()
               console.log(`${mood} session started successfully`)
             } else {
               console.log(`Failed to start ${mood} session`)
@@ -81,7 +94,6 @@ function initSocket(server) {
         }
       })
 
-
       socket.on('join-radio-session', async (data) => {
         const { streamId, username, mood } = data
         socket.join(streamId)
@@ -99,9 +111,9 @@ function initSocket(server) {
           // Initialize session if it's the first listener for this mood
           if (!radioSyncManager.isActive) {
             console.log(`🎵 Initializing new ${mood} radio session...`)
-            const initSuccess = await radioSyncManager.initializeQueue(mood)
+            const initSuccess = await radioSyncManager.initializeQueue()
             if (initSuccess) {
-              radioSyncManager.startSession(mood)
+              radioSyncManager.startSession()
               console.log(`${mood} radio session started successfully`)
             } else {
               console.log(`Failed to start ${mood} radio session`)
@@ -116,8 +128,6 @@ function initSocket(server) {
           if (sessionInfo) {
             // Send current radio session to new listener
             socket.emit('radio-session-sync', sessionInfo)
-            
-           
             
             // Update listener count for everyone in this radio stream
             io.to(streamId).emit('listener-count-update', {
@@ -178,8 +188,6 @@ function initSocket(server) {
         }
       })
 
-
-
       // Handle user disconnection
       socket.on('disconnect', () => {
         if (socket.username && socket.streamId && socket.mood) {
@@ -199,7 +207,6 @@ function initSocket(server) {
             const moodSyncManager = getSyncManager(socket.mood)
             moodSyncManager.removeViewer(socket.id)
             
-            
             // Update viewer count for remaining users in this mood
             io.to(socket.streamId).emit('viewer-count-update', {
               count: moodSyncManager.viewers.size
@@ -208,34 +215,15 @@ function initSocket(server) {
             console.log(`${socket.username} disconnected from ${socket.mood} movie stream`)
           }
         } else {
-          console.log(' User disconnected:', socket.id)
+          console.log('User disconnected:', socket.id)
         }
       })
     })
 
-    // Periodic sync broadcasts for both movies and radio
+    // Radio song switching (keep existing radio logic)
     setInterval(() => {
-      // Check movie streams
       ['happy', 'sad'].forEach(mood => {
-        const movieManager = getSyncManager(mood)
-        const movieSessionInfo = movieManager.getCurrentSessionInfo()
-        if (movieSessionInfo && movieManager.viewers.size > 0) {
-          if (movieSessionInfo.remainingTime <= 0) {
-            console.log(`${mood} movie: Time expired, switching...`)
-            const newSessionInfo = movieManager.switchToNextMovie()
-            // Send only to specific mood stream
-            io.to(`${mood}-sync-session`).emit('movie-changed', {
-              ...newSessionInfo,
-              syncData: {
-                elapsedSeconds: 0,
-                shouldForceReload: true,
-                timestamp: Date.now()
-              }
-            })
-          }
-        }
-
-        // Check radio streams
+        // Check radio streams only (movies now use callback system)
         const radioManager = getSongSyncManager(mood)
         const radioSessionInfo = radioManager.getCurrentSessionInfo()
         if (radioSessionInfo && radioManager.listeners.size > 0) {
@@ -246,7 +234,7 @@ function initSocket(server) {
           }
         }
       })
-    }, 1000) // Check every second instead of 30 seconds for more precise switching
+    }, 1000)
 
     console.log('Socket.IO server initialized with sync support')
     console.log('Live stream synchronization ready')

@@ -11,19 +11,18 @@ class SongSyncManager {
     this.songChangeTimer = null
   }
 
-  async initializeQueue(mood = 'happy') {
+  async initializeQueue() { 
     try {
-      console.log(`🎵 Initializing song queue for ${mood} mood...`)
+      console.log(`🎵 Initializing song queue for ${this.mood} mood...`)
       
-
-      const response = await fetch(`http://localhost:9513/api/recommendations/songs?mood=${mood}`)
+      const response = await fetch(`http://localhost:9513/api/recommendations/songs?mood=${this.mood}`)
       
       if (!response.ok) {
         throw new Error(`API responded with status: ${response.status}`)
       }
       
       const data = await response.json()
-      console.log(`API Response for ${mood}:`, data) 
+      console.log(`API Response for ${this.mood}:`, data) 
 
       if (data.tracks && data.tracks.length > 0) {
         this.songQueue = data.tracks.map(song => ({
@@ -37,18 +36,18 @@ class SongSyncManager {
           albumName: song.album
         }))
         
-        console.log(`${mood} mood song queue initialized with ${this.songQueue.length} songs`)
+        console.log(`${this.mood} mood song queue initialized with ${this.songQueue.length} songs`)
         console.log(`🎵 First song: ${this.songQueue[0].title} by ${this.songQueue[0].artist}`)
         return true
       } else {
-        console.log(`${mood} song API returned no tracks, using fallback songs`)
-        this.songQueue = this.getFallbackSongs(mood)
+        console.log(`${this.mood} song API returned no tracks, using fallback songs`)
+        this.songQueue = this.getFallbackSongs(this.mood)
         return true
       }
     } catch (error) {
-      console.error(`Failed to initialize ${mood} song queue:`, error)
-      console.log(`Using fallback songs for ${mood} mood`)
-      this.songQueue = this.getFallbackSongs(mood)
+      console.error(`Failed to initialize ${this.mood} song queue:`, error)
+      console.log(`Using fallback songs for ${this.mood} mood`)
+      this.songQueue = this.getFallbackSongs(this.mood)
       return true
     }
   }
@@ -123,13 +122,13 @@ class SongSyncManager {
     return mood === 'happy' ? happySongs : sadSongs
   }
 
-  startSession(mood = 'happy') {
+  startSession() {
     if (this.isActive) {
-      console.log(`${mood} radio session already active`)
+      console.log(`${this.mood} radio session already active`)
       return this.getCurrentSessionInfo()
     }
 
-    console.log(`🎵 Starting synchronized ${mood} radio session`)
+    console.log(`🎵 Starting synchronized ${this.mood} radio session`)
     
     // Start with first song
     this.currentIndex = 0
@@ -204,7 +203,7 @@ class SongSyncManager {
       joinedAt: Date.now()
     })
     
-    console.log(`🎧 ${username} joined ${mood} radio (${this.listeners.size} total listeners)`)
+    console.log(`🎧 ${username} joined ${this.mood} radio (${this.listeners.size} total listeners)`)
     return this.getCurrentSessionInfo()
   }
 
@@ -215,8 +214,6 @@ class SongSyncManager {
       console.log(`${listener.username} left ${this.mood} radio (${this.listeners.size} total listeners)`)
     }
   }
-
-
 }
 
 // Separate instances for each mood

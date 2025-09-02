@@ -1,5 +1,5 @@
 class MovieSyncManager {
-  constructor(mood) {
+  constructor(mood, onMovieChanged = null) {
     this.mood = mood
     this.currentMovie = null
     this.movieStartTime = null
@@ -9,13 +9,12 @@ class MovieSyncManager {
     this.isActive = false
     this.viewers = new Map()
     this.movieChangeTimer = null
+    this.onMovieChanged = onMovieChanged // Callback function to notify when movie changes
   }
 
-  async initializeQueue(mood = 'happy') {
+  async initializeQueue() { 
     try {
-      
-
-      const response = await fetch(`http://localhost:9513/api/recommendations/movies?mood=${mood}`)
+      const response = await fetch(`http://localhost:9513/api/recommendations/movies?mood=${this.mood}`)
       const data = await response.json()
       
       if (data.movies && data.movies.length > 0) {
@@ -28,17 +27,17 @@ class MovieSyncManager {
           overview: movie.overview
         }))
         
-        console.log(`✅ ${mood} mood queue initialized with ${this.movieQueue.length} movies`)
+        console.log(`✅ ${this.mood} mood queue initialized with ${this.movieQueue.length} movies`)
         return true
       } else {
         // Fallback movies if API fails
-        console.log(`⚠️ ${mood} API failed, using fallback movies`)
-        this.movieQueue = this.getFallbackMovies(mood)
+        console.log(`⚠️ ${this.mood} API failed, using fallback movies`)
+        this.movieQueue = this.getFallbackMovies(this.mood)
         return true
       }
     } catch (error) {
-      console.error(`❌ Failed to initialize ${mood} queue, using fallback:`, error)
-      this.movieQueue = this.getFallbackMovies(mood)
+      console.error(`❌ Failed to initialize ${this.mood} queue, using fallback:`, error)
+      this.movieQueue = this.getFallbackMovies(this.mood)
       return true
     }
   }
@@ -117,13 +116,13 @@ class MovieSyncManager {
     return mood === 'happy' ? happyMovies : sadMovies
   }
 
-  startSession(mood = 'happy') {
+  startSession() {
     if (this.isActive) {
-      console.log(`⚠️ ${mood} session already active`)
+      console.log(`⚠️ ${this.mood} session already active`)
       return this.getCurrentSessionInfo()
     }
 
-    console.log(`🚀 Starting synchronized ${mood} session`)
+    console.log(`🚀 Starting synchronized ${this.mood} session`)
     
     // Start with first movie
     this.currentIndex = 0
@@ -144,7 +143,12 @@ class MovieSyncManager {
 
     // Change movie after duration
     this.movieChangeTimer = setTimeout(() => {
-      this.switchToNextMovie()
+      const newSessionInfo = this.switchToNextMovie()
+      
+      // Notify socket server about the movie change
+      if (this.onMovieChanged) {
+        this.onMovieChanged(this.mood, newSessionInfo)
+      }
     }, this.movieDuration)
     
     console.log(`⏰ ${this.mood} mood: Next movie scheduled in ${this.movieDuration / 60000} minutes`)
@@ -205,7 +209,7 @@ class MovieSyncManager {
       joinedAt: Date.now()
     })
     
-    console.log(`👤 ${username} joined ${mood} stream (${this.viewers.size} total viewers)`)
+    console.log(`👤 ${username} joined ${this.mood} stream (${this.viewers.size} total viewers)`)
     return this.getCurrentSessionInfo()
   }
 
@@ -220,7 +224,14 @@ class MovieSyncManager {
   // Admin functions
   skipToNextMovie() {
     console.log(`⏭️ Admin skipping ${this.mood} movie`)
-    return this.switchToNextMovie()
+    const newSessionInfo = this.switchToNextMovie()
+    
+    // Notify socket server about the movie change
+    if (this.onMovieChanged) {
+      this.onMovieChanged(this.mood, newSessionInfo)
+    }
+    
+    return newSessionInfo
   }
 
   changeMovieDuration(newDuration) {
@@ -247,7 +258,7 @@ class MovieSyncManager {
     if (this.movieChangeTimer) {
       clearTimeout(this.movieChangeTimer)
       this.movieChangeTimer = null
-    } this.viewers.clear()
+    }
         
     console.log(`🛑 ${this.mood} session stopped`)
   }
@@ -259,9 +270,9 @@ const syncManagers = {
   sad: null
 }
 
-function getSyncManager(mood = 'happy') {
+function getSyncManager(mood = 'happy', onMovieChanged = null) {
   if (!syncManagers[mood]) {
-    syncManagers[mood] = new MovieSyncManager(mood)
+    syncManagers[mood] = new MovieSyncManager(mood, onMovieChanged)
     console.log(`🎭 Created new sync manager for ${mood} mood`)
   }
   return syncManagers[mood]
