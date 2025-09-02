@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetUser } from '@/hooks/useGetUser'
-import "./dashboard.css"
+import "@/app/dashboard/dashboard.css"
+
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
-import PlaylistComponent from '@/components/PlaylistComponents/PlaylistComponent'
-import LiveStreamComponent from '@/components/LiveStreamComponent'
+
+
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -33,6 +34,8 @@ export default function Dashboard() {
     if (mood) {setCurrentMood(mood)}
     
   }
+
+  
   const handleMovieClick = (movieId: number) => {
   router.push(`/movie/watch/${movieId}`)
 }
@@ -64,7 +67,13 @@ export default function Dashboard() {
         </div>
       )}
 
+      
+
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
+      
+
+
+     
 
       <main className="main-content">
         {showRecommendations ? (
