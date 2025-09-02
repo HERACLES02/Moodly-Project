@@ -62,7 +62,7 @@ function initSocket(server) {
           const sessionInfo = moodSyncManager.addViewer(socket.id, username, mood)
           
           if (sessionInfo) {
-            // Send current session to new viewer with synchronized timestamp
+            // FIXED: Only send session-sync to the NEW user, not everyone
             socket.emit('session-sync', sessionInfo)
             
             // Send a confirmation message specifically for chat
@@ -71,14 +71,14 @@ function initSocket(server) {
               streamId: streamId
             })
             
-            // Notify others that someone joined
+            // FIXED: Send user-joined message only to OTHER users, not the new user
             socket.to(streamId).emit('user-joined', {
               message: `${username} joined the ${mood} watch party`,
               type: 'system',
               timestamp: new Date()
             })
             
-            // Update viewer count for everyone in this mood stream
+            // FIXED: Send viewer count update to ALL users separately
             io.to(streamId).emit('viewer-count-update', {
               count: moodSyncManager.viewers.size
             })
@@ -126,7 +126,7 @@ function initSocket(server) {
           const sessionInfo = radioSyncManager.addListener(socket.id, username, mood)
           
           if (sessionInfo) {
-            // Send current radio session to new listener
+            // Send current radio session to new listener only
             socket.emit('radio-session-sync', sessionInfo)
             
             // Update listener count for everyone in this radio stream
@@ -134,7 +134,7 @@ function initSocket(server) {
               count: radioSyncManager.listeners.size
             })
             
-            console.log(`${username} successfully joined`)
+            console.log(`${username} successfully joined ${mood} radio`)
           } else {
             socket.emit('radio-session-error', { message: `No active ${mood} radio session` })
           }
@@ -160,12 +160,13 @@ function initSocket(server) {
         })
       })
 
-      // Handle requests for current movie session info
+      // FIXED: Handle session info requests without affecting others
       socket.on('get-session-info', () => {
         if (socket.mood && socket.sessionType === 'movie') {
           const moodSyncManager = getSyncManager(socket.mood)
           const sessionInfo = moodSyncManager.getCurrentSessionInfo()
           if (sessionInfo) {
+            // FIXED: Only send to the requesting user
             socket.emit('session-sync', sessionInfo)
             console.log(`${socket.mood} session info refreshed for user:`, socket.id)
           } else {
@@ -207,7 +208,7 @@ function initSocket(server) {
             const moodSyncManager = getSyncManager(socket.mood)
             moodSyncManager.removeViewer(socket.id)
             
-            // Update viewer count for remaining users in this mood
+            // FIXED: Only send viewer count update, not session-sync
             io.to(socket.streamId).emit('viewer-count-update', {
               count: moodSyncManager.viewers.size
             })

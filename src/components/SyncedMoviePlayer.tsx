@@ -47,6 +47,7 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
   const [autoPlay, setAutoPlay] = useState(true) // User's autoplay preference
   const [userCurrentMovie, setUserCurrentMovie] = useState<any>(null) // What user is actually watching
   const [showNextButton, setShowNextButton] = useState(false) // Show manual next button
+  const [hasInitialLoad, setHasInitialLoad] = useState(false) // Track if user has loaded their first movie
 
   // Socket connection and event handlers
   useEffect(() => {
@@ -74,10 +75,13 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       console.log('📺 Session sync received:', info)
       setSessionInfo(info)
       
-      // Only set user's movie if they don't have one yet (initial connection)
-      if (!userCurrentMovie) {
-        console.log('🎬 Initial movie load:', info.currentMovie.title)
+      // Only set user's movie if this is their very first load
+      if (!hasInitialLoad) {
+        console.log('🎬 Initial movie load for new user:', info.currentMovie.title)
         setUserCurrentMovie(info.currentMovie)
+        setHasInitialLoad(true)
+      } else {
+        console.log('👥 Another user joined - NOT updating my video')
       }
       
       setIsLoading(false)
@@ -437,9 +441,6 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
                   onClick={() => {
                     console.log('⏩ Syncing to server movie')
                     setUserCurrentMovie(sessionInfo.currentMovie)
-                    if (iframeRef.current) {
-                      iframeRef.current.src = sessionInfo.currentMovie.vidsrcUrl
-                    }
                     setShowNextButton(false)
                   }}
                   className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
