@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useGetUser } from '@/hooks/useGetUser'
-import { LiveChatComponent } from './LiveChatComponenet'
+import { LiveChatComponent } from './LiveChatComponent'
 
 interface SessionInfo {
   currentMovie: {
@@ -69,11 +69,17 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       setIsConnected(false)
     })
 
-    // Receive session sync info (initial connection)
+    // Receive session sync info (initial connection ONLY)
     newSocket.on('session-sync', (info: SessionInfo) => {
       console.log('📺 Session sync received:', info)
       setSessionInfo(info)
-      setUserCurrentMovie(info.currentMovie) // User starts watching same as server
+      
+      // Only set user's movie if they don't have one yet (initial connection)
+      if (!userCurrentMovie) {
+        console.log('🎬 Initial movie load:', info.currentMovie.title)
+        setUserCurrentMovie(info.currentMovie)
+      }
+      
       setIsLoading(false)
     })
 
