@@ -294,36 +294,7 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
 
           {/* User Controls */}
-          <div className="flex items-center justify-between mb-4 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={autoPlay}
-                  onChange={toggleAutoPlay}
-                  className="w-4 h-4"
-                />
-                <span className={`${themes.text} font-medium`}>
-                  🔄 Auto-advance to next movie
-                </span>
-              </label>
-              
-              {!autoPlay && (
-                <span className={`${themes.text} opacity-70 text-sm`}>
-                  Manual control enabled - you decide when to advance
-                </span>
-              )}
-            </div>
-            
-            {!autoPlay && sessionInfo.nextMovie && (
-              <button
-                onClick={goToNextMovie}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
-              >
-                ⏭️ Go to Next Movie
-              </button>
-            )}
-          </div>
+          
 
           {/* Progress Bar (Server Timeline) */}
           <div className="w-full bg-gray-200 rounded-full h-3 mb-2">

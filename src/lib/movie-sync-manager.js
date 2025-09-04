@@ -3,13 +3,13 @@ class MovieSyncManager {
     this.mood = mood
     this.currentMovie = null
     this.movieStartTime = null
-    this.movieDuration = 60000 // 10 minutes for testing (change to 7200000 for 2 hours)
+    this.movieDuration = 60000 
     this.movieQueue = []
     this.currentIndex = 0
     this.isActive = false
     this.viewers = new Map()
     this.movieChangeTimer = null
-    this.onMovieChanged = onMovieChanged // Callback function to notify when movie changes
+    this.onMovieChanged = onMovieChanged 
   }
 
   async initializeQueue() { 

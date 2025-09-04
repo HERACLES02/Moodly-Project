@@ -4,8 +4,6 @@ import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
-import { Heart } from 'lucide-react'
-import '@/components/ThemeOverrides.css'  // Add theme overrides
 import './page.css'
 
 export default function WatchMovies({ params }: { params: Promise<{ id: string }> }) {
@@ -13,9 +11,8 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
     const [movie, setMovie] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
-    const { addPoints, isAdding } = usePoints()
+    const { addPoints } = usePoints()
     const [hasEarnedWatchPoints, setHasEarnedWatchPoints] = useState(false)
-    const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
         const getParams = async () => {
@@ -42,40 +39,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
             return () => clearTimeout(timer)
         }
     }, [id, hasEarnedWatchPoints])
-
-    // Theme/Mood handling useEffect
-    useEffect(() => {
-        // Handle theme vs mood styling
-        if (user?.currentTheme) {
-            console.log('MovieWatch: Applying theme:', user.currentTheme)
-            // Remove any existing theme and mood classes
-            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-            
-            // If it's default theme, apply mood class instead
-            if (user.currentTheme === 'default') {
-                if (user.mood) {
-                    document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
-                    console.log('MovieWatch: Applied mood class for default theme:', user.mood.toLowerCase())
-                }
-            } else {
-                // Apply premium theme class
-                document.body.classList.add(`theme-${user.currentTheme}`)
-            }
-        }
-        
-        // Cleanup function to remove classes when component unmounts
-        return () => {
-            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-        }
-    }, [user?.currentTheme, user?.mood])
-
-    const handleFavorite = () => {
-        if (!isFavorited && !isAdding) {
-            console.log('❤️ Adding points for favoriting movie:', id)
-            addPoints("favorite", id, "movie")
-            setIsFavorited(true)
-        }
-    }
 
     const fetchMovieData = async () => {
         try {
@@ -128,18 +91,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                 </div>
                 <div className="movie-actions">
                     <AddToPlaylistComponent type="MOVIE" itemId={id}/>
-                    
-                    <button
-                        onClick={handleFavorite}
-                        disabled={isAdding}
-                        className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
-                        title={isFavorited ? 'Favorited' : 'Add to Favorites (+5 points)'}
-                    >
-                        <Heart 
-                            className={`heart-icon ${isFavorited ? 'filled' : ''}`}
-                            fill={isFavorited ? 'currentColor' : 'none'}
-                        />
-                    </button>
                 </div>
             </div>
 

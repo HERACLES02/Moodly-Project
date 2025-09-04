@@ -1,21 +1,18 @@
 'use client'
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
-import AddMusicToPlaylistComponent from '@/components/PlaylistComponents/AddMusicToPlaylistComponent'
+import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
-import { usePoints } from '@/hooks/usePoints'
-import { Heart } from 'lucide-react'
-import '@/components/ThemeOverrides.css'  // Add theme overrides
 import './page.css'
+import { usePoints } from '@/hooks/usePoints'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
     const [song, setSong] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
-    const { addPoints, isAdding } = usePoints()
+    const { addPoints } = usePoints()
     const [hasEarnedListenPoints, setHasEarnedListenPoints] = useState(false)
-    const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
         const getParams = async () => {
@@ -43,40 +40,6 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
         }
     }, [id, hasEarnedListenPoints]) 
 
-    // Theme/Mood handling useEffect
-    useEffect(() => {
-        // Handle theme vs mood styling
-        if (user?.currentTheme) {
-            console.log('SongListen: Applying theme:', user.currentTheme)
-            // Remove any existing theme and mood classes
-            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-            
-            // If it's default theme, apply mood class instead
-            if (user.currentTheme === 'default') {
-                if (user.mood) {
-                    document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
-                    console.log('SongListen: Applied mood class for default theme:', user.mood.toLowerCase())
-                }
-            } else {
-                // Apply premium theme class
-                document.body.classList.add(`theme-${user.currentTheme}`)
-            }
-        }
-        
-        // Cleanup function to remove classes when component unmounts
-        return () => {
-            document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-        }
-    }, [user?.currentTheme, user?.mood])
-
-    const handleFavorite = () => {
-        if (!isFavorited && !isAdding) {
-            console.log('❤️ Adding points for favoriting song:', id)
-            addPoints("favorite", id, "song")
-            setIsFavorited(true)
-        }
-    }
-
     const fetchSongData = async () => {
         try {
             const response = await fetch(`http://localhost:9513/api/get-song-data?id=${id}`)
@@ -95,6 +58,15 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
         if (mood === 'sad') return 'mood-sad'
         return ''
     }
+
+    useEffect(() => {
+        const themeClass = getThemeClass()
+        document.body.className = themeClass
+        
+        return () => {
+            document.body.className = ''
+        }
+    }, [user?.mood])
 
     if (loading) {
         return <div>Loading...</div>
@@ -126,22 +98,12 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                             {song.artists.map((artist: any) => artist.name).join(', ')}
                         </p>
                     )}
-                    
                 </div>
+                
                 <div className="next-up-section">
-                    <AddMusicToPlaylistComponent itemId={id}/>
-                    <button
-                        onClick={handleFavorite}
-                        disabled={isAdding}
-                        className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
-                        title={isFavorited ? 'Favorited' : 'Add to Favorites (+5 points)'}
-                    >
-                        <Heart 
-                            className={`heart-icon ${isFavorited ? 'filled' : ''}`}
-                            fill={isFavorited ? 'currentColor' : 'none'}
-                        />
-                    </button>
+                    <AddToPlaylistComponent type="SONG" itemId={id}/>
                 </div>
+
                 {hasEarnedListenPoints && (
                 <div className="points-notification">
                      You earned 10 points for listening!

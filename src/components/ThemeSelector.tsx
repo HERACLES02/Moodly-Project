@@ -46,8 +46,19 @@ export default function ThemeSelector({ onClose, onThemeSelect }: ThemeSelectorP
       const data = await response.json()
 
       if (data.success) {
+        // This is the key fix: Call the onThemeSelect callback first
         onThemeSelect(themeId)
+        
+        // Close the selector
         onClose()
+        
+        // Add a small delay to ensure the selector closes, then reload
+        // This is the same logic that works in RedeemableCard
+        setTimeout(() => {
+          console.log('ThemeSelector: Reloading page to apply theme:', themeId)
+          window.location.reload()
+        }, 100)
+        
       } else {
         alert(data.error || 'Failed to apply theme')
       }

@@ -8,6 +8,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
+import RedeemableCard from '@/components/RedeemableCard'
 
 
 
@@ -125,6 +126,7 @@ export default function Dashboard() {
           <div className="content-card">
           </div>
         )}
+
       </main>
     </div>
   )

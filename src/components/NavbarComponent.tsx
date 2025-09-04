@@ -118,7 +118,6 @@ function handleThemeSelection(theme: string) {
                     onMoodSelect={handleMoodSelection}
                 />
             )}
-            // Add this to the return statement in NavbarComponent.tsx, after the MoodSelector
 
 {themeSelected && (
     <ThemeSelector
