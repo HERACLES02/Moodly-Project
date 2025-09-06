@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { auth } from '@/auth'
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await auth()
     
@@ -18,20 +18,13 @@ export async function GET() {
       select: { unlockedThemes: true }
     })
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
     // Convert comma-separated string to array
-    const unlockedThemesArray = user.unlockedThemes 
-      ? user.unlockedThemes.split(',').filter(theme => theme.trim() !== '')
+    const unlockedThemes = user?.unlockedThemes 
+      ? user.unlockedThemes.split(',').filter(theme => theme !== '')
       : []
 
     return NextResponse.json({
-      unlockedThemes: unlockedThemesArray
+      unlockedThemes: unlockedThemes
     })
 
   } catch (error) {

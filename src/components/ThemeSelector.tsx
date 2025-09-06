@@ -36,37 +36,57 @@ export default function ThemeSelector({ onClose, onThemeSelect }: ThemeSelectorP
   }
 
   const handleThemeSelect = async (themeId: string) => {
+  try {
+    const response = await fetch('/api/themes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ themeId, action: 'apply' })
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      // Apply theme immediately to body
+      applyThemeToBody(themeId)
+      
+      // Update local state
+      setCurrentTheme(themeId)
+      
+      // Call parent callback
+      onThemeSelect(themeId)
+      onClose()
+    } else {
+      alert(data.error || 'Failed to apply theme')
+    }
+  } catch (error) {
+    console.error('Error applying theme:', error)
+    alert('Failed to apply theme')
+  }
+}
+
+// Add this helper function in the same component
+const applyThemeToBody = async (themeId: string) => {
+  // Remove all existing theme and mood classes
+  document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
+  
+  if (themeId !== 'default') {
+    // Apply premium theme
+    document.body.classList.add(`theme-${themeId}`)
+    console.log('ThemeSelector: Applied theme class:', `theme-${themeId}`)
+  } else {
+    // For default, apply mood-based styling
     try {
-      const response = await fetch('/api/themes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId, action: 'apply' })
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        // This is the key fix: Call the onThemeSelect callback first
-        onThemeSelect(themeId)
-        
-        // Close the selector
-        onClose()
-        
-        // Add a small delay to ensure the selector closes, then reload
-        // This is the same logic that works in RedeemableCard
-        setTimeout(() => {
-          console.log('ThemeSelector: Reloading page to apply theme:', themeId)
-          window.location.reload()
-        }, 100)
-        
-      } else {
-        alert(data.error || 'Failed to apply theme')
+      const userResponse = await fetch('/api/getUser')
+      const userData = await userResponse.json()
+      if (userData.mood) {
+        document.body.classList.add(`mood-${userData.mood.toLowerCase()}`)
+        console.log('ThemeSelector: Applied mood class for default:', `mood-${userData.mood.toLowerCase()}`)
       }
     } catch (error) {
-      console.error('Error applying theme:', error)
-      alert('Failed to apply theme')
+      console.error('Error fetching user mood:', error)
     }
   }
+}
 
   const getThemeDisplayName = (themeId: string) => {
     switch (themeId) {

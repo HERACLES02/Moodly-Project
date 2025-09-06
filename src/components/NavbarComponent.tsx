@@ -66,8 +66,15 @@ function handleCloseTheme() {
 
 function handleThemeSelection(theme: string) {
     console.log("Theme selected in Navbar:", theme)
-    // The theme selector component handles the API call
-    // We just need to close the selector
+    
+    // Update the user context if you're using it
+    if (user && setUser) {
+        setUser({
+            ...user,
+            currentTheme: theme
+        })
+    }
+    
     setThemeSelected(false)
 }
 
