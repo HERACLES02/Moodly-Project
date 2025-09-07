@@ -1,37 +1,40 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { use } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
-import LiveStreamComponent from '@/components/LiveStreamComponent'
-import './page.css'
+import SyncedMoviePlayer from '@/components/SyncedMoviePlayer'
 
-export default function LiveStreamPage({ params }: { params: Promise<{ mood: string }> }) {
-  const [mood, setMood] = useState<string>('')
-  const [loading, setLoading] = useState(true)
-  const { user } = useGetUser()
+interface PageProps {
+  params: Promise<{ mood: string }>
+}
 
-  useEffect(() => {
-    const getParams = async () => {
-      const resolvedParams = await params
-      setMood(resolvedParams.mood)
-      setLoading(false)
-    }
-    getParams()
-  }, [params])
-
-  if (loading) {
-    return <div>Loading...</div>
+export default function LiveStreamPage({ params }: PageProps) {
+  const { mood } = use(params)
+  
+  // Validate mood
+  const validMoods = ['happy', 'sad']
+  const normalizedMood = mood.toLowerCase()
+  
+  if (!validMoods.includes(normalizedMood)) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            Invalid Mood Stream
+          </h1>
+          <p className="text-gray-600 mb-4">
+            The mood "{mood}" is not supported yet.
+          </p>
+          <p className="text-sm text-gray-500">
+            Available moods: Happy, Sad
+          </p>
+        </div>
+      </div>
+    )
   }
 
-  
-
   return (
-    <div className="livestream-page-container">
+    <>
       <NavbarComponent />
-      <div className="livestream-content">
-        
-        <LiveStreamComponent mood={mood.toLowerCase()} user={user} />
-      </div>
-    </div>
+      <SyncedMoviePlayer mood={normalizedMood} />
+    </>
   )
 }

@@ -4,7 +4,6 @@ import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
-import { Heart } from 'lucide-react'
 import './page.css'
 
 export default function WatchMovies({ params }: { params: Promise<{ id: string }> }) {
@@ -12,9 +11,8 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
     const [movie, setMovie] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const { user } = useGetUser()
-    const { addPoints, isAdding } = usePoints()
+    const { addPoints } = usePoints()
     const [hasEarnedWatchPoints, setHasEarnedWatchPoints] = useState(false)
-    const [isFavorited, setIsFavorited] = useState(false)
 
     useEffect(() => {
         const getParams = async () => {
@@ -41,14 +39,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
             return () => clearTimeout(timer)
         }
     }, [id, hasEarnedWatchPoints])
-
-    const handleFavorite = () => {
-        if (!isFavorited && !isAdding) {
-            console.log(' Adding points for favoriting movie:', id)
-            addPoints("favorite", id, "movie")
-            setIsFavorited(true)
-        }
-    }
 
     const fetchMovieData = async () => {
         try {
@@ -101,21 +91,8 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                 </div>
                 <div className="movie-actions">
                     <AddToPlaylistComponent type="MOVIE" itemId={id}/>
-                    
-                    <button
-                        onClick={handleFavorite}
-                        disabled={isAdding}
-                        className={`favorite-button ${isFavorited ? 'favorited' : ''}`}
-                        title={isFavorited ? 'Favorited' : 'Add to Favorites (+5 points)'}
-                    >
-                        <Heart 
-                            className={`heart-icon ${isFavorited ? 'filled' : ''}`}
-                            fill={isFavorited ? 'currentColor' : 'none'}
-                        />
-                    </button>
                 </div>
             </div>
-
 
             <div className="movie-info-section">
                 {movie?.vote_average && (

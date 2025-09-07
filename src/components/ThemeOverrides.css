@@ -1,0 +1,169 @@
+/* Theme Override CSS Framework */
+/* These styles will override mood themes when premium themes are selected */
+
+/* Van Gogh Gothic Theme Overrides */
+
+/* Main Dashboard Container */
+body.theme-van-gogh .dashboard-container {
+  background: linear-gradient(135deg, 
+    #1a0d2e 0%,      /* Deep dark purple */
+    #2d1b3d 25%,     /* Slightly lighter purple */
+    #3d2352 50%,     /* Medium dark purple */
+    #2d1b3d 75%,     /* Back to darker */
+    #1a0d2e 100%     /* Deep dark purple */
+  );
+  min-height: 100vh;
+  color: #f8fafc;
+  position: relative;
+}
+
+/* Gothic texture overlay */
+body.theme-van-gogh .dashboard-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(1px 1px at 15% 25%, rgba(248, 250, 252, 0.1), transparent),
+    radial-gradient(1px 1px at 85% 75%, rgba(248, 250, 252, 0.1), transparent),
+    radial-gradient(2px 2px at 45% 15%, rgba(248, 250, 252, 0.05), transparent),
+    radial-gradient(1px 1px at 75% 85%, rgba(248, 250, 252, 0.1), transparent);
+  background-size: 300px 300px, 250px 250px, 400px 400px, 200px 200px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Content Cards */
+body.theme-van-gogh .content-card {
+  background: rgba(45, 27, 61, 0.8);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  color: #f8fafc;
+}
+
+/* Text Elements */
+body.theme-van-gogh .content-title,
+body.theme-van-gogh .accent-text {
+  color: #f8fafc;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-van-gogh .content-text,
+body.theme-van-gogh .mood-text {
+  color: #e2e8f0;
+}
+
+body.theme-van-gogh .content-highlight {
+  color: #fde047; /* Light yellow for highlights */
+}
+
+/* Music Container */
+body.theme-van-gogh .mood-music-container {
+  background: linear-gradient(135deg, 
+    rgba(45, 27, 61, 0.9) 0%, 
+    rgba(61, 35, 82, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+body.theme-van-gogh .mood-music-title {
+  color: #f8fafc;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-van-gogh .mood-music-track-name {
+  color: #f8fafc;
+}
+
+body.theme-van-gogh .mood-music-artist {
+  color: #cbd5e1;
+}
+
+body.theme-van-gogh .mood-music-play-button {
+  background: rgba(45, 27, 61, 0.9);
+  color: #fde047;
+  border: 2px solid #fde047;
+  box-shadow: 0 4px 15px rgba(253, 224, 71, 0.3);
+}
+
+body.theme-van-gogh .mood-music-play-button:hover {
+  background: rgba(61, 35, 82, 0.9);
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(253, 224, 71, 0.5);
+}
+
+body.theme-van-gogh .mood-music-loading,
+body.theme-van-gogh .mood-music-error {
+  color: #e2e8f0;
+}
+
+/* Movies Container */
+body.theme-van-gogh .mood-movies-container {
+  background: linear-gradient(135deg, 
+    rgba(45, 27, 61, 0.9) 0%, 
+    rgba(61, 35, 82, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+}
+
+body.theme-van-gogh .mood-movies-title {
+  color: #f8fafc;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* Movie Cards */
+body.theme-van-gogh .mood-movie-card {
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-van-gogh .mood-movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(253, 224, 71, 0.2);
+  border-color: #fde047;
+}
+
+/* Join Live Session Button */
+body.theme-van-gogh button[style*="background: #3b82f6"] {
+  background: linear-gradient(135deg, #2d1b3d 0%, #3d2352 100%) !important;
+  border: 2px solid #fde047 !important;
+  box-shadow: 0 8px 25px rgba(253, 224, 71, 0.3) !important;
+  color: #f8fafc !important;
+  transition: all 0.3s ease !important;
+}
+
+body.theme-van-gogh button[style*="background: #3b82f6"]:hover {
+  background: linear-gradient(135deg, #3d2352 0%, #4c2a5c 100%) !important;
+  box-shadow: 0 12px 30px rgba(253, 224, 71, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Cat Theme Overrides */
+body.theme-cat .dashboard-container,
+body.theme-cat .watch-page-container,
+body.theme-cat .listen-page-container {
+  /* Cat theme CSS will go here - you'll add this later */
+  /* This overrides any mood-based styling */
+}
+
+body.theme-cat .mood-music-container,
+body.theme-cat .mood-movies-container {
+  /* Cat theme for music/movie components */
+}
+
+/* Default theme (no overrides needed - uses mood styling) */
+body.theme-default .dashboard-container,
+body.theme-default .watch-page-container,
+body.theme-default .listen-page-container {
+  /* Uses existing mood-based styling */
+}

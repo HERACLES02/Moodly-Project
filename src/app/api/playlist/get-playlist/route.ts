@@ -9,7 +9,7 @@ export async function GET(request: Request){
     const playlistType = searchParams.get('type')
 
     if (userId){
-        const playlists = await prisma.Playlist.findMany({
+        const playlists = await prisma.playlist.findMany({
         where: { userId: userId,
             type: playlistType
          }
@@ -20,8 +20,5 @@ export async function GET(request: Request){
         
     }
     
-
-
-
     return NextResponse.json("error")
 }

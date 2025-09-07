@@ -24,24 +24,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-<<<<<<< Updated upstream
     const body = await req.json();
-    const { action, mediaType } = body;
-=======
-    // ✅ FIX: Better JSON parsing with error handling
-    let body;
-    try {
-      body = await req.json();
-    } catch (parseError) {
-      console.error("JSON parse error in add points:", parseError);
-      return NextResponse.json(
-        { error: "Invalid JSON data" },
-        { status: 400 }
-      );
-    }
-
     const { action, mediaId, mediaType } = body;
->>>>>>> Stashed changes
+
+
 
     // ✅ FIX: Validate required fields
     if (!action) {

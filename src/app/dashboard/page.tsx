@@ -8,6 +8,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
+import RedeemableCard from '@/components/RedeemableCard'
 
 
 
@@ -93,6 +94,19 @@ export default function Dashboard() {
       >
         Join Live Session
       </button>
+      <button 
+  onClick={() => router.push(`/radio/${normalizedMood}`)}
+  style={{
+    padding: '0.75rem 2rem',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    background: '#16a34a',
+    color: 'white',
+    marginLeft: '1rem'
+  }}
+>
+  Join Radio Station
+</button>
     </div>
           </div>
         ) : currentMood ? (
@@ -112,6 +126,7 @@ export default function Dashboard() {
           <div className="content-card">
           </div>
         )}
+
       </main>
     </div>
   )

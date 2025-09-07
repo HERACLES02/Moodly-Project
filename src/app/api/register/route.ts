@@ -32,6 +32,24 @@ export async function POST(req: Request) {
       data: { email, password: hashedPassword, anonymousName }
     })
 
+    // Create default "Favorites" playlists for both song and movie types
+    await prisma.playlist.createMany({
+      data: [
+        {
+          name: "Favorites",
+          type: "SONG",
+          isDefault: true,
+          userId: user.id
+        },
+        {
+          name: "Favorites", 
+          type: "MOVIE",
+          isDefault: true,
+          userId: user.id
+        }
+      ]
+    })
+
     return NextResponse.json({ message: 'Account created', userId: user.id })
   } catch (error) {
     return NextResponse.json({ error: 'Registration failed' }, { status: 500 })

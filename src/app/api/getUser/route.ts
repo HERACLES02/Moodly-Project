@@ -9,34 +9,15 @@ export async function GET() {
 
     const user = await prisma.user.findUnique(
         {where : {email: session.user.email},
-        select: {
-        id: true,
-        email: true,
-        anonymousName: true,
-        isBanned: true ,
-        mood: true,
-        note: true,
-        isAdmin: true,
-        }
+                 // Add this line
+        
     })
     if (!user?.isBanned){
-    return NextResponse.json({
-            id: user?.id,
-            email: user?.email,
-            anonymousName: user?.anonymousName,
-            note: user?.note,
-            mood: user?.mood,
-            isAdmin: user?.isAdmin,
-
-            
-        })
+    return NextResponse.json(user)
     }
     else{
         return NextResponse.json("User Banned")
     }
-    
-    
-
   }else{
     NextResponse.json("Not Logged in")
   }

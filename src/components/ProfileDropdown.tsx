@@ -9,13 +9,15 @@ interface ProfileDropdownProps {
   isAdmin?: boolean,
   onAddNote: () => void
   onSelectMood: () => void
+  onSelectTheme: () => void
 }
 
 export default function ProfileDropdown({ 
   userName, 
   isAdmin = false,
   onAddNote, 
-  onSelectMood
+  onSelectMood,
+  onSelectTheme
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -34,10 +36,21 @@ export default function ProfileDropdown({
     router.push('/dashboard')
   }
 
+  const handleUserPage = () => {
+    router.push('/userpage')
+  }
+
+  const handleRedeemPoints = () => {
+    router.push('/themes')
+  }
+
   const menuItems = [
     { label: 'Add/Update Notes', action: onAddNote },
     { label: 'Select Mood', action:  onSelectMood },
+    { label: 'Select Theme', action: onSelectTheme },
     { label: 'Dashboard', action: handleDashboard },
+    { label: 'User Page', action: handleUserPage },
+    { label: 'Redeem Your Mood Points', action: handleRedeemPoints },
     { label: 'Edit Profile', action: () => console.log('Profile clicked') },
     
   ]
