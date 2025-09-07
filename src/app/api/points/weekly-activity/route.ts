@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
           data: {
             userId: user.id,
             points: bonusPoints,
-            reason: weekly_activity_bonus
+            reason: "weekly_activity_bonus"
           }
         });
       }

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { action, mediaId, mediaType } = body;
+    const { action, mediaType } = body;
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
