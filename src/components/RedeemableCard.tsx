@@ -18,6 +18,8 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
   const [userPoints, setUserPoints] = useState(0)
   const [unlockedItems, setUnlockedItems] = useState<string[]>([])
   const [currentTheme, setCurrentTheme] = useState('default')
+
+
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -45,6 +47,7 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
         const unlockedData = await unlockedResponse.json()
         setUnlockedItems(unlockedData.unlockedThemes || [])
       }
+      
       // TODO: Add avatar API call when avatar system is ready
       
     } catch (error) {

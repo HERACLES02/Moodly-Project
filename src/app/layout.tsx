@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 
 const geistSans = Geist({
@@ -27,7 +28,7 @@ export default function RootLayout({
 
 
   return (
-    <html lang="en" suppressHydrationWarning> 
+    <html lang="en" className="vangogh" suppressHydrationWarning> 
     <body 
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       suppressHydrationWarning 
@@ -35,7 +36,14 @@ export default function RootLayout({
 
     
     </div>
+    <ThemeProvider
+    attribute="class"
+    defaultTheme=""
+    themes={['vangogh', 'cat', "default", "happy", "sad"]}
+    >
       {children}
+
+    </ThemeProvider>
     </body>
     </html>
   )

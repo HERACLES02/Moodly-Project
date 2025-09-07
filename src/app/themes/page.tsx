@@ -56,19 +56,13 @@ export default function ThemesPage() {
             {/* Cat Theme - Just pass the 4 required props */}
             <RedeemableCard
               name="Cat"
-              price={6}
+              price={600}
               type="theme"
               thumbnailPath="cat-image"
             />
+            
+          
 
-            {/* You can easily add more themes like this:
-            <RedeemableCard
-              name="Cyberpunk"
-              price={10}
-              type="theme"
-              thumbnailPath="cyberpunk-image"
-            />
-            */}
           </div>
 
           <div className="themes-footer">

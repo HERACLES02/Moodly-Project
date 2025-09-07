@@ -1,26 +1,381 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+    /* CSS Variables for Tailwind v4 - RGB VALUES with color picker support */
+    :root {
+        /* Default Theme - Classic dark with rich blues and gold accents */
+        --background: rgb(20, 20, 20);          /* Deep black from hsl(0 0% 8%) */
+        --foreground: rgb(229, 231, 235);       /* Light gray from hsl(220 13% 91%) */
+        --primary: rgb(0, 0, 0);                /* Pure black from hsl(0 0% 0%) */
+        --secondary: rgb(3, 27, 73);            /* Rich dark blue from hsl(220 91% 15%) */
+        --accent: rgb(251, 189, 35);            /* Warm gold from hsl(43 96% 56%) */
+    }
+    
+    .vangogh {
+    /* Van Gogh Theme - Richer, deeper gothic purples */
+    --background: rgb(45, 27, 61);          /* Richer deep purple */
+    --foreground: rgb(246, 247, 249);       /* Very light blue-white */
+    --primary: rgb(61, 35, 82);             /* Rich dark purple */
+    --secondary: rgb(106, 90, 205);         /* Vibrant purple-blue */
+    --accent: rgb(255, 217, 0);             /* Gold */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Override background for main containers in Van Gogh theme */
+.vangogh body {
+    background: linear-gradient(135deg, 
+        rgba(45, 27, 61, 0.95) 0%, 
+        rgba(61, 35, 82, 0.9) 50%,
+        rgba(75, 45, 95, 0.85) 100%
+    ) !important;
+    backdrop-filter: blur(20px);
+    min-height: 100vh;
+    position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Add container styling for Van Gogh theme */
+.vangogh body::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: -1;
+}
+    
+    .cat {
+        /* Cat Theme - Soft purples and lavenders */
+        --background: rgb(219, 164, 219);       /* Light plum from hsl(300 43% 75%) */
+        --foreground: rgb(73, 79, 91);          /* Dark gray-blue from hsl(218 11% 32%) */
+        --primary: rgb(166, 118, 214);          /* Purple from hsl(270 54% 65%) */
+        --secondary: rgb(216, 192, 216);        /* Light lavender from hsl(300 24% 80%) */
+        --accent: rgb(166, 118, 214);           /* Same purple as primary from hsl(270 54% 65%) */
+    }
+    
+    .happy {
+        --background: rgb(241, 214, 248);       /* Solid fallback for components */
+        --foreground: rgb(74, 74, 122);
+        --primary: rgb(255, 255, 255);
+        --secondary: rgb(213, 192, 239);
+        --accent: rgb(45, 45, 90);
+    }
+    
+    .sad {
+        --background: rgb(139, 149, 209);       /* Solid fallback for components */
+        --foreground: rgb(230, 230, 250);       /* Light lavender text from #E6E6FA */
+        --primary: rgb(106, 90, 205);           /* Bright purple from gradient */
+        --secondary: rgb(72, 61, 139);          /* Dark purple from gradient */
+        --accent: rgb(221, 160, 221);           /* Plum from mood-text #DDA0DD */
+    }
+
+    /* Override background for main containers in happy theme */
+    .happy body {
+        background: 
+            linear-gradient(135deg,
+                rgba(213, 192, 239, 0.8) 0%,
+                rgba(189, 174, 211, 0.8) 25%,
+                rgba(184, 212, 237, 0.8) 50%,
+                rgba(241, 214, 248, 0.8) 75%,
+                rgba(135, 204, 234, 0.8) 100%
+            ), 
+            url('/images/moods/happy/background.jpg') !important;
+        background-size: cover, cover !important;
+        min-height: 100vh;
+    }
+    
+    /* Override background for main containers in sad theme */
+    .sad body {
+        background:
+            linear-gradient(135deg,
+                rgba(74, 74, 122, 0.9) 0%,
+                rgba(90, 90, 138, 0.9) 30%,
+                rgba(106, 90, 205, 0.9) 60%,
+                rgba(72, 61, 139, 0.9) 80%,
+                rgba(47, 47, 95, 0.9) 100%
+            ),
+            url('/images/moods/sad/background.jpg') !important;
+        background-size: cover, cover !important;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Add the beautiful starry night effect from the original */
+    .sad body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image:
+            radial-gradient(2px 2px at 20% 30%, #FFF, transparent),
+            radial-gradient(2px 2px at 40% 70%, #FFF, transparent),
+            radial-gradient(1px 1px at 90% 40%, #FFF, transparent),
+            radial-gradient(1px 1px at 50% 50%, #FFF, transparent),
+            radial-gradient(2px 2px at 10% 10%, #FFF, transparent);
+        background-size: 200px 200px, 300px 300px, 150px 150px, 250px 250px, 180px 180px;
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Ensure content appears above the stars */
+    .sad body > * {
+        position: relative;
+        z-index: 2;
+    }
+
+    body {
+        @apply bg-[var(--background)] text-[var(--foreground)];
+    }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* THEMED COMPONENT CLASSES - The hybrid approach */
+@layer components {
+    /* Navigation Elements */
+    .nav-link {
+        color: var(--foreground);
+        cursor: pointer;
+        transition: color 0.2s ease;
+        font-weight: 500;
+    }
+    .nav-link:hover {
+        color: var(--accent);
+    }
+    
+    .nav-title {
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 1.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Button Components */
+    .theme-button {
+        background-color: var(--secondary);
+        color: var(--foreground);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        border: 2px solid var(--secondary);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .theme-button:hover {
+        background-color: var(--accent);
+        color: var(--primary);
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .theme-button-primary {
+        background-color: var(--primary);
+        color: var(--foreground);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        border: 2px solid var(--accent);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .theme-button-primary:hover {
+        background-color: var(--accent);
+        color: var(--background);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Card Components */
+    .theme-card {
+        background-color: var(--primary);
+        border: 1px solid var(--secondary);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        transition: all 0.3s ease;
+    }
+    .theme-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        border-color: var(--accent);
+    }
+    
+    .theme-card-highlight {
+        background-color: var(--accent);
+        color: var(--background);
+        border: 1px solid var(--accent);
+        border-radius: 0.75rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .theme-card-highlight:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    /* Text Components */
+    .theme-text-muted {
+        color: var(--secondary);
+        font-weight: 400;
+    }
+    
+    .theme-text-accent {
+        color: var(--accent);
+        font-weight: 600;
+    }
+    
+    .theme-text-highlight {
+        color: var(--accent);
+        font-weight: 700;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Form Elements */
+    .theme-input {
+        background-color: var(--background);
+        color: var(--foreground);
+        border: 2px solid var(--secondary);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+        width: 100%;
+    }
+    .theme-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(var(--accent), 0.1);
+    }
+    .theme-input::placeholder {
+        color: var(--secondary);
+    }
+    
+    /* Navigation Bar */
+    .theme-navbar {
+        background-color: var(--primary);
+        border-bottom: 2px solid var(--secondary);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Container Elements */
+    .theme-container {
+        background-color: var(--background);
+        border: 1px solid var(--secondary);
+        border-radius: 0.5rem;
+    }
+    
+    .theme-border {
+        border-color: var(--secondary);
+    }
+    
+    .theme-border-accent {
+        border-color: var(--accent);
+    }
+    
+    /* Interactive Elements */
+    .theme-link {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-color: transparent;
+        transition: all 0.2s ease;
+    }
+    .theme-link:hover {
+        text-decoration-color: var(--accent);
+        color: var(--foreground);
+    }
+
+    /* Add to your @layer components in globals.css */
+
+/* Button Layout Components */
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-group-centered {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Base Button Sizes */
+.btn-small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-medium {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Themed Button Variants */
+.theme-btn {
+    background-color: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.theme-btn:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.theme-btn-outline {
+    background-color: transparent;
+    color: var(--foreground);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.theme-btn-outline:hover {
+    background-color: var(--secondary);
+    color: var(--foreground);
+}
+    
+}
+
+/* Keep minimal utilities for edge cases */
+@layer utilities {
+    .bg-primary { background-color: var(--primary); }
+    .bg-secondary { background-color: var(--secondary); }
+    .bg-accent { background-color: var(--accent); }
+    .text-primary { color: var(--primary); }
+    .text-secondary { color: var(--secondary); }
+    .text-accent { color: var(--accent); }
+    .border-primary { border-color: var(--primary); }
+    .border-secondary { border-color: var(--secondary); }
+    .border-accent { border-color: var(--accent); }
 }
