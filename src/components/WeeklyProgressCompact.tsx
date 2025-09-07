@@ -27,17 +27,21 @@ export default function WeeklyProgressCompact() {
   const fetchProgress = async () => {
     try {
       const response = await fetch("/api/points/weekly-activity");
-      const data = await response.json();
-      
-      if (data.weeklyProgress) {
-        setProgress(data.weeklyProgress);
+
+      if (!response.ok) {
+        const text = await response.text(); // log raw response
+        console.error("Server returned error:", text);
+        return; // don’t call response.json() if server returned HTML
       }
-      
+
+      const data = await response.json();
+      if (data.weeklyProgress) setProgress(data.weeklyProgress);
+
     } catch (error) {
       console.error("Failed to fetch weekly progress:", error);
-
     }
   };
+
 
   
   if (!progress) return null;
