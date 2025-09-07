@@ -24,8 +24,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+<<<<<<< Updated upstream
     const body = await req.json();
     const { action, mediaType } = body;
+=======
+    // ✅ FIX: Better JSON parsing with error handling
+    let body;
+    try {
+      body = await req.json();
+    } catch (parseError) {
+      console.error("JSON parse error in add points:", parseError);
+      return NextResponse.json(
+        { error: "Invalid JSON data" },
+        { status: 400 }
+      );
+    }
+
+    const { action, mediaId, mediaType } = body;
+>>>>>>> Stashed changes
+
+    // ✅ FIX: Validate required fields
+    if (!action) {
+      return NextResponse.json(
+        { error: "Action is required" },
+        { status: 400 }
+      );
+    }
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -39,11 +63,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ✅ FIX: Validate action types
     let pointsToAdd = 0;
     if (action === "watch" || action === "listen") {
       pointsToAdd = 10;
     } else if (action === "favorite") {
       pointsToAdd = 5;
+    } else {
+      return NextResponse.json(
+        { error: "Invalid action type" },
+        { status: 400 }
+      );
     }
 
     const updatedUser = await prisma.user.update({
@@ -62,7 +92,9 @@ export async function POST(req: NextRequest) {
     });
 
     let weeklyBonus = null;
-    if (action === "watch" || action === "listen") {
+    
+    // ✅ FIX: Only handle weekly activity for specific actions with mediaType
+    if ((action === "watch" || action === "listen") && mediaType) {
       const weekStart = getWeekStart(new Date());
 
       let weeklyActivity = await prisma.weeklyActivity.findFirst({
@@ -85,60 +117,62 @@ export async function POST(req: NextRequest) {
       }
 
       let updateData: any = {};
+      
+      // ✅ FIX: More specific validation for weekly activity
       if (action === "watch" && mediaType === "movie") {
         updateData.moviesWatched = { increment: 1 };
       } else if (action === "listen" && mediaType === "song") {
         updateData.songsListened = { increment: 1 };
       }
 
-      const updatedActivity = await prisma.weeklyActivity.update({
-        where: { id: weeklyActivity.id },
-        data: updateData
-      });
+      // Only update if we have valid update data
+      if (Object.keys(updateData).length > 0) {
+        const updatedActivity = await prisma.weeklyActivity.update({
+          where: { id: weeklyActivity.id },
+          data: updateData
+        });
 
-      if (!updatedActivity.bonusClaimed) {
-        if (updatedActivity.moviesWatched >= 3 || updatedActivity.songsListened >= 3) {
-          const bonusPoints = 50;
-          
+        // ✅ FIX: Check weekly bonus logic - needs BOTH conditions (AND not OR)
+        if (!updatedActivity.bonusClaimed) {
+          if (updatedActivity.moviesWatched >= 3 && updatedActivity.songsListened >= 3) {
+            const bonusPoints = 50;
 
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { points: { increment: bonusPoints } }
-          });
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { points: { increment: bonusPoints } }
+            });
 
-          await prisma.weeklyActivity.update({
-            where: { id: weeklyActivity.id },
-            data: { bonusClaimed: true }
-          });
+            await prisma.weeklyActivity.update({
+              where: { id: weeklyActivity.id },
+              data: { bonusClaimed: true }
+            });
 
-          await prisma.pointHistory.create({
-            data: {
-              userId: user.id,
+            await prisma.pointHistory.create({
+              data: {
+                userId: user.id,
+                points: bonusPoints,
+                reason: 'weekly_activity_bonus'
+              }
+            });
+
+            weeklyBonus = {
+              awarded: true,
               points: bonusPoints,
-              reason: 'weekly_activity_bonus'
-            }
-          });
-
-          weeklyBonus = {
-            awarded: true,
-            points: bonusPoints,
-            message: " Weekly challenge complete! +50 bonus points!"
-          };
+              message: "Weekly challenge complete! +50 bonus points!"
+            };
+          }
         }
       }
     }
 
-    const response: any = {
+    // ✅ FIX: More robust response construction
+    const response = {
       success: true,
       pointsAdded: pointsToAdd,
       totalPoints: updatedUser.points + (weeklyBonus?.points || 0),
-      message: `You earned ${pointsToAdd} points!`
+      message: `You earned ${pointsToAdd} points!`,
+      ...(weeklyBonus && { weeklyBonus })
     };
-
-    if (weeklyBonus) {
-      response.weeklyBonus = weeklyBonus;
-      response.totalPoints = updatedUser.points + weeklyBonus.points;
-    }
 
     return NextResponse.json(response);
 
@@ -148,5 +182,8 @@ export async function POST(req: NextRequest) {
       { error: "Failed to add points" },
       { status: 500 }
     );
+  } finally {
+    // ✅ FIX: Always disconnect from Prisma
+    await prisma.$disconnect();
   }
 }

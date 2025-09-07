@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     let bonusPoints = 0;
     
     if (!updatedActivity.bonusClaimed) {
-      if (updatedActivity.moviesWatched >= 3 || updatedActivity.songsListened >= 3) {
+      if (updatedActivity.moviesWatched >= 3 && updatedActivity.songsListened >= 3) {
         bonusPoints = 50;
         bonusAwarded = true;
         
