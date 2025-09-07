@@ -76,13 +76,15 @@ export default function UserPage() {
     return 'userpage-default'
   }
 
-  const handleMusicPlaylistClick = (playlistId: string) => {
-    router.push(`/playlist/${playlistId}`)
-  }
+const handleMusicPlaylistClick = () => {
+  // Navigate to playlist page with music filter
+  router.push('/playlist?type=SONG')
+}
 
-  const handleMoviePlaylistClick = (playlistId: string) => {
-    router.push(`/playlist/${playlistId}`)
-  }
+const handleMoviePlaylistClick = () => {
+  // Navigate to playlist page with movie filter
+  router.push('/playlist?type=MOVIE')
+}
 
   if (loading) {
     return (
