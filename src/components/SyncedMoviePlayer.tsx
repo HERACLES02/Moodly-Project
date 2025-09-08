@@ -51,7 +51,7 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
 
   // Socket connection and event handlers
   useEffect(() => {
-    const newSocket = io('http://moodly-blond.vercel.app/')
+    const newSocket = io('https://moodly-blond.vercel.app/')
 
     newSocket.on('connect', () => {
       console.log('🔌 Connected to sync server')

@@ -77,7 +77,7 @@ export function LiveChatComponent({
     // Only create a new socket if no shared socket is provided (fallback)
     else if (!socket) {
       console.log('💬 Creating standalone chat socket connection...')
-      const newSocket = io('http://moodly-blond.vercel.app/', {
+      const newSocket = io('https://moodly-blond.vercel.app/', {
         forceNew: false,
         transports: ['websocket', 'polling']
       })

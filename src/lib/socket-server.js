@@ -8,7 +8,7 @@ function initSocket(server) {
   if (!io) {
     io = new Server(server, {
       cors: {
-        origin: "http://moodly-blond.vercel.app/",
+        origin: "https://moodly-blond.vercel.app/",
         methods: ["GET", "POST"]
       }
     })
