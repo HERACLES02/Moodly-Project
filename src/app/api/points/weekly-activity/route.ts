@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { auth } from "@/auth";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient(); 
 
 function getWeekStart(date: Date): Date {
   const d = new Date(date);
@@ -13,169 +13,161 @@ function getWeekStart(date: Date): Date {
   return monday;
 }
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Not logged in" },
-        { status: 401 }
-      );
-    }
-
-    const body = await req.json();
-    const { action, mediaType } = body; 
+    if (!session?.user?.email)
+      return NextResponse.json({ error: "Not logged in" }, { status: 401 });
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true }
+      select: { id: true },
     });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     const weekStart = getWeekStart(new Date());
 
     let weeklyActivity = await prisma.weeklyActivity.findFirst({
-      where: {
-        userId: user.id,
-        weekStart: weekStart
-      }
+      where: { userId: user.id, weekStart },
     });
 
     if (!weeklyActivity) {
       weeklyActivity = await prisma.weeklyActivity.create({
         data: {
           userId: user.id,
-          weekStart: weekStart,
+          weekStart,
           moviesWatched: 0,
           songsListened: 0,
-          bonusClaimed: false
-        }
+          bonusClaimed: false,
+        },
       });
     }
 
-    let updateData: any = {};
-    let activityMessage = "";
-    
-    if (action === "watch" && mediaType === "movie") {
-      updateData.moviesWatched = { increment: 1 };
-      activityMessage = `Movies watched this week: ${weeklyActivity.moviesWatched + 1}/3`;
-      
-    } else if (action === "listen" && mediaType === "song") {
-      updateData.songsListened = { increment: 1 };
-      activityMessage = `Songs listened this week: ${weeklyActivity.songsListened + 1}/3`;
-    }
-
-    const updatedActivity = await prisma.weeklyActivity.update({
-      where: { id: weeklyActivity.id },
-      data: updateData
-    });
-
-    let bonusAwarded = false;
-    let bonusPoints = 0;
-    
-    if (!updatedActivity.bonusClaimed) {
-      if (updatedActivity.moviesWatched >= 3 || updatedActivity.songsListened >= 3) {
-        bonusPoints = 50;
-        bonusAwarded = true;
-        
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            points: { increment: bonusPoints }
-          }
-        });
-
-        await prisma.weeklyActivity.update({
-          where: { id: weeklyActivity.id },
-          data: { bonusClaimed: true }
-        });
-
-        await prisma.pointHistory.create({
-          data: {
-            userId: user.id,
-            points: bonusPoints,
-            reason: weekly_activity_bonus
-          }
-        });
-      }
-    }
-
     return NextResponse.json({
-      success: true,
       weeklyProgress: {
-        moviesWatched: updatedActivity.moviesWatched,
-        songsListened: updatedActivity.songsListened,
-        bonusClaimed: updatedActivity.bonusClaimed || bonusAwarded
+        moviesWatched: weeklyActivity.moviesWatched,
+        songsListened: weeklyActivity.songsListened,
+        bonusClaimed: weeklyActivity.bonusClaimed,
+        weekStart: weekStart.toISOString(),
       },
-      message: bonusAwarded 
-        ?  `Weekly challenge complete! You earned ${bonusPoints} bonus points!`
-        : activityMessage,
-      bonusAwarded,
-      bonusPoints
     });
-
   } catch (error) {
-    console.error("Error tracking weekly activity:", error);
+    console.error("GET weekly-activity error:", error);
     return NextResponse.json(
-      { error: "Failed to track weekly activity" },
+      { error: "Failed to get weekly progress" },
       { status: 500 }
     );
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Not logged in" },
-        { status: 401 }
-      );
+    if (!session?.user?.email)
+      return NextResponse.json({ error: "Not logged in" }, { status: 401 });
+
+    // Parse JSON safely
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
+
+    const { action, mediaType } = body;
+    if (!action || !mediaType)
+      return NextResponse.json({ error: "Missing action or mediaType" }, { status: 400 });
+
+    if (!["watch", "listen", "favorite"].includes(action))
+      return NextResponse.json({ error: "Invalid action type" }, { status: 400 });
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true }
+      select: { id: true, points: true },
+    });
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+    let pointsToAdd = 0;
+    if (action === "watch" || action === "listen") pointsToAdd = 10;
+    else if (action === "favorite") pointsToAdd = 5;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { points: { increment: pointsToAdd } },
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+    await prisma.pointHistory.create({
+      data: {
+        userId: user.id,
+        points: pointsToAdd,
+        reason: `${action}_${mediaType}`,
+      },
+    });
+
+    let weeklyBonus = null;
+    if ((action === "watch" || action === "listen") && (mediaType === "movie" || mediaType === "song")) {
+      const weekStart = getWeekStart(new Date());
+
+      let weeklyActivity = await prisma.weeklyActivity.findFirst({
+        where: { userId: user.id, weekStart },
+      });
+
+      if (!weeklyActivity) {
+        weeklyActivity = await prisma.weeklyActivity.create({
+          data: {
+            userId: user.id,
+            weekStart,
+            moviesWatched: 0,
+            songsListened: 0,
+            bonusClaimed: false,
+          },
+        });
+      }
+
+      const updateData: any = {};
+      if (action === "watch" && mediaType === "movie") updateData.moviesWatched = { increment: 1 };
+      if (action === "listen" && mediaType === "song") updateData.songsListened = { increment: 1 };
+
+      let updatedActivity = weeklyActivity;
+      if (Object.keys(updateData).length > 0) {
+        updatedActivity = await prisma.weeklyActivity.update({
+          where: { id: weeklyActivity.id },
+          data: updateData,
+        });
+      }
+
+      if (
+        !updatedActivity.bonusClaimed &&
+        updatedActivity.moviesWatched >= 3 &&
+        updatedActivity.songsListened >= 3
+      ) {
+        const bonusPoints = 50;
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { points: { increment: bonusPoints } },
+        });
+
+        await prisma.weeklyActivity.update({
+          where: { id: weeklyActivity.id },
+          data: { bonusClaimed: true },
+        });
+
+        await prisma.pointHistory.create({
+          data: { userId: user.id, points: bonusPoints, reason: "weekly_activity_bonus" },
+        });
+
+        weeklyBonus = { awarded: true, points: bonusPoints, message: "Weekly challenge complete! +50 bonus points!" };
+      }
     }
 
-    const weekStart = getWeekStart(new Date());
-
-    const weeklyActivity = await prisma.weeklyActivity.findFirst({
-      where: {
-        userId: user.id,
-        weekStart: weekStart
-      }
-    });
-
     return NextResponse.json({
-      weeklyProgress: {
-        moviesWatched: weeklyActivity?.moviesWatched || 0,
-        songsListened: weeklyActivity?.songsListened || 0,
-        bonusClaimed: weeklyActivity?.bonusClaimed || false,
-        weekStart: weekStart.toISOString()
-      }
+      success: true,
+      pointsAdded: pointsToAdd,
+      weeklyBonus,
     });
-
   } catch (error) {
-    console.error("Error getting weekly progress:", error);
-    return NextResponse.json(
-      { error: "Failed to get weekly progress" },
-      { status: 500 }
-    );
+    console.error("POST weekly-activity error:", error);
+    return NextResponse.json({ error: "Failed to add points" }, { status: 500 });
   }
 }

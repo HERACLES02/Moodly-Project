@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Film, Music, Trophy } from "lucide-react";
+import { usePoints } from "@/hooks/usePoints";
 
 interface WeeklyProgress {
   moviesWatched: number;
@@ -26,17 +27,21 @@ export default function WeeklyProgressCompact() {
   const fetchProgress = async () => {
     try {
       const response = await fetch("/api/points/weekly-activity");
-      const data = await response.json();
-      
-      if (data.weeklyProgress) {
-        setProgress(data.weeklyProgress);
+
+      if (!response.ok) {
+        const text = await response.text(); // log raw response
+        console.error("Server returned error:", text);
+        return; // don’t call response.json() if server returned HTML
       }
-      
+
+      const data = await response.json();
+      if (data.weeklyProgress) setProgress(data.weeklyProgress);
+
     } catch (error) {
       console.error("Failed to fetch weekly progress:", error);
-
     }
   };
+
 
   
   if (!progress) return null;
@@ -57,7 +62,7 @@ export default function WeeklyProgressCompact() {
               style={{ width: `${moviePercentage}%` }}
             />
           </div>
-          <span className="progress-text">{progress.moviesWatched}/3</span>
+          <span className="progress-text">{Math.min(progress.moviesWatched, 3)}/3</span>
         </div>
       </div>
 
@@ -70,7 +75,7 @@ export default function WeeklyProgressCompact() {
               style={{ width: `${songPercentage}%` }}
             />
           </div>
-          <span className="progress-text">{progress.songsListened}/3</span>
+          <span className="progress-text">{Math.min(progress.songsListened, 3)}/3</span>
         </div>
       </div>
 
