@@ -4,7 +4,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
-import SelectTheme from '@/components/SelectTheme'
+
 import './page.css'
 
 export default function WatchMovies({ params }: { params: Promise<{ id: string }> }) {
@@ -43,7 +43,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
 
     const fetchMovieData = async () => {
         try {
-            const response = await fetch(`http://localhost:9513/api/get-movie-data?id=${id}`)
+            const response = await fetch(`http://moodly-blond.vercel.app/api/get-movie-data?id=${id}`)
             const movieData = await response.json()
             setMovie(movieData)
         } catch (error) {
@@ -67,7 +67,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
 
         <div className="watch-page-container">
             
-            <div className="video-container">
+            <div className="video-container p-2">
                 <iframe
                     src={embedUrl}
                     className="video-player"

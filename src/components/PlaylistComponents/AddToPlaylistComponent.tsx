@@ -105,8 +105,8 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
           onClose={() => setShowPlaylist(false)}
         />
       )}
-      
-      <button className="action-button" title="Add to playlist" onClick={handlePlaylist}>
+      <div className='flex'>
+<button className="action-button" title="Add to playlist" onClick={handlePlaylist}>
         +
       </button>
       
@@ -123,6 +123,8 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
           fill={isFavorited ? 'currentColor' : 'none'}
         />
       </button>
+      </div>
+      
     </>
   )
 }

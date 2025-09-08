@@ -48,7 +48,7 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
 
   // Socket connection and event handlers
   useEffect(() => {
-    const newSocket = io('http://localhost:9513')
+    const newSocket = io('http://moodly-blond.vercel.app/')
 
     newSocket.on('connect', () => {
       setIsConnected(true)

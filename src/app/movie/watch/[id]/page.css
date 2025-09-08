@@ -1,38 +1,27 @@
-/* Theme Selector Styling */
-.theme-selector-container {
-  padding: 1rem 4rem;
-  margin-bottom: 1rem;
-}
-
-.theme-selector-card {
-  background: var(--primary);
-  border: 1px solid var(--secondary);
-  border-radius: 12px;
-  padding: 1rem;
-}
+/* CLEANED AND OPTIMIZED MOVIE WATCH PAGE CSS */
 
 /* Main Container */
 .watch-page-container {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  padding: 0;
+  padding: 2rem 0 0 0; /* Added top padding to push content below navbar */
   position: relative;
   overflow-x: hidden;
-  /* Remove background - let body handle it from globals.css */
   color: var(--foreground);
 }
 
-/* Video Container */
+/* Video Container - FIXED POSITIONING */
 .video-container {
-  margin: 0 4rem 2rem 4rem;
+  margin: 2rem 1rem 2rem 4rem; /* Added top margin to lower the video */
   width: calc(100% - 8rem);
   position: relative;
-  padding-bottom: 56.25%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
   height: 0;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.5s ease;
+  z-index: 1; /* Keep video below navbar */
 }
 
 .video-player {
@@ -160,11 +149,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .watch-page-container {
-    padding: 0;
-  }
-  
-  .theme-selector-container {
-    padding: 1rem 2rem;
+    padding: 1rem 0 0 0;
   }
   
   .movie-title-section {
@@ -179,11 +164,11 @@
   }
   
   .movie-year-below {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   
   .video-container {
-    margin: 0 2rem 1.5rem 2rem;
+    margin: 1.5rem 2rem 1.5rem 2rem;
     width: calc(100% - 4rem);
     padding-bottom: 56.25%;
   }
@@ -202,10 +187,6 @@
 }
 
 @media (max-width: 480px) {
-  .theme-selector-container {
-    padding: 1rem;
-  }
-  
   .movie-title-section {
     padding: 0 1rem;
   }
@@ -215,7 +196,7 @@
   }
   
   .video-container {
-    margin: 0 1rem 1rem 1rem;
+    margin: 1.5rem 1rem; /* Increased top margin for small mobile too */
     width: calc(100% - 2rem);
   }
   
@@ -232,3 +213,9 @@
     padding: 0.3rem 0.8rem;
   }
 }
+
+/* REMOVED UNUSED CSS:
+- .theme-selector-container and .theme-selector-card (not used in your component)
+- The mobile padding-top: 5% error that was causing layout issues
+- Duplicate responsive rules
+*/

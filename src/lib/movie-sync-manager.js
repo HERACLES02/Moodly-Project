@@ -14,7 +14,7 @@ class MovieSyncManager {
 
   async initializeQueue() { 
     try {
-      const response = await fetch(`http://localhost:9513/api/recommendations/movies?mood=${this.mood}`)
+      const response = await fetch(`http://moodly-blond.vercel.app/api/recommendations/movies?mood=${this.mood}`)
       const data = await response.json()
       
       if (data.movies && data.movies.length > 0) {

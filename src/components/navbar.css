@@ -5,6 +5,8 @@
     padding: 10px 30px;
     background: linear-gradient(135deg, #eadfee 0%, #f0e6f7 100%);
     font-family: Arial, sans-serif;
+    position: relative;  /* ADD THIS LINE */
+    z-index: 1000;       /* ADD THIS LINE */
 }
 
 .navbar-center {

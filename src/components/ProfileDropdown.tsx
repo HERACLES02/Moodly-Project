@@ -87,7 +87,7 @@ menuItems.push({ label: 'Log Out', action: handleLogout })
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-[#815FD0] rounded-lg shadow-lg z-20 overflow-hidden border border-[#9479d9]">
+        <div className="absolute right-0 mt-2 w-56 bg-[#815FD0] rounded-lg shadow-lg z-[9999] overflow-hidden border border-[#9479d9]">
           <div className="space-y-1 p-1">
             {menuItems.map((item, index) => (
               <button
