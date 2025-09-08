@@ -53,13 +53,13 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     try {
       setLoading(true)
       
-      // For now, we'll show a simple playlist page
-      // Later you can create an API to get individual playlist with items
+      
+      
       setPlaylist({
         id: playlistId,
         name: `My Playlist`,
-        type: 'SONG', // Default to SONG, you can make this dynamic later
-        items: [] // Empty for now - will show message to add items
+        type: 'SONG', 
+        items: [] 
       })
       
     } catch (error) {
@@ -127,12 +127,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
       <main className="playlist-main">
         <div className="playlist-content">
           <div className="playlist-header">
-            <button 
-              onClick={() => router.push('/userpage')} 
-              className="back-button"
-            >
-              ← Back to User Page
-            </button>
+
             
             <div className="playlist-title-section">
               <div className="playlist-icon-large">

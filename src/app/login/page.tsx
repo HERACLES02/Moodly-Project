@@ -1,17 +1,30 @@
 'use client'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
+
 
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const { setTheme } = useTheme()
+
+
+
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const message = searchParams.get('message')
+
+
+  useEffect( () => {
+    setTheme("default")
+  }, [])
+
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()

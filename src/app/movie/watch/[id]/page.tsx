@@ -106,19 +106,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
                         <p>{movie.overview}</p>
                     </div>
                 )}
-               
-                {movie?.genres && movie.genres.length > 0 && (
-                    <div className="movie-genres">
-                        <h3>Genres</h3>
-                        <div className="genre-tags">
-                            {movie.genres.map((genre: any) => (
-                                <span key={genre.id} className="genre-tag">
-                                    {genre.name}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
         </>

@@ -6,6 +6,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import './userpage.css'
 import '@/components/ThemeOverrides.css' 
+import PointHistory from '@/components/PointHistory'
 
 export default function UserPage() {
   const { user } = useGetUser()
@@ -102,14 +103,14 @@ const handleMoviePlaylistClick = () => {
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
       
       <main className="userpage-main">
-        <div className="userpage-content">
+        <div className="userpage-content ">
           <div className="user-header">
             <h1 className="user-title">Welcome, {user?.anonymousName || 'User'}</h1>
             <p className="user-subtitle">Your personalized music and movie space</p>
           </div>
 
           <div className="playlists-section">
-            <h2 className="section-title">My Favorite Playlists</h2>
+            <h2 className="section-title">My Playlists</h2>
             
             <div className="playlists-grid">
               {/* Favorite Music Playlist */}
@@ -118,7 +119,7 @@ const handleMoviePlaylistClick = () => {
                 onClick={() => musicPlaylists.length > 0 && handleMusicPlaylistClick(musicPlaylists[0].id)}
               >
                 <div className="playlist-icon">🎵</div>
-                <h3 className="playlist-title">Favorite Songs</h3>
+                <h3 className="playlist-title">Song Playlists</h3>
                 <p className="playlist-description">
                   {musicPlaylists.length > 0 
                     ? `${musicPlaylists.length} playlists` 
@@ -132,7 +133,7 @@ const handleMoviePlaylistClick = () => {
                 onClick={() => moviePlaylists.length > 0 && handleMoviePlaylistClick(moviePlaylists[0].id)}
               >
                 <div className="playlist-icon">🎬</div>
-                <h3 className="playlist-title">Favorite Movies</h3>
+                <h3 className="playlist-title">Movie Playlists</h3>
                 <p className="playlist-description">
                   {moviePlaylists.length > 0 
                     ? `${moviePlaylists.length} playlists` 
@@ -141,6 +142,11 @@ const handleMoviePlaylistClick = () => {
               </div>
             </div>
           </div>
+
+          <div className="point-history-section py-15">
+  <PointHistory />
+</div>  
+
         </div>
       </main>
     </div>

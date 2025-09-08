@@ -94,12 +94,6 @@ export default function ThemesPage() {
     type="avatar"
     thumbnailPath="/images/avatars/Storoberry.jpg"
   />
-  <RedeemableCard
-    name="HHIHIIH"
-    price={12}
-    type="avatar"
-    thumbnailPath="/images/avatars/Storoberry.jpg"
-  />
           </div>
 
           <div className="themes-footer">

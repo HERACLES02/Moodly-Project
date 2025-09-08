@@ -4,7 +4,7 @@ import { signOut } from 'next-auth/react'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import DisplayUser from './DisplayUser'
-import { useTheme } from 'next-themes'
+
 
 interface ProfileDropdownProps {
   userName: string
@@ -26,7 +26,7 @@ export default function ProfileDropdown({
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { setTheme } = useTheme()
+
 
   const handleLogout = async () => {
   
