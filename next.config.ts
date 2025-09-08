@@ -6,10 +6,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Ensure all API routes run in Node.js runtime (not Edge)
-  experimental: {
-    serverComponentsExternalPackages: ['bcryptjs']
-  },
+  // Fix for Next.js 15 - moved from experimental to top level
+  serverExternalPackages: ['bcryptjs'],
   reactStrictMode: true,
   images: {
     domains: ['image.tmdb.org', 'i.scdn.co'],
