@@ -15,7 +15,7 @@ const ThemeToggler = () => {
        if (theme == "happy") setTheme("sad")
        if (theme == "sad") setTheme("vangogh")
        console.log("clicked")
-    } // ← Added this missing closing brace
+    }
 
     useEffect(() =>{
         setMounted(true)

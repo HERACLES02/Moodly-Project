@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useGetUser } from '@/hooks/useGetUser'
+import { useTheme } from 'next-themes'
 import './ThemeSelector.css'
 
 interface ThemeSelectorProps {
@@ -10,94 +12,95 @@ interface ThemeSelectorProps {
 
 export default function ThemeSelector({ onClose, onThemeSelect }: ThemeSelectorProps) {
   const [unlockedThemes, setUnlockedThemes] = useState<string[]>([])
-  const [currentTheme, setCurrentTheme] = useState('default')
   const [loading, setLoading] = useState(true)
+  const { user, setUser } = useGetUser()
+  const { setTheme } = useTheme()
 
   useEffect(() => {
-    fetchThemeData()
+    fetchUnlockedThemes()
   }, [])
 
-  const fetchThemeData = async () => {
+  const fetchUnlockedThemes = async () => {
     try {
-      // Get current theme
-      const response = await fetch('/api/themes')
+      // Get unlocked themes from API
+      const response = await fetch('/api/themes/unlocked')
       const data = await response.json()
-      setCurrentTheme(data.currentTheme || 'default')
+      const unlocked = data.unlockedThemes || []
       
-      // Get unlocked themes
-      const unlockedResponse = await fetch('/api/themes/unlocked')
-      const unlockedData = await unlockedResponse.json()
-      setUnlockedThemes(unlockedData.unlockedThemes || [])
+      // Always include default theme + unlocked premium themes
+      const allThemes = ['default', ...unlocked]
+      setUnlockedThemes(allThemes)
+      
+      console.log('Available themes:', allThemes)
     } catch (error) {
-      console.error('Error fetching theme data:', error)
+      console.error('Error fetching unlocked themes:', error)
+      // Fallback to just default if API fails
+      setUnlockedThemes(['default'])
     } finally {
       setLoading(false)
     }
   }
 
-  const handleThemeSelect = async (themeId: string) => {
-  try {
-    const response = await fetch('/api/themes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ themeId, action: 'apply' })
-    })
-
-    const data = await response.json()
-
-    if (data.success) {
-      // Apply theme immediately to body
-      applyThemeToBody(themeId)
-      
-      // Update local state
-      setCurrentTheme(themeId)
-      
-      // Call parent callback
-      onThemeSelect(themeId)
-      onClose()
-    } else {
-      alert(data.error || 'Failed to apply theme')
-    }
-  } catch (error) {
-    console.error('Error applying theme:', error)
-    alert('Failed to apply theme')
-  }
-}
-
-// Add this helper function in the same component
-const applyThemeToBody = async (themeId: string) => {
-  // Remove all existing theme and mood classes
-  document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-  
-  if (themeId !== 'default') {
-    // Apply premium theme
-    document.body.classList.add(`theme-${themeId}`)
-    console.log('ThemeSelector: Applied theme class:', `theme-${themeId}`)
-  } else {
-    // For default, apply mood-based styling
+  const handleThemeSelect = async (selectedTheme: string) => {
     try {
-      const userResponse = await fetch('/api/getUser')
-      const userData = await userResponse.json()
-      if (userData.mood) {
-        document.body.classList.add(`mood-${userData.mood.toLowerCase()}`)
-        console.log('ThemeSelector: Applied mood class for default:', `mood-${userData.mood.toLowerCase()}`)
+      // Update database with selected theme
+      const response = await fetch('/api/themes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ themeId: selectedTheme, action: 'apply' })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Update user context - this will trigger ThemeProvider to handle theme switching
+        if (user) {
+          setUser({ 
+            ...user, 
+            currentTheme: selectedTheme 
+          })
+        }
+
+        // Apply theme logic using provider
+        if (selectedTheme === 'default') {
+          // For default theme, use mood if available
+          if (user?.mood) {
+            setTheme(user.mood.toLowerCase())
+            console.log('Applied mood theme:', user.mood.toLowerCase())
+          } else {
+            setTheme('default')
+            console.log('Applied default theme')
+          }
+        } else {
+          // For premium themes, use the theme directly
+          setTheme(selectedTheme.toLowerCase())
+          console.log('Applied premium theme:', selectedTheme.toLowerCase())
+        }
+
+        // Call parent callback and close
+        onThemeSelect(selectedTheme)
+        onClose()
+      } else {
+        alert(data.error || 'Failed to apply theme')
       }
     } catch (error) {
-      console.error('Error fetching user mood:', error)
+      console.error('Error applying theme:', error)
+      alert('Failed to apply theme')
     }
   }
-}
 
   const getThemeDisplayName = (themeId: string) => {
-    switch (themeId) {
-      case 'van-gogh': return 'Van Gogh'
+    switch (themeId.toLowerCase()) {
+      case 'vangogh': return 'Van Gogh'
       case 'cat': return 'Cat'
       case 'default': return 'Default'
-      default: return themeId
+      default: return themeId.charAt(0).toUpperCase() + themeId.slice(1)
     }
   }
 
-  const allAvailableThemes = ['default', ...unlockedThemes]
+  const getCurrentTheme = () => {
+    return user?.currentTheme?.toLowerCase() || 'default'
+  }
 
   return (
     <div className="theme-selector-overlay">
@@ -122,23 +125,26 @@ const applyThemeToBody = async (themeId: string) => {
               </p>
               
               <div className="theme-options-list">
-                {allAvailableThemes.map((themeId) => (
-                  <button
-                    key={themeId}
-                    onClick={() => handleThemeSelect(themeId)}
-                    className={`theme-option ${currentTheme === themeId ? 'active' : ''}`}
-                  >
-                    <span className="theme-option-name">
-                      {getThemeDisplayName(themeId)}
-                    </span>
-                    {currentTheme === themeId && (
-                      <span className="theme-option-active">✓ Active</span>
-                    )}
-                  </button>
-                ))}
+                {unlockedThemes.map((themeId) => {
+                  const isActive = getCurrentTheme() === themeId.toLowerCase()
+                  return (
+                    <button
+                      key={themeId}
+                      onClick={() => handleThemeSelect(themeId)}
+                      className={`theme-option ${isActive ? 'active' : ''}`}
+                    >
+                      <span className="theme-option-name">
+                        {getThemeDisplayName(themeId)}
+                      </span>
+                      {isActive && (
+                        <span className="theme-option-active">✓ Active</span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
 
-              {unlockedThemes.length === 0 && (
+              {unlockedThemes.length === 1 && (
                 <div className="no-themes-message">
                   <p>You haven't unlocked any premium themes yet.</p>
                   <p>Visit the themes store to redeem some with your points!</p>

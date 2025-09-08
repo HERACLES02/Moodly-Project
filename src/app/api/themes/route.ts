@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 import { auth } from '@/auth'
 
 const AVAILABLE_THEMES = {
-  'van-gogh': { pointsRequired: 3, name: 'Van Gogh' },
+  'vangogh': { pointsRequired: 3, name: 'Van Gogh' },
   'cat': { pointsRequired: 6, name: 'Cat' },
   'default': { pointsRequired: 0, name: 'Default' },
 }

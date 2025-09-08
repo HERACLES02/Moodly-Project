@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useGetUser } from '@/hooks/useGetUser'
 
 export default function Login() {
+  
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -30,7 +31,8 @@ export default function Login() {
       setError('Invalid email or password')
     } else {
 
-      router.push('/dashboard')
+
+      router.push('/')
     }
     setLoading(false)
   }

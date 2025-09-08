@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useGetUser } from '@/hooks/useGetUser'
 import './RedeemableCard.css'
+import { useTheme } from 'next-themes'
 
 // Step 1: Define the props interface
 // This is exactly what you'll pass from the themes page - nothing more, nothing less
@@ -18,14 +20,16 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
   const [userPoints, setUserPoints] = useState(0)
   const [unlockedItems, setUnlockedItems] = useState<string[]>([])
   const [currentTheme, setCurrentTheme] = useState('default')
-
-
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  const { setTheme } = useTheme()
+  
+  // Get user context to update it when theme changes
+  const { user, setUser } = useGetUser()
 
   // Step 3: Convert the name to ID format for database operations
   // This converts "Van Gogh" to "van-gogh" for consistent database storage
-  const itemId = name.toLowerCase().replace(/\s+/g, '-')
+  const itemId = name.toLowerCase().replace(/\s+/g, '')
 
   // Step 4: Fetch user data when component mounts
   // This gets the user's points, unlocked items, and current theme
@@ -40,6 +44,7 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
       const data = await response.json()
       setUserPoints(data.points || 0)
       setCurrentTheme(data.currentTheme || 'default')
+      
       
       // Get unlocked themes (we'll expand this for avatars later)
       if (type === 'theme') {
@@ -89,9 +94,13 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
         // Refresh user data to update the component state
         await fetchUserData()
         
-        // If we applied a theme, reload page to apply theme styling
-        if (action === 'apply' && type === 'theme') {
-          window.location.reload()
+        // If we applied a theme, update user context - ThemeProvider will handle the theme switch automatically
+        if (action === 'apply' && type === 'theme' && user) {
+          setUser({ 
+            ...user, 
+            currentTheme: itemId 
+          })
+          console.log('Updated user context with new theme:', itemId)
         }
       } else {
         // Show error message
@@ -101,6 +110,7 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
       console.error('Error with action:', error)
       alert('Failed to process request')
     } finally {
+      setTheme(itemId.toLowerCase())
       setIsProcessing(false)
     }
   }

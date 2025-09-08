@@ -12,7 +12,13 @@ export default auth((req) => {
                         nextUrl.pathname.startsWith("/movie")  // Add this line
  
   const isProtectedRoute = nextUrl.pathname.startsWith("/dashboard") ||
-                           nextUrl.pathname.startsWith("/admin") 
+                           nextUrl.pathname.startsWith("/firstmoodselection")||
+                           nextUrl.pathname.startsWith("/livestream")||
+                           nextUrl.pathname.startsWith("/radio")||
+                           nextUrl.pathname.startsWith("/movie")||
+                           nextUrl.pathname.startsWith("/song")||
+                           nextUrl.pathname.startsWith("/themes") ||
+                           nextUrl.pathname.startsWith("/userpage")
                            
  
   // If not logged in and trying to access protected route

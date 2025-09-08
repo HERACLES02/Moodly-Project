@@ -4,6 +4,7 @@ import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
+import SelectTheme from '@/components/SelectTheme'
 import './page.css'
 
 export default function WatchMovies({ params }: { params: Promise<{ id: string }> }) {
@@ -52,13 +53,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
         }
     }
 
-    const getThemeClass = () => {
-        const mood = user?.mood?.toLowerCase()
-        if (mood === 'happy') return 'watch-page-happy'
-        if (mood === 'sad') return 'watch-page-sad'
-        return 'watch-page-default'
-    }
-
     if (loading) {
         return <div>Loading...</div>
     }
@@ -68,7 +62,10 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
     return (
         <>
         <NavbarComponent/>
-        <div className={`watch-page-container ${getThemeClass()}`}>
+        
+        
+
+        <div className="watch-page-container">
             
             <div className="video-container">
                 <iframe

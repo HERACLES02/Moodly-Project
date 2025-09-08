@@ -44,10 +44,10 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
   const [showMovieChange, setShowMovieChange] = useState(false)
   
   // Individual user controls
-  const [autoPlay, setAutoPlay] = useState(true) // User's autoplay preference
-  const [userCurrentMovie, setUserCurrentMovie] = useState<any>(null) // What user is actually watching
-  const [showNextButton, setShowNextButton] = useState(false) // Show manual next button
-  const [hasInitialLoad, setHasInitialLoad] = useState(false) // Track if user has loaded their first movie
+  const [autoPlay, setAutoPlay] = useState(true)
+  const [userCurrentMovie, setUserCurrentMovie] = useState<any>(null)
+  const [showNextButton, setShowNextButton] = useState(false)
+  const [hasInitialLoad, setHasInitialLoad] = useState(false)
 
   // Socket connection and event handlers
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       console.log('🔌 Connected to sync server')
       setIsConnected(true)
       
-      // Join sync session
       newSocket.emit('join-sync-session', {
         streamId: `${mood}-sync-session`,
         username: user?.anonymousName || 'Anonymous',
@@ -70,52 +69,43 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       setIsConnected(false)
     })
 
-    // Receive session sync info (initial connection ONLY)
     newSocket.on('session-sync', (info: SessionInfo) => {
       console.log('📺 Session sync received:', info)
       setSessionInfo(info)
       
-      // Only set user's movie if this is their very first load
       if (!hasInitialLoad) {
         console.log('🎬 Initial movie load for new user:', info.currentMovie.title)
         setUserCurrentMovie(info.currentMovie)
         setHasInitialLoad(true)
       } else {
-        console.log('👥 Another user joined - NOT updating my video')
+        console.log('🔄 Server movie update received, user stays on their current movie')
+        
+        if (!autoPlay) {
+          setShowNextButton(true)
+        } else if (userCurrentMovie?.id !== info.currentMovie.id) {
+          console.log('⏭️ Auto-switching to new movie')
+          setUserCurrentMovie(info.currentMovie)
+          setShowMovieChange(true)
+          setTimeout(() => setShowMovieChange(false), 5000)
+        }
       }
       
       setIsLoading(false)
     })
 
-    // Server movie changed (this is the server's official timeline)
     newSocket.on('movie-changed', (info: SessionInfo) => {
-      console.log('🔄 Server movie changed:', info.currentMovie.title)
-      setSessionInfo(info) // Update server timeline for chat
+      console.log('🎬 Movie changed on server:', info.currentMovie.title)
+      setSessionInfo(info)
       
       if (autoPlay) {
-        // Only switch if it's actually a different movie
-        if (userCurrentMovie?.id !== info.currentMovie.id) {
-          console.log('⏯️ Autoplay ON - Following server to:', info.currentMovie.title)
-          setUserCurrentMovie(info.currentMovie)
-          setShowMovieChange(true)
-          
-          // Update iframe URL seamlessly
-          if (iframeRef.current) {
-            iframeRef.current.src = info.currentMovie.vidsrcUrl
-          }
-          
-          setTimeout(() => setShowMovieChange(false), 5000)
-        } else {
-          console.log('⏯️ Autoplay ON - Same movie, no change needed')
-        }
+        setUserCurrentMovie(info.currentMovie)
+        setShowMovieChange(true)
+        setTimeout(() => setShowMovieChange(false), 5000)
       } else {
-        // If autoplay is off, just show the next button
-        console.log('⏸️ Autoplay OFF - Showing next button')
         setShowNextButton(true)
       }
     })
 
-    // Viewer count updates
     newSocket.on('viewer-count-update', (data: { count: number }) => {
       setSessionInfo(prev => prev ? { ...prev, viewerCount: data.count } : prev)
     })
@@ -125,92 +115,30 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
     return () => {
       newSocket.close()
     }
-  }, [mood, user?.anonymousName, autoPlay])
+  }, [mood, user?.anonymousName, autoPlay, userCurrentMovie?.id])
 
-  // Manual next movie function
-  const goToNextMovie = () => {
-    if (sessionInfo && sessionInfo.nextMovie) {
-      console.log('👆 User manually going to next movie:', sessionInfo.currentMovie.title)
-      setUserCurrentMovie(sessionInfo.currentMovie)
-      setShowNextButton(false)
-      setShowMovieChange(true)
-      
-      // Update iframe URL
-      if (iframeRef.current) {
-        iframeRef.current.src = sessionInfo.currentMovie.vidsrcUrl
-      }
-      
-      setTimeout(() => setShowMovieChange(false), 3000)
-    }
-  }
-
-  // Toggle autoplay function
-  const toggleAutoPlay = () => {
-    setAutoPlay(prev => {
-      const newValue = !prev
-      console.log(`🔄 Autoplay ${newValue ? 'enabled' : 'disabled'}`)
-      
-      if (newValue && sessionInfo && userCurrentMovie?.id !== sessionInfo.currentMovie.id) {
-        // If turning autoplay on and user is behind, catch up to server
-        console.log('⏩ Catching up to server movie')
-        setUserCurrentMovie(sessionInfo.currentMovie)
-        if (iframeRef.current) {
-          iframeRef.current.src = sessionInfo.currentMovie.vidsrcUrl
-        }
-        setShowNextButton(false)
-      }
-      
-      return newValue
-    })
-  }
-
-  // Helper function to format time
   const formatTime = (milliseconds: number) => {
     const totalSeconds = Math.floor(milliseconds / 1000)
-    const hours = Math.floor(totalSeconds / 3600)
-    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const minutes = Math.floor(totalSeconds / 60)
     const seconds = totalSeconds % 60
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-    }
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  // Get theme colors based on mood
-  const getThemes = () => {
-    if (mood === 'happy') {
-      return {
-        bg: 'bg-gradient-to-br from-yellow-100 via-orange-50 to-red-100',
-        card: 'bg-white/80',
-        text: 'text-orange-900',
-        accent: 'border-orange-200'
-      }
-    } else if (mood === 'sad') {
-      return {
-        bg: 'bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100',
-        card: 'bg-white/80',
-        text: 'text-blue-900',
-        accent: 'border-blue-200'
-      }
-    }
-    return {
-      bg: 'bg-gradient-to-br from-gray-100 via-slate-50 to-zinc-100',
-      card: 'bg-white/80',
-      text: 'text-gray-900',
-      accent: 'border-gray-200'
+  const goToNextMovie = () => {
+    if (sessionInfo) {
+      console.log('⏭️ User manually switching to next movie')
+      setUserCurrentMovie(sessionInfo.currentMovie)
+      setShowNextButton(false)
     }
   }
 
-  const themes = getThemes()
-
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${themes.bg} flex items-center justify-center`}>
-        <div className={`${themes.card} backdrop-blur-md rounded-lg p-8 border text-center`}>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="theme-card backdrop-blur-md p-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className={`${themes.text} font-medium`}>Starting synchronized session...</p>
-          <p className={`${themes.text} opacity-70 text-sm mt-2`}>
+          <p className="font-medium">Starting synchronized session...</p>
+          <p className="opacity-70 text-sm mt-2">
             Connecting to {mood} mood stream
           </p>
         </div>
@@ -220,12 +148,12 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
 
   if (!sessionInfo) {
     return (
-      <div className={`min-h-screen ${themes.bg} flex items-center justify-center`}>
-        <div className={`${themes.card} backdrop-blur-md rounded-lg p-8 border text-center`}>
-          <p className={`${themes.text} font-medium text-red-600`}>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="theme-card backdrop-blur-md p-8 text-center">
+          <p className="font-medium text-red-600">
             Failed to connect to synchronized session
           </p>
-          <p className={`${themes.text} opacity-70 text-sm mt-2`}>
+          <p className="opacity-70 text-sm mt-2">
             Please try refreshing the page
           </p>
         </div>
@@ -244,7 +172,6 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       />
       
-      {/* Manual Next Button Overlay */}
       {showNextButton && !autoPlay && (
         <div className="absolute top-4 right-4 z-10">
           <button
@@ -259,27 +186,25 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
   )
 
   return (
-    <div className={`min-h-screen ${themes.bg} p-6`}>
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         
-        {/* Movie Change Notification */}
         {showMovieChange && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
             🎬 Now Playing: {userCurrentMovie?.title || sessionInfo.currentMovie.title}
           </div>
         )}
 
-        {/* Session Status Header */}
-        <div className={`${themes.card} backdrop-blur-md rounded-lg p-6 mb-6 border`}>
+        <div className="theme-card backdrop-blur-md p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className={`text-2xl font-bold ${themes.text} capitalize`}>
+              <h1 className="text-2xl font-bold capitalize">
                 {mood} Mood TV - Synchronized Live Stream
               </h1>
-              <p className={`${themes.text} opacity-70 text-lg font-medium`}>
+              <p className="opacity-70 text-lg font-medium">
                 You're Watching: {userCurrentMovie?.title || sessionInfo.currentMovie.title}
               </p>
-              <p className={`${themes.text} opacity-50 text-sm`}>
+              <p className="opacity-50 text-sm">
                 Server Timeline: {sessionInfo.currentMovie.title}
               </p>
             </div>
@@ -287,16 +212,12 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
               <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                 🔴 LIVE
               </span>
-              <span className={`${themes.text} font-medium`}>
+              <span className="font-medium">
                 👥 {sessionInfo.viewerCount} viewers
               </span>
             </div>
           </div>
 
-          {/* User Controls */}
-          
-
-          {/* Progress Bar (Server Timeline) */}
           <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
             <div 
               className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000"
@@ -309,22 +230,19 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Video Player */}
           <div className="lg:col-span-2">
-            <div className={`${themes.card} backdrop-blur-md rounded-lg p-4 border`}>
+            <div className="theme-card backdrop-blur-md p-4">
               <VideoPlayer />
               
-              {/* Movie Info */}
               <div className="mt-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className={`text-xl font-semibold ${themes.text}`}>
+                    <h2 className="text-xl font-semibold">
                       {userCurrentMovie?.title || sessionInfo.currentMovie.title}
                     </h2>
-                    <p className={`${themes.text} opacity-70 text-sm mt-1`}>
+                    <p className="opacity-70 text-sm mt-1">
                       {userCurrentMovie?.id === sessionInfo.currentMovie.id 
                         ? "You're watching with everyone" 
                         : `You're watching independently (Server: ${sessionInfo.currentMovie.title})`
@@ -332,8 +250,8 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className={`${themes.text} text-sm font-medium`}>Server Next:</p>
-                    <p className={`${themes.text} opacity-70 text-xs`}>
+                    <p className="text-sm font-medium">Server Next:</p>
+                    <p className="opacity-70 text-xs">
                       {sessionInfo.nextMovie?.title || 'Loading...'}
                     </p>
                   </div>
@@ -342,9 +260,8 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
             </div>
           </div>
 
-          {/* Chat Section */}
-          <div className="lg:col-span-1">
-            <div className={`${themes.card} backdrop-blur-md rounded-lg border h-[600px]`}>
+          <div className="">
+            <div className="backdrop-blur-md h-[600px]">
               <LiveChatComponent
                 streamId={`${mood}-sync-session`}
                 user={user}
@@ -356,10 +273,9 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
         </div>
 
-        {/* Next Movie Preview */}
         {sessionInfo.nextMovie && (
-          <div className={`${themes.card} backdrop-blur-md rounded-lg p-6 mt-6 border`}>
-            <h2 className={`text-xl font-semibold ${themes.text} mb-4 flex items-center gap-2`}>
+          <div className="theme-card backdrop-blur-md p-6 mt-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               ⏭️ Coming Up Next on Server
             </h2>
             <div className="flex items-center gap-4">
@@ -367,14 +283,14 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
                 🎬
               </div>
               <div>
-                <h3 className={`font-medium ${themes.text}`}>
+                <h3 className="font-medium">
                   {sessionInfo.nextMovie.title}
                 </h3>
-                <p className={`${themes.text} opacity-70 text-sm`}>
+                <p className="opacity-70 text-sm">
                   Server switching in {formatTime(sessionInfo.remainingTime)}
                 </p>
                 {!autoPlay && (
-                  <p className={`${themes.text} opacity-50 text-xs mt-1`}>
+                  <p className="opacity-50 text-xs mt-1">
                     (You'll see a Next Movie button when ready)
                   </p>
                 )}
@@ -383,12 +299,11 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
         )}
 
-        {/* Connection Status Footer */}
-        <div className={`${themes.card} backdrop-blur-md rounded-lg p-4 mt-6 border`}>
+        <div className="theme-card backdrop-blur-md p-4 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className={`${themes.text} text-sm`}>
+              <span className="text-sm">
                 {isConnected ? 'Connected to sync server' : 'Disconnected'}
               </span>
             </div>
@@ -406,7 +321,6 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
                 🔄 Sync Timeline
               </button>
               
-              {/* Sync to Server Button (when user is behind) */}
               {userCurrentMovie?.id !== sessionInfo.currentMovie.id && (
                 <button
                   onClick={() => {

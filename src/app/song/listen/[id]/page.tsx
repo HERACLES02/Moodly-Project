@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
 import { useGetUser } from '@/hooks/useGetUser'
-import './page.css'
 import { usePoints } from '@/hooks/usePoints'
+import SelectTheme from '@/components/SelectTheme'
+import './page.css'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
@@ -52,22 +53,6 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
         }
     }
 
-    const getThemeClass = () => {
-        const mood = user?.mood?.toLowerCase()
-        if (mood === 'happy') return 'mood-happy'
-        if (mood === 'sad') return 'mood-sad'
-        return ''
-    }
-
-    useEffect(() => {
-        const themeClass = getThemeClass()
-        document.body.className = themeClass
-        
-        return () => {
-            document.body.className = ''
-        }
-    }, [user?.mood])
-
     if (loading) {
         return <div>Loading...</div>
     }
@@ -77,6 +62,9 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
     return (
         <>
         <NavbarComponent/>
+        
+        
+
         <div className="listen-page-container">
             <div className="spotify-embed-container">
                 <iframe 
@@ -105,9 +93,9 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
                 </div>
 
                 {hasEarnedListenPoints && (
-                <div className="points-notification">
-                     You earned 10 points for listening!
-                </div>
+                    <div className="points-notification">
+                         You earned 10 points for listening!
+                    </div>
                 )}
             </div>
         </div>

@@ -63,7 +63,6 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
       setIsConnected(false)
     })
 
-    // Receive radio session sync info
     newSocket.on('radio-session-sync', (info: RadioSessionInfo) => {
       setSessionInfo(info)
       setIsLoading(false)
@@ -133,11 +132,11 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
 
   if (isLoading) {
     return (
-      <div className={`synced-radio-container mood-${mood}`}>
-        <div className="loading-card">
-          <div className="spinner"></div>
-          <p className="loading-text">Tuning into radio station...</p>
-          <p className="sub-text">Connecting to {mood} mood radio</p>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="theme-card backdrop-blur-md p-8 text-center max-w-md">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="font-medium text-lg">Tuning into radio station...</p>
+          <p className="opacity-70 text-sm mt-2">Connecting to {mood} mood radio</p>
         </div>
       </div>
     )
@@ -145,62 +144,173 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
 
   if (!sessionInfo) {
     return (
-      <div className={`synced-radio-container mood-${mood}`}>
-        <div className="error-card">
-          <p className="error-text">Failed to connect to radio station</p>
-          <p className="sub-text">Please try refreshing the page</p>
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="theme-card backdrop-blur-md p-8 text-center max-w-md">
+          <p className="font-medium text-lg text-red-600">Failed to connect to radio station</p>
+          <p className="opacity-70 text-sm mt-2">Please try refreshing the page</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={`synced-radio-container mood-${mood}`}>
-      <div className="synced-radio-content">
-        <div className="left-section">
-          <div className="spotify-embed-container">
-            <iframe
-              src={embedUrl}
-              className="spotify-player"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-              title="song"
-            />
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Song Change Notification */}
+        {showSongChange && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
+            🎵 Now Playing: {sessionInfo.currentSong.title}
           </div>
-        </div>
+        )}
 
-        <div className="right-section">
-          <div className="chat-container">
-            <LiveChatComponent
-              streamId={`${mood}-radio-session`}
-              user={user}
-              mood={mood}
-              sharedSocket={socket}
-              isSocketConnected={isConnected}
-            />
-          </div>
-        </div>
-      </div>
-
-      {sessionInfo.nextSong && (
-        <div className="next-song-container">
-          <h2 className="next-song-heading">⏭️ Coming Up Next</h2>
-          <div className="next-song-info">
-            <img
-              src={sessionInfo.nextSong.image || '/images/song-placeholder.jpg'}
-              alt={sessionInfo.nextSong.albumName}
-              className="next-song-image"
-            />
+        {/* Radio Header */}
+        <div className="theme-card backdrop-blur-md p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="song-title">{sessionInfo.nextSong.title}</h3>
-              <p className="artist-name">by {sessionInfo.nextSong.artist}</p>
-              <p className="time-left">
-                Starting in {formatTime(sessionInfo.remainingTime)}
+              <h1 className="text-2xl font-bold capitalize">
+                {mood} Mood Radio - Live Station
+              </h1>
+              <p className="opacity-70 text-lg font-medium">
+                Now Playing: {sessionInfo.currentSong.title}
               </p>
+              <p className="opacity-50 text-sm">
+                by {sessionInfo.currentSong.artist}
+              </p>
+            </div>
+            <div className="flex gap-4 items-center">
+              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                🔴 LIVE
+              </span>
+              <span className="font-medium">
+                🎧 {sessionInfo.listenerCount} listeners
+              </span>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+            <div 
+              className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-1000"
+              style={{ width: `${sessionInfo.progress}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-sm opacity-70">
+            <span>Elapsed: {formatTime(sessionInfo.elapsedTime)}</span>
+            <span>Remaining: {formatTime(sessionInfo.remainingTime)}</span>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Spotify Player Section */}
+          <div className="lg:col-span-2">
+            <div className="theme-card backdrop-blur-md p-4">
+              <div className="rounded-lg overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-40 border-none rounded-lg"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  title="song"
+                />
+              </div>
+              
+              {/* Song Info */}
+              <div className="mt-4">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={sessionInfo.currentSong.image || '/images/song-placeholder.jpg'}
+                    alt={sessionInfo.currentSong.albumName}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div>
+                    <h2 className="text-xl font-semibold">
+                      {sessionInfo.currentSong.title}
+                    </h2>
+                    <p className="opacity-70">
+                      by {sessionInfo.currentSong.artist}
+                    </p>
+                    <p className="opacity-50 text-sm">
+                      Album: {sessionInfo.currentSong.albumName}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Chat Section */}
+          <div className="">
+            <div className="backdrop-blur-md h-[600px]">
+              <LiveChatComponent
+                streamId={`${mood}-radio-session`}
+                user={user}
+                mood={mood}
+                sharedSocket={socket}
+                isSocketConnected={isConnected}
+              />
             </div>
           </div>
         </div>
-      )}
+
+        {/* Next Song Preview */}
+        {sessionInfo.nextSong && (
+          <div className="theme-card backdrop-blur-md p-6 mt-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              ⏭️ Coming Up Next
+            </h2>
+            <div className="flex items-center gap-4">
+              <img
+                src={sessionInfo.nextSong.image || '/images/song-placeholder.jpg'}
+                alt={sessionInfo.nextSong.albumName}
+                className="w-16 h-16 rounded-lg object-cover"
+              />
+              <div>
+                <h3 className="font-medium text-lg">
+                  {sessionInfo.nextSong.title}
+                </h3>
+                <p className="opacity-70">
+                  by {sessionInfo.nextSong.artist}
+                </p>
+                <p className="opacity-50 text-sm">
+                  Starting in {formatTime(sessionInfo.remainingTime)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Connection Status */}
+        <div className="theme-card backdrop-blur-md p-4 mt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span className="text-sm">
+                {isConnected ? 'Connected to radio station' : 'Disconnected'}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (socket) {
+                    socket.emit('get-radio-info')
+                    console.log('🔄 Manual radio sync requested')
+                  }
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                disabled={!isConnected}
+              >
+                🔄 Sync Radio
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Hidden audio element for preview sync */}
+        <audio ref={audioRef} style={{ display: 'none' }} />
+      </div>
     </div>
   )
 }

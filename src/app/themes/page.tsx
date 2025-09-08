@@ -4,31 +4,28 @@ import { useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import RedeemableCard from '@/components/RedeemableCard'
 import { useGetUser } from '@/hooks/useGetUser'
-import '@/components/ThemeOverrides.css'
 import './themes.css'
+import { useTheme } from 'next-themes'
+import SelectTheme from '@/components/SelectTheme'
 
 export default function ThemesPage() {
   const { user } = useGetUser()
+  const { setTheme } = useTheme()
 
-  // Apply theme when user data changes
   useEffect(() => {
-    if (user?.currentTheme) {
-      console.log('ThemesPage: Applying theme:', user.currentTheme)
-      // Remove any existing theme and mood classes
-      document.body.classList.remove('theme-van-gogh', 'theme-cat', 'theme-default', 'mood-happy', 'mood-sad')
-      
-      // If it's default theme, apply mood class instead
-      if (user.currentTheme === 'default') {
-        if (user.mood) {
-          document.body.classList.add(`mood-${user.mood.toLowerCase()}`)
-          console.log('ThemesPage: Applied mood class for default theme:', user.mood.toLowerCase())
-        }
-      } else {
-        // Apply premium theme class
-        document.body.classList.add(`theme-${user.currentTheme}`)
-      }
+    if (user?.currentTheme && user?.currentTheme != "default"){
+      console.log("Themes Page: Current Theme Being Applied")
+      setTheme(user.currentTheme.toLowerCase())
+
+    }else if (user?.currentTheme && user.currentTheme == "default") {
+       if (user?.mood) {
+      setTheme(user.mood.toLowerCase());
     }
-  }, [user?.currentTheme, user?.mood])
+    }
+
+
+  }, [user?.currentTheme, user?.mood, ] )
+
 
   return (
     <div className="themes-container">
@@ -43,9 +40,8 @@ export default function ThemesPage() {
             </p>
           </div>
 
-          {/* This is the new simplified approach */}
           <div className="themes-grid">
-            {/* Van Gogh Theme - Just pass the 4 required props */}
+            {/* Van Gogh Theme */}
             <RedeemableCard
               name="Van Gogh"
               price={3}
@@ -53,16 +49,13 @@ export default function ThemesPage() {
               thumbnailPath="van-gogh-image"
             />
 
-            {/* Cat Theme - Just pass the 4 required props */}
+            {/* Cat Theme */}
             <RedeemableCard
               name="Cat"
               price={600}
               type="theme"
               thumbnailPath="cat-image"
             />
-            
-          
-
           </div>
 
           <div className="themes-footer">

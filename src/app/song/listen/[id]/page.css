@@ -1,3 +1,17 @@
+/* Theme Selector Floating */
+.theme-selector-floating {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Main Container */
 .listen-page-container {
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -7,52 +21,8 @@
   justify-content: center;
   position: relative;
   overflow-x: hidden;
-}
-
-body.mood-happy .listen-page-container {
-  background: linear-gradient(135deg, 
-    #d5c0ef 0%,     
-    #bdaed3 25%,    
-    #b8d4ed 50%,    
-    #f1d6f8 75%,    
-    #87ccea 100%    
-  );
-  min-height: 100vh;
-}
-
-body.mood-sad .listen-page-container {
-  background: linear-gradient(135deg,
-    #4A4A7A 0%,     
-    #5A5A8A 30%,    
-    #6A5ACD 60%,    
-    #483D8B 80%,    
-    #2F2F5F 100%    
-  );
-  min-height: 100vh;
-  position: relative;
-}
-
-body.mood-sad .listen-page-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    radial-gradient(2px 2px at 20% 30%, #FFF, transparent),
-    radial-gradient(2px 2px at 40% 70%, #FFF, transparent),
-    radial-gradient(1px 1px at 90% 40%, #FFF, transparent),
-    radial-gradient(1px 1px at 50% 50%, #FFF, transparent),
-    radial-gradient(2px 2px at 10% 10%, #FFF, transparent);
-  background-size: 200px 200px, 300px 300px, 150px 150px, 250px 250px, 180px 180px;
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: 1;
-}
-
-body:not(.mood-happy):not(.mood-sad) .listen-page-container {
-  background: linear-gradient(135deg, #7c8bd6 0%, #a89adb 100%);
+  /* Remove background - let body handle it from globals.css */
+  color: var(--foreground);
 }
 
 .listen-page-container > * {
@@ -60,6 +30,7 @@ body:not(.mood-happy):not(.mood-sad) .listen-page-container {
   z-index: 2;
 }
 
+/* Spotify Embed Container */
 .spotify-embed-container {
   width: 60%;
   margin: 0 auto 3rem auto;
@@ -68,23 +39,8 @@ body:not(.mood-happy):not(.mood-sad) .listen-page-container {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   padding: 1rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-body.mood-happy .spotify-embed-container {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 20px rgba(200, 180, 255, 0.15);
-}
-
-body.mood-sad .spotify-embed-container {
-  background: rgba(139, 149, 209, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(75, 0, 130, 0.3);
-}
-
-body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--secondary);
+  background: var(--primary);
 }
 
 .spotify-player {
@@ -94,6 +50,7 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
   border-radius: 12px;
 }
 
+/* Main Content Area */
 .main-content-area {
   max-width: 60%;
   margin: 0 auto;
@@ -115,11 +72,44 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
   font-weight: 600;
   margin: 0 0 0.8rem 0;
   line-height: 1.2;
+  text-align: center;
+  animation: slideIn 0.5s ease;
+  color: var(--foreground);
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.song-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.4rem 0;
+  font-weight: 500;
+  line-height: 1.4;
+  opacity: 0.9;
+  color: var(--foreground);
+}
+
+.artist-name {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+  opacity: 0.7;
+  line-height: 1.3;
+  color: var(--accent);
+}
+
+/* Favorite Button */
 .favorite-button {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: var(--secondary);
+    border: 2px solid var(--secondary);
     border-radius: 50%;
     width: 48px;
     height: 48px;
@@ -131,7 +121,8 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
 }
 
 .favorite-button:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--accent);
+    color: var(--primary);
     transform: scale(1.1);
 }
 
@@ -148,7 +139,7 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
 .heart-icon {
     width: 24px;
     height: 24px;
-    color: white;
+    color: var(--foreground);
     transition: all 0.3s ease;
 }
 
@@ -156,85 +147,33 @@ body:not(.mood-happy):not(.mood-sad) .spotify-embed-container {
     color: #ef4444;
 }
 
+/* Points Notification */
 .points-notification {
-    background: rgba(34, 197, 94, 0.2);
-    border: 1px solid #22c55e;
-    color: #22c55e;
+    background: var(--secondary);
+    border: 1px solid var(--accent);
+    color: var(--accent);
     padding: 8px 16px;
     border-radius: 8px;
     margin: 16px 0;
     text-align: center;
+    opacity: 0;
+    transform: translateY(-10px);
     animation: slideIn 0.5s ease;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-body.mood-happy .section-heading {
-  color: #2D2D5A;
-}
-
-body.mood-sad .section-heading {
-  color: #DDA0DD;
-}
-
-body:not(.mood-happy):not(.mood-sad) .section-heading {
-  color: #2c3e50;
-}
-
-.song-title {
-  font-size: 1.1rem;
-  margin: 0 0 0.4rem 0;
-  font-weight: 500;
-  line-height: 1.4;
-  opacity: 0.9;
-}
-
-body.mood-happy .song-title {
-  color: #4A4A7A;
-}
-
-body.mood-sad .song-title {
-  color: #E6E6FA;
-}
-
-body:not(.mood-happy):not(.mood-sad) .song-title {
-  color: #2c3e50;
-}
-
-.artist-name {
-  font-size: 1rem;
-  margin: 0;
-  font-weight: 400;
-  opacity: 0.7;
-  line-height: 1.3;
-}
-
-body.mood-happy .artist-name {
-  color: #4A4A7A;
-}
-
-body.mood-sad .artist-name {
-  color: #DDA0DD;
-}
-
-body:not(.mood-happy):not(.mood-sad) .artist-name {
-  color: #2c3e50;
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
   .listen-page-container {
     padding: 1rem;
     justify-content: flex-start;
     padding-top: 2rem;
+  }
+  
+  .theme-selector-floating {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-bottom: 1rem;
   }
   
   .spotify-embed-container {
@@ -246,7 +185,6 @@ body:not(.mood-happy):not(.mood-sad) .artist-name {
   .main-content-area {
     max-width: 90%;
     padding: 0 1rem;
-    
   }
   
   .section-heading {

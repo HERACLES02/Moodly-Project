@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useGetUser } from '@/hooks/useGetUser'
+import { useTheme } from 'next-themes'
 
 interface MoodSelectorProps {
   onClose?: () => void
@@ -11,6 +12,7 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
   const [isLoading, setIsLoading] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const { user, setUser } = useGetUser()
+  const { theme, setTheme } = useTheme()
 
   const moodOptions = [
     { name: 'Happy', color: 'bg-yellow-300' },
@@ -55,6 +57,10 @@ export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProp
         console.log('Mood saved to user:', data.message)
         
         onMoodSelect?.(moodName)
+        if(user?.currentTheme == "default"){
+        setTheme(moodName.toLowerCase())
+
+        }
         handleClose()
       } else {
         console.error('Failed to save mood:', data.error)
