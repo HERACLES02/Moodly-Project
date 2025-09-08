@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!updatedActivity.bonusClaimed) {
-        if (updatedActivity.moviesWatched >= 3 || updatedActivity.songsListened >= 3) {
+        if (updatedActivity.moviesWatched >= 3 &&  updatedActivity.songsListened >= 3) {
           const bonusPoints = 50;
           
 
