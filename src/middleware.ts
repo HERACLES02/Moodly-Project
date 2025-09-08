@@ -1,15 +1,9 @@
 import { auth } from "@/auth"
 import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
 
 export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
- 
-  const isPublicRoute = nextUrl.pathname === "/login" ||
-                        nextUrl.pathname === "/register" ||
-                        nextUrl.pathname === "/" ||
-                        nextUrl.pathname.startsWith("/movie")  // Add this line
  
   const isProtectedRoute = nextUrl.pathname.startsWith("/dashboard") ||
                            nextUrl.pathname.startsWith("/firstmoodselection")||
@@ -43,13 +37,6 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ]
 }

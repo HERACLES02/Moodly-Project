@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../../auth/[...nextauth]/route"
+import { auth } from "@/auth"
+import prisma from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -14,10 +14,6 @@ export async function POST(req: NextRequest) {
     }
 
     const { newPoints, reason, pointsDeducted } = await req.json()
-
-    // Import prisma dynamically to avoid import issues
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
 
     try {
       // Update user points
@@ -35,15 +31,12 @@ export async function POST(req: NextRequest) {
         }
       })
 
-      await prisma.$disconnect()
-
       return NextResponse.json({
         success: true,
         newPoints: updatedUser.points
       })
 
     } catch (dbError) {
-      await prisma.$disconnect()
       throw dbError
     }
 
