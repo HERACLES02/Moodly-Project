@@ -34,8 +34,9 @@ export default function FirstMoodSelection() {
   // When component mounts, start the animation sequence
   // REPLACED the old useEffect with:
 useEffect(() => {
+  setTheme("default")          // ADDED THIS
+
   setIsMounted(true)     // ADDED THIS
-  setTheme("")          // ADDED THIS
 })
 
   useEffect(() => {
@@ -55,7 +56,7 @@ useEffect(() => {
       clearTimeout(moodsTimer)
     }
   }, [])
-  if (!isMounted) return
+  if (!isMounted) return null
   // This function handles when user clicks a mood button
   const handleMoodSelect = async (moodName: string) => {
     // Prevent multiple clicks while processing

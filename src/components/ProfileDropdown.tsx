@@ -3,6 +3,8 @@
 import { signOut } from 'next-auth/react'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import DisplayUser from './DisplayUser'
+import { useTheme } from 'next-themes'
 
 interface ProfileDropdownProps {
   userName: string
@@ -10,6 +12,7 @@ interface ProfileDropdownProps {
   onAddNote: () => void
   onSelectMood: () => void
   onSelectTheme: () => void
+  onSelectAvatar: () => void  // ADD THIS LINE
 }
 
 export default function ProfileDropdown({ 
@@ -17,14 +20,19 @@ export default function ProfileDropdown({
   isAdmin = false,
   onAddNote, 
   onSelectMood,
-  onSelectTheme
+  onSelectTheme,
+  onSelectAvatar  // ADD THIS PARAMETER
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const { setTheme } = useTheme()
 
   const handleLogout = async () => {
+  
+
     await signOut({ redirect: false })
+    
     router.push('/login')
   }
 
@@ -44,15 +52,15 @@ export default function ProfileDropdown({
     router.push('/themes')
   }
 
-  const menuItems = [
+   const menuItems = [
     { label: 'Add/Update Notes', action: onAddNote },
     { label: 'Select Mood', action:  onSelectMood },
     { label: 'Select Theme', action: onSelectTheme },
+    { label: 'Select Avatar', action: onSelectAvatar },  // ADD THIS LINE
     { label: 'Dashboard', action: handleDashboard },
     { label: 'User Page', action: handleUserPage },
     { label: 'Redeem Your Mood Points', action: handleRedeemPoints },
     { label: 'Edit Profile', action: () => console.log('Profile clicked') },
-    
   ]
   if (isAdmin) {
   menuItems.push({ label: 'Admin Panel', action: handleAdmin })
@@ -75,7 +83,7 @@ menuItems.push({ label: 'Log Out', action: handleLogout })
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 hover:bg-[#ffffff] transition-colors rounded-lg px-4 py-2"
       >
-        <span> 👤 {userName}</span>
+        <span> <DisplayUser/></span>
       </button>
 
       {isOpen && (

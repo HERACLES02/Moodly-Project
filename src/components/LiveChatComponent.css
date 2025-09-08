@@ -197,3 +197,36 @@
   position: relative;
   /* ... your existing styles ... */
 }
+
+/* Add these styles to your existing LiveChatComponent.css */
+
+.message-user {
+  /* Styles for the ChatUserDisplay in messages */
+  display: inline-flex;
+  align-items: center;
+}
+
+.message-colon {
+  margin-left: 4px;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.message.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.message-time {
+  color: #999;
+  font-size: 0.8em;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
+  word-wrap: break-word;
+}

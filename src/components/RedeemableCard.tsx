@@ -32,28 +32,37 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
   const itemId = name.toLowerCase().replace(/\s+/g, '')
 
   // Step 4: Fetch user data when component mounts
-  // This gets the user's points, unlocked items, and current theme
+  // This gets the user's points, unlocked items, and current theme/avatar
   useEffect(() => {
     fetchUserData()
   }, [])
 
   const fetchUserData = async () => {
     try {
-      // Get current theme and points from themes API
-      const response = await fetch('/api/themes')
-      const data = await response.json()
-      setUserPoints(data.points || 0)
-      setCurrentTheme(data.currentTheme || 'default')
-      
-      
-      // Get unlocked themes (we'll expand this for avatars later)
+      // Get user points first (same endpoint for both themes and avatars)
+      const userResponse = await fetch('/api/getUser')
+      const userData = await userResponse.json()
+      setUserPoints(userData.points || 0)
+
       if (type === 'theme') {
+        // Get current theme and unlocked themes
+        const themeResponse = await fetch('/api/themes')
+        const themeData = await themeResponse.json()
+        setCurrentTheme(themeData.currentTheme || 'default')
+        
         const unlockedResponse = await fetch('/api/themes/unlocked')
         const unlockedData = await unlockedResponse.json()
         setUnlockedItems(unlockedData.unlockedThemes || [])
+      } else if (type === 'avatar') {
+        // Get current avatar and unlocked avatars
+        const avatarResponse = await fetch('/api/avatars')
+        const avatarData = await avatarResponse.json()
+        setCurrentTheme(avatarData.currentAvatarId || 'default') // We reuse currentTheme state for current avatar
+        
+        const unlockedResponse = await fetch('/api/avatars/unlocked')
+        const unlockedData = await unlockedResponse.json()
+        setUnlockedItems(unlockedData.unlockedAvatars || [])
       }
-      
-      // TODO: Add avatar API call when avatar system is ready
       
     } catch (error) {
       console.error('Error fetching user data:', error)
@@ -78,11 +87,17 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
       // Determine action: if unlocked, apply it; if not, redeem it
       const action = isUnlocked ? 'apply' : 'redeem'
       
-      // Make API call to themes endpoint
-      const response = await fetch('/api/themes', {
+      // Determine API endpoint based on type
+      const apiEndpoint = type === 'theme' ? '/api/themes' : '/api/avatars'
+      
+      // Make API call to appropriate endpoint
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId: itemId, action })
+        body: JSON.stringify({ 
+          [type === 'theme' ? 'themeId' : 'avatarId']: itemId, 
+          action 
+        })
       })
 
       const data = await response.json()
@@ -94,13 +109,21 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
         // Refresh user data to update the component state
         await fetchUserData()
         
-        // If we applied a theme, update user context - ThemeProvider will handle the theme switch automatically
-        if (action === 'apply' && type === 'theme' && user) {
-          setUser({ 
-            ...user, 
-            currentTheme: itemId 
-          })
-          console.log('Updated user context with new theme:', itemId)
+        // Update user context if applying
+        if (action === 'apply' && user) {
+          if (type === 'theme') {
+            setUser({ 
+              ...user, 
+              currentTheme: itemId 
+            })
+            setTheme(itemId.toLowerCase())
+          } else if (type === 'avatar') {
+            setUser({ 
+              ...user, 
+              currentAvatarId: data.avatarId 
+            })
+          }
+          console.log(`Updated user context with new ${type}:`, itemId)
         }
       } else {
         // Show error message
@@ -110,7 +133,6 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
       console.error('Error with action:', error)
       alert('Failed to process request')
     } finally {
-      setTheme(itemId.toLowerCase())
       setIsProcessing(false)
     }
   }
@@ -124,6 +146,8 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
     if (isUnlocked) {
       // User owns this item
       if (type === 'theme' && currentTheme === itemId) {
+        return 'CURRENTLY ACTIVE'
+      } else if (type === 'avatar' && currentTheme === itemId) {
         return 'CURRENTLY ACTIVE'
       }
       return type === 'theme' ? 'APPLY THEME' : 'APPLY AVATAR'
@@ -143,7 +167,8 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
     if (loading || isProcessing) return 'loading'
     
     if (isUnlocked) {
-      if (type === 'theme' && currentTheme === itemId) {
+      if ((type === 'theme' && currentTheme === itemId) || 
+          (type === 'avatar' && currentTheme === itemId)) {
         return 'current-theme'
       }
       return 'can-apply'
@@ -157,7 +182,8 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
   const isButtonDisabled = () => {
     if (loading || isProcessing) return true
     if (!isUnlocked && userPoints < price) return true
-    if (type === 'theme' && currentTheme === itemId) return true
+    if ((type === 'theme' && currentTheme === itemId) || 
+        (type === 'avatar' && currentTheme === itemId)) return true
     return false
   }
 

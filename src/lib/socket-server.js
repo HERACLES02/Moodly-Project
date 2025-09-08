@@ -147,18 +147,19 @@ function initSocket(server) {
 
       // Handle chat messages for both movie and radio
       socket.on('send-message', (data) => {
-        const { streamId, message, username } = data
-        
-        console.log(`Message in ${streamId} by ${username}: ${message}`)
-        
-        // Broadcast message to all users in the same stream
-        io.to(streamId).emit('new-message', {
-          message: message,
-          username: username,
-          timestamp: new Date(),
-          type: 'user'
-        })
-      })
+  const { streamId, message, username, userId } = data  // ADD userId here
+ 
+  console.log(`Message in ${streamId} by ${username} (${userId}): ${message}`)  // Update log
+ 
+  // Broadcast message to all users in the same stream
+  io.to(streamId).emit('new-message', {
+    message: message,
+    username: username,
+    userId: userId,      // ADD this line
+    timestamp: new Date(),
+    type: 'user'
+  })
+})
 
       // FIXED: Handle session info requests without affecting others
       socket.on('get-session-info', () => {

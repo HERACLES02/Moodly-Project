@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
+import ChatUserDisplay from './ChatUserDisplay'  // ADD THIS IMPORT
 import './LiveChatComponent.css'
 
 interface ChatMessage {
   message: string
   username: string
+  userId?: string        // ADD THIS FIELD
   timestamp: Date
   type: 'user' | 'system'
 }
@@ -26,6 +28,7 @@ export function LiveChatComponent({
   isSocketConnected 
 }: LiveChatComponentProps) {
   const userName = user?.anonymousName
+  const userId = user?.id  // ADD THIS LINE
   const [socket, setSocket] = useState<Socket | null>(sharedSocket || null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputMessage, setInputMessage] = useState('')
@@ -34,7 +37,6 @@ export function LiveChatComponent({
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    
     setShowScrollButton(false)
   }
 
@@ -87,6 +89,7 @@ export function LiveChatComponent({
         newSocket.emit('join-sync-session', {
           streamId: streamId,
           username: userName || 'Anonymous',
+          userId: userId,  // ADD THIS LINE - send userId to server
           mood: mood
         })
       })
@@ -133,7 +136,7 @@ export function LiveChatComponent({
         }
       }
     }
-  }, [sharedSocket, isSocketConnected, streamId, userName, mood])
+  }, [sharedSocket, isSocketConnected, streamId, userName, userId, mood])  // ADD userId to deps
 
   // Update connection status when shared socket changes
   useEffect(() => {
@@ -158,7 +161,8 @@ export function LiveChatComponent({
     socket.emit('send-message', {
       streamId: streamId,
       message: inputMessage.trim(),
-      username: userName || 'Anonymous User'
+      username: userName || 'Anonymous User',
+      userId: userId  // ADD THIS LINE - send userId with message
     })
 
     setInputMessage('')
@@ -198,7 +202,14 @@ export function LiveChatComponent({
               ) : (
                 <>
                   <span className="message-time">{formatTime(msg.timestamp)}</span>
-                  <span className="username">{msg.username}:</span>
+                  {/* REPLACE this section with ChatUserDisplay */}
+                  <ChatUserDisplay 
+                    username={msg.username}
+                    userId={msg.userId}
+                    showNote={true}
+                    className="message-user"
+                  />
+                  <span className="message-colon">:</span>
                   <span className="message-text">{msg.message}</span>
                 </>
               )}

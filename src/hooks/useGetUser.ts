@@ -1,3 +1,4 @@
+import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
 interface User {
@@ -16,6 +17,7 @@ interface User {
 export function useGetUser(){
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
+    const { setTheme } = useTheme()
 
     useEffect(() => {
         async function fetchUser() {
@@ -33,6 +35,18 @@ export function useGetUser(){
             }
         }
         fetchUser()
+        
+        // if (user){
+        //     if (user?.currentTheme && user.currentTheme != "default"){
+        //         setTheme(user?.currentTheme?.toLowerCase())
+        //     }
+        //     else{
+        //         if (user?.mood)
+        //         setTheme(user?.mood?.toLowerCase())
+        //     }
+
+        // }
+
     }, [])
 
     console.log('Current user:', user)

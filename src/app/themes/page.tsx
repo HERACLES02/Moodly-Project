@@ -56,6 +56,50 @@ export default function ThemesPage() {
               type="theme"
               thumbnailPath="cat-image"
             />
+             <RedeemableCard
+    name="Avagato"
+    price={5}
+    type="avatar"
+    thumbnailPath="/images/avatars/Avagato.jpg"
+  />
+
+  {/* Baenana Avatar */}
+  <RedeemableCard
+    name="Baenana"
+    price={8}
+    type="avatar"
+    thumbnailPath="/images/avatars/Baenana.jpg"
+  />
+
+  {/* Buluberry Avatar */}
+  <RedeemableCard
+    name="Buluberry"
+    price={10}
+    type="avatar"
+    thumbnailPath="/images/avatars/Buluberry.jpg"
+  />
+
+  {/* Peeckaboo Avatar */}
+  <RedeemableCard
+    name="Peeckaboo"
+    price={12}
+    type="avatar"
+    thumbnailPath="/images/avatars/Peeckaboo.jpg"
+  />
+
+  {/* Storoberry Avatar */}
+  <RedeemableCard
+    name="Storoberry"
+    price={12}
+    type="avatar"
+    thumbnailPath="/images/avatars/Storoberry.jpg"
+  />
+  <RedeemableCard
+    name="HHIHIIH"
+    price={12}
+    type="avatar"
+    thumbnailPath="/images/avatars/Storoberry.jpg"
+  />
           </div>
 
           <div className="themes-footer">

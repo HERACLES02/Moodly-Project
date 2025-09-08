@@ -16,10 +16,18 @@
 }
 
 .moodlyImage {
-    font-size: 32px;
-    font-weight: bold;
-    color: #000;
-    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px; /* Fixed width container */
+    height: 50px; /* Fixed height container */
+    overflow: hidden; /* Hide the extra transparent parts */
+}
+.logo-gif {
+    width: 350; /* Make image wider than container */
+    height: auto;
+    object-fit: cover; /* This crops the image */
+    object-position: center; /* Centers the logo part */
 }
 
 .UserSection {

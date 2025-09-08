@@ -8,17 +8,29 @@ import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { useRouter } from 'next/navigation'
 import SelectTheme from '@/components/SelectTheme'
 import FirstMoodSelection from '@/components/FirstMoodSelection'
+import { useTheme } from 'next-themes'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
   const { user } = useGetUser()
   const router = useRouter()
+  const { setTheme } = useTheme()
 
   useEffect(() => {
     if (user?.mood) {
       setCurrentMood(user.mood)
       console.log('Dashboard: User mood from context:', user.mood)
+      
+      if (user?.currentTheme != "default"){
+
+        setTheme(user.currentTheme?.toLowerCase())
+      }else{
+        setTheme(user.mood.toLowerCase())
+      }
+
+       
+
     }
   }, [user?.mood])
 
