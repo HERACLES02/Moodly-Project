@@ -66,7 +66,7 @@ export function LiveChatComponent({
       }
 
       sharedSocket.on('new-message', handleNewMessage)
-      sharedSocket.on('user-joined', handleUserJoined)
+      // sharedSocket.on('user-joined', handleUserJoined)
 
       // Cleanup function to remove listeners
       return () => {
