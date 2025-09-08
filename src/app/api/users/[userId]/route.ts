@@ -1,4 +1,4 @@
-// Create: src/app/api/users/[userId]/route.ts
+// src/app/api/users/[userId]/route.ts
 
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
@@ -6,7 +6,7 @@ import { auth } from '@/auth'
 
 export async function GET(
   req: Request,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth()
@@ -18,7 +18,8 @@ export async function GET(
       )
     }
 
-    const { userId } = params
+    // Await the params - Next.js 15 change
+    const { userId } = await context.params
 
     // Find the user with their avatar
     const user = await prisma.user.findUnique({
@@ -45,7 +46,6 @@ export async function GET(
       )
     }
 
-    // Return user data in the same format as /api/getUser
     return NextResponse.json({
       id: user.id,
       anonymousName: user.anonymousName,

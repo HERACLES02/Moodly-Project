@@ -1,12 +1,13 @@
-// Create: src/app/api/users/[userId]/note/route.ts
+// src/app/api/users/[userId]/note/route.ts
 
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { auth } from '@/auth'
 
+// Fix the typing - params should be awaited in Next.js 15
 export async function GET(
   req: Request,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth()
@@ -18,7 +19,8 @@ export async function GET(
       )
     }
 
-    const { userId } = params
+    // Await the params - this is the key fix for Next.js 15
+    const { userId } = await context.params
 
     // Find the user and their note
     const user = await prisma.user.findUnique({
