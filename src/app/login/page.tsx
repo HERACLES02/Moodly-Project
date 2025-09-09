@@ -46,8 +46,16 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded shadow-md w-96">
+    <div className="">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="moodlyImage absolute bottom-50 scale-27">
+                    <img
+                        src="/images/moodly-logo.gif"
+                        alt="Moodly Logo"
+                        className="logo-gif"
+                    />
+                </div>
+      <div className=" p-8 rounded shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6 text-center text-black">Login</h1>
         
         {message && <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">{message}</div>}
@@ -88,6 +96,8 @@ function LoginForm() {
         </div>
       </div>
     </div>
+    </div>
+    
   )
 }
 
@@ -95,7 +105,7 @@ function LoginForm() {
 function LoginLoading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white p-8 rounded shadow-md w-96">
+      <div className="p-8 rounded shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6 text-center text-black">Login</h1>
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
