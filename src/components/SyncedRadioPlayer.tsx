@@ -165,42 +165,6 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
           </div>
         )}
 
-        {/* Radio Header */}
-        <div className="theme-card backdrop-blur-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold capitalize">
-                {mood} Mood Radio - Live Station
-              </h1>
-              <p className="opacity-70 text-lg font-medium">
-                Now Playing: {sessionInfo.currentSong.title}
-              </p>
-              <p className="opacity-50 text-sm">
-                by {sessionInfo.currentSong.artist}
-              </p>
-            </div>
-            <div className="flex gap-4 items-center">
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                🔴 LIVE
-              </span>
-              <span className="font-medium">
-                🎧 {sessionInfo.listenerCount} listeners
-              </span>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-            <div 
-              className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-1000"
-              style={{ width: `${sessionInfo.progress}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-sm opacity-70">
-            <span>Elapsed: {formatTime(sessionInfo.elapsedTime)}</span>
-            <span>Remaining: {formatTime(sessionInfo.remainingTime)}</span>
-          </div>
-        </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -219,8 +183,8 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
               </div>
               
               {/* Song Info */}
-              <div className="mt-4">
-                <div className="flex items-center gap-4">
+              <div className="flex mt-4 justify-between">
+                <div className="flex items-center gap-4 " >
                   <img
                     src={sessionInfo.currentSong.image || '/images/song-placeholder.jpg'}
                     alt={sessionInfo.currentSong.albumName}
@@ -236,10 +200,28 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
                     <p className="opacity-50 text-sm">
                       Album: {sessionInfo.currentSong.albumName}
                     </p>
+                    
                   </div>
+                  
                 </div>
+                <div className="flex flex-col text-center">
+                  <div>
+                    <p className="text-sm font-medium">Next:</p>
+                  </div>
+                    <div>
+                    <p className="opacity-70 text-xs">
+                      {sessionInfo.nextSong?.title || 'Loading...'}
+                      
+                    </p>
+                    <p className="text-sm font-medium">
+                    {sessionInfo.nextSong?.artist || 'Loading...'}
+                    </p>
+                    </div>
+                   
+                  </div>
               </div>
             </div>
+            
           </div>
 
           {/* Chat Section */}
@@ -253,64 +235,12 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
                 isSocketConnected={isConnected}
               />
             </div>
+            
           </div>
         </div>
 
-        {/* Next Song Preview */}
-        {sessionInfo.nextSong && (
-          <div className="theme-card backdrop-blur-md p-6 mt-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              ⏭️ Coming Up Next
-            </h2>
-            <div className="flex items-center gap-4">
-              <img
-                src={sessionInfo.nextSong.image || '/images/song-placeholder.jpg'}
-                alt={sessionInfo.nextSong.albumName}
-                className="w-16 h-16 rounded-lg object-cover"
-              />
-              <div>
-                <h3 className="font-medium text-lg">
-                  {sessionInfo.nextSong.title}
-                </h3>
-                <p className="opacity-70">
-                  by {sessionInfo.nextSong.artist}
-                </p>
-                <p className="opacity-50 text-sm">
-                  Starting in {formatTime(sessionInfo.remainingTime)}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Connection Status */}
-        <div className="theme-card backdrop-blur-md p-4 mt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className="text-sm">
-                {isConnected ? 'Connected to radio station' : 'Disconnected'}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (socket) {
-                    socket.emit('get-radio-info')
-                    console.log('🔄 Manual radio sync requested')
-                  }
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                disabled={!isConnected}
-              >
-                🔄 Sync Radio
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Hidden audio element for preview sync */}
-        <audio ref={audioRef} style={{ display: 'none' }} />
       </div>
     </div>
   )

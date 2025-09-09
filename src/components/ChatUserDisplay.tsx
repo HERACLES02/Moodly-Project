@@ -9,13 +9,15 @@ interface ChatUserDisplayProps {
   userId?: string
   showNote?: boolean
   className?: string
+  refreshTrigger?: number
 }
 
 export default function ChatUserDisplay({ 
   username, 
   userId, 
   showNote = false,
-  className = '' 
+  className = '',
+  refreshTrigger
 }: ChatUserDisplayProps) {
   const [userNote, setUserNote] = useState<string | null>(null)
   const [noteLoading, setNoteLoading] = useState(false)
@@ -65,6 +67,7 @@ export default function ChatUserDisplay({
           showName={true}
           showAvatar={true}
           className="chat-display-user"
+          refreshTrigger={refreshTrigger}
         />
       ) : (
         // Fallback for users without userId (legacy messages)

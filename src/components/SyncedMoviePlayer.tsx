@@ -173,16 +173,6 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       />
       
-      {showNextButton && !autoPlay && (
-        <div className="absolute top-4 right-4 z-10">
-          <button
-            onClick={goToNextMovie}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg font-medium transition-all"
-          >
-            ⏭️ Next Movie Available
-          </button>
-        </div>
-      )}
     </div>
   )
 
@@ -196,40 +186,7 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
         )}
 
-        <div className="theme-card backdrop-blur-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold capitalize">
-                {mood} Mood TV - Synchronized Live Stream
-              </h1>
-              <p className="opacity-70 text-lg font-medium">
-                You're Watching: {userCurrentMovie?.title || sessionInfo.currentMovie.title}
-              </p>
-              <p className="opacity-50 text-sm">
-                Server Timeline: {sessionInfo.currentMovie.title}
-              </p>
-            </div>
-            <div className="flex gap-4 items-center">
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                🔴 LIVE
-              </span>
-              <span className="font-medium">
-                👥 {sessionInfo.viewerCount} viewers
-              </span>
-            </div>
-          </div>
 
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-            <div 
-              className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000"
-              style={{ width: `${sessionInfo.progress}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between text-sm opacity-70">
-            <span>Server Elapsed: {formatTime(sessionInfo.elapsedTime)}</span>
-            <span>Server Remaining: {formatTime(sessionInfo.remainingTime)}</span>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
@@ -243,15 +200,10 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
                     <h2 className="text-xl font-semibold">
                       {userCurrentMovie?.title || sessionInfo.currentMovie.title}
                     </h2>
-                    <p className="opacity-70 text-sm mt-1">
-                      {userCurrentMovie?.id === sessionInfo.currentMovie.id 
-                        ? "You're watching with everyone" 
-                        : `You're watching independently (Server: ${sessionInfo.currentMovie.title})`
-                      }
-                    </p>
+
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium">Server Next:</p>
+                    <p className="text-sm font-medium">Next:</p>
                     <p className="opacity-70 text-xs">
                       {sessionInfo.nextMovie?.title || 'Loading...'}
                     </p>
@@ -274,69 +226,9 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
           </div>
         </div>
 
-        {sessionInfo.nextMovie && (
-          <div className="theme-card backdrop-blur-md p-6 mt-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              ⏭️ Coming Up Next on Server
-            </h2>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-24 bg-gray-300 rounded flex items-center justify-center">
-                🎬
-              </div>
-              <div>
-                <h3 className="font-medium">
-                  {sessionInfo.nextMovie.title}
-                </h3>
-                <p className="opacity-70 text-sm">
-                  Server switching in {formatTime(sessionInfo.remainingTime)}
-                </p>
-                {!autoPlay && (
-                  <p className="opacity-50 text-xs mt-1">
-                    (You'll see a Next Movie button when ready)
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+       
 
-        <div className="theme-card backdrop-blur-md p-4 mt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              <span className="text-sm">
-                {isConnected ? 'Connected to sync server' : 'Disconnected'}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (socket) {
-                    socket.emit('get-session-info')
-                    console.log('🔄 Manual sync requested')
-                  }
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                disabled={!isConnected}
-              >
-                🔄 Sync Timeline
-              </button>
-              
-              {userCurrentMovie?.id !== sessionInfo.currentMovie.id && (
-                <button
-                  onClick={() => {
-                    console.log('⏩ Syncing to server movie')
-                    setUserCurrentMovie(sessionInfo.currentMovie)
-                    setShowNextButton(false)
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
-                >
-                  ⏩ Catch Up to Server
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   )

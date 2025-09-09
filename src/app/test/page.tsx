@@ -5,6 +5,7 @@ import ThemeToggler from '@/components/theme-toggler'
 import React from 'react'
 
 const testPage = () => {
+    
     return (
         <div className="min-h-screen">  {/* Remove bg/text - body handles this */}
             <nav className="theme-navbar p-4 flex justify-between items-center">

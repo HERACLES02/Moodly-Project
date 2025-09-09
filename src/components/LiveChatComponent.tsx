@@ -35,11 +35,47 @@ export function LiveChatComponent({
   const [inputMessage, setInputMessage] = useState('')
   const [isConnected, setIsConnected] = useState(isSocketConnected || false)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [bannedWords, setBannedWords] = useState<string[]>([])
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     setShowScrollButton(false)
   }
+
+  // Fetch banned words from the API
+  const fetchBannedWords = async () => {
+    try {
+      const response = await fetch('/api/admin/filter')
+      if (response.ok) {
+        const data = await response.json()
+        setBannedWords(data.words || [])
+      }
+    } catch (error) {
+      console.error('Error fetching banned words:', error)
+    }
+  }
+
+  // Check if a message contains any banned words
+  const containsBannedWord = (message: string): boolean => {
+    const lowerMessage = message.toLowerCase()
+    return bannedWords.some(word => lowerMessage.includes(word.toLowerCase()))
+  }
+
+  // Function to refresh user displays
+  const refreshUserDisplays = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
+
+  // Expose refresh function for external use
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      ;(window as any).refreshChatUserDisplays = refreshUserDisplays
+      return () => {
+        delete (window as any).refreshChatUserDisplays
+      }
+    }
+  }, [])
 
   // Check if user has scrolled up and show scroll button
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -47,6 +83,11 @@ export function LiveChatComponent({
     const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50
     setShowScrollButton(!isAtBottom && messages.length > 0)
   }
+
+  // Fetch banned words when component mounts
+  useEffect(() => {
+    fetchBannedWords()
+  }, [])
 
   useEffect(() => {
     // If we have a shared socket, use it instead of creating a new one
@@ -158,6 +199,13 @@ export function LiveChatComponent({
       return
     }
 
+    // Check if message contains banned words
+    if (containsBannedWord(inputMessage.trim())) {
+      console.log('🚫 Message contains banned words, not sending')
+      setInputMessage('') // Clear the input but don't send
+      return
+    }
+
     console.log('📤 Sending message:', inputMessage)
     socket.emit('send-message', {
       streamId: streamId,
@@ -209,6 +257,7 @@ export function LiveChatComponent({
                     userId={msg.userId}
                     showNote={true}
                     className="message-user"
+                    refreshTrigger={refreshTrigger}
                   />
                   <span className="message-colon">:</span>
                   <span className="message-text">{msg.message}</span>

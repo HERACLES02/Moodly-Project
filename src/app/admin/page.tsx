@@ -6,7 +6,73 @@ import NavbarComponent from '@/components/NavbarComponent'
 export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
- 
+  // Ban Words Section
+  const [bannedWords, setBannedWords] = useState<string[]>([])
+  const [newBannedWord, setNewBannedWord] = useState('')
+  const [banLoading, setBanLoading] = useState(false)
+  const [banError, setBanError] = useState<string | null>(null)
+
+  // Fetch banned words on mount
+  useEffect(() => {
+    const fetchBannedWords = async () => {
+      try {
+        const response = await fetch('/api/admin/filter')
+        if (response.ok) {
+          const data = await response.json()
+          setBannedWords(data.words || [])
+        }
+      } catch (error) {
+        // Optionally handle error
+      }
+    }
+    fetchBannedWords()
+  }, [])
+
+  const handleAddBannedWord = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setBanLoading(true)
+    setBanError(null)
+    try {
+      const response = await fetch('/api/admin/filter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word: newBannedWord })
+      })
+      const data = await response.json()
+      
+      if (response.ok) {
+        setBannedWords(prev => [...prev, newBannedWord.toLowerCase()])
+        setNewBannedWord('')
+      } else {
+        setBanError(data.error || 'Failed to ban word')
+      }
+    } catch (error) {
+      setBanError('Error banning word')
+    }
+    setBanLoading(false)
+  }
+
+  const handleRemoveBannedWord = async (word: string) => {
+    setBanLoading(true)
+    setBanError(null)
+    try {
+      const response = await fetch('/api/admin/filter', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word })
+      })
+      const data = await response.json()
+      
+      if (response.ok) {
+        setBannedWords(prev => prev.filter(w => w !== word))
+      } else {
+        setBanError(data.error || 'Failed to remove word')
+      }
+    } catch (error) {
+      setBanError('Error removing word')
+    }
+    setBanLoading(false)
+  }
   // Fetch users when component loads
   useEffect(() => {
     const fetchUsers = async () => {
@@ -90,6 +156,56 @@ export default function AdminPage() {
         </div>
       </div>
       
+      {/* Banned Words Section */}
+      <div className="banned-words-section">
+        <h2 className="section-title">Banned Words Filter</h2>
+        <div className="banned-words-container">
+          <form onSubmit={handleAddBannedWord} className="add-word-form">
+            <input
+              type="text"
+              value={newBannedWord}
+              onChange={(e) => setNewBannedWord(e.target.value)}
+              placeholder="Enter word to ban"
+              className="word-input"
+              required
+            />
+            <button 
+              type="submit" 
+              className="action-button add-button"
+              disabled={banLoading}
+            >
+              {banLoading ? 'Adding...' : 'Add Word'}
+            </button>
+          </form>
+          
+          {banError && (
+            <div className="error-message">{banError}</div>
+          )}
+          
+          <div className="banned-words-list">
+            <h3 className="list-title">Currently Banned Words ({bannedWords.length})</h3>
+            {bannedWords.length === 0 ? (
+              <p className="no-words">No banned words yet</p>
+            ) : (
+              <div className="words-grid">
+                {bannedWords.map((word, index) => (
+                  <div key={index} className="word-item">
+                    <span className="word-text">{word}</span>
+                    <button
+                      onClick={() => handleRemoveBannedWord(word)}
+                      className="remove-word-button"
+                      disabled={banLoading}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="table-container">
         <table className="admin-table">
           <thead className="table-header">

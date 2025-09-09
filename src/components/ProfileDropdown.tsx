@@ -60,7 +60,7 @@ export default function ProfileDropdown({
     { label: 'Dashboard', action: handleDashboard },
     { label: 'User Page', action: handleUserPage },
     { label: 'Redeem Your Mood Points', action: handleRedeemPoints },
-    { label: 'Edit Profile', action: () => console.log('Profile clicked') },
+    
   ]
   if (isAdmin) {
   menuItems.push({ label: 'Admin Panel', action: handleAdmin })

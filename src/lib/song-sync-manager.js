@@ -3,7 +3,7 @@ class SongSyncManager {
     this.mood = mood
     this.currentSong = null
     this.songStartTime = null
-    this.songDuration = 240000 // 4 minutes default for songs
+    this.songDuration = 60000 // 4 minutes default for songs
     this.songQueue = []
     this.currentIndex = 0
     this.isActive = false
