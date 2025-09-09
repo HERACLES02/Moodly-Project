@@ -5,6 +5,7 @@ import { useGetUser } from '@/hooks/useGetUser'
 import { useTheme } from 'next-themes'
 import './FirstMoodSelection.css'
 import { redirect } from "next/navigation"
+import { signOut } from 'next-auth/react'
 
 
 
@@ -31,8 +32,7 @@ export default function FirstMoodSelection() {
   ]
 
 
-  // When component mounts, start the animation sequence
-  // REPLACED the old useEffect with:
+  
 useEffect(() => {
   setTheme("default")          // ADDED THIS
 
@@ -57,6 +57,29 @@ useEffect(() => {
     }
   }, [])
   if (!isMounted) return null
+
+  const handleAutoSignOut = async () => {
+        await signOut({ redirect: false })
+            
+            redirect('/login')
+          }
+      
+  
+  
+      if (user?.isBanned){
+        return (
+          <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
+        <div className="theme-btn inline-flex font-black items-center justify-center">
+          <button >
+            You are banned. Click to sign out.
+          </button>
+        </div>
+      </div>
+  
+          
+        )
+      }
+  
   // This function handles when user clicks a mood button
   const handleMoodSelect = async (moodName: string) => {
     // Prevent multiple clicks while processing

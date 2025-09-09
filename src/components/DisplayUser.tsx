@@ -84,24 +84,21 @@ export default function DisplayUser({
 
   // Determine what avatar to show
   const getAvatarDisplay = () => {
-    console.log('🎭 DisplayUser: Getting avatar display...')
-    console.log('🎭 DisplayUser: userData.currentAvatar:', userData.currentAvatar)
-    console.log('🎭 DisplayUser: userData.currentAvatarId:', userData.currentAvatarId)
+  
     
     if (userData.currentAvatar && userData.currentAvatar.imagePath) {
-      console.log('✅ DisplayUser: Using custom avatar:', userData.currentAvatar.imagePath)
-      // User has a custom avatar selected
+
       return (
         <img 
           src={userData.currentAvatar.imagePath} 
           alt={userData.currentAvatar.name}
           className="user-avatar-image"
           onError={(e) => {
-            console.error('❌ DisplayUser: Avatar image failed to load:', userData.currentAvatar?.imagePath)
-            console.error('❌ DisplayUser: Image error:', e)
+          
+            console.error(' DisplayUser: Image error:', e)
           }}
           onLoad={() => {
-            console.log('✅ DisplayUser: Avatar image loaded successfully:', userData.currentAvatar?.imagePath)
+            console.log(' DisplayUser: Avatar image loaded successfully:', userData.currentAvatar?.imagePath)
           }}
         />
       )
@@ -139,7 +136,7 @@ export default function DisplayUser({
 
       {/* Name Section */}
       {showName && (
-        <span className="user-name">
+        <span className="user-name text-black">
           {userData.anonymousName}
         </span>
       )}

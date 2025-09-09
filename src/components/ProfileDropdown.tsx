@@ -83,7 +83,7 @@ menuItems.push({ label: 'Log Out', action: handleLogout })
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 hover:bg-[#ffffff] transition-colors rounded-lg px-4 py-2"
       >
-        <span> <DisplayUser/></span>
+        <span > <DisplayUser/></span>
       </button>
 
       {isOpen && (

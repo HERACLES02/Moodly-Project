@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import SelectTheme from '@/components/SelectTheme'
 import FirstMoodSelection from '@/components/FirstMoodSelection'
 import { useTheme } from 'next-themes'
+import { signOut } from 'next-auth/react'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -37,6 +38,33 @@ export default function Dashboard() {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+
+    const handleAutoSignOut = async () => {
+      await signOut({ redirect: false })
+          
+          router.push('/login')
+        }
+    
+
+
+    if (user?.isBanned){
+      return (
+        <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
+      <div className="theme-btn inline-flex font-black items-center justify-center">
+        <button >
+          You are banned. Click to sign out.
+        </button>
+      </div>
+    </div>
+
+        
+      )
+    }
+
+
+
+
 
   const handleMoodSelected = (mood: string) => {
     console.log('Dashboard received mood from navbar:', mood)

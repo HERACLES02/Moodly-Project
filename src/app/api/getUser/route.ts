@@ -13,11 +13,8 @@ export async function GET() {
       }
     })
     
-    if (!user?.isBanned) {
+
       return NextResponse.json(user)
-    } else {
-      return NextResponse.json("User Banned")
-    }
   } else {
     return NextResponse.json("Not Logged in")  // Added missing return
   }

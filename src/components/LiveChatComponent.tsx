@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 import ChatUserDisplay from './ChatUserDisplay'  // ADD THIS IMPORT
 import './LiveChatComponent.css'
+import { SOCKET_URL } from '@/lib/socket-config'
 
 interface ChatMessage {
   message: string
@@ -77,7 +78,7 @@ export function LiveChatComponent({
     // Only create a new socket if no shared socket is provided (fallback)
     else if (!socket) {
       console.log('💬 Creating standalone chat socket connection...')
-      const newSocket = io('https://moodly-blond.vercel.app/', {
+      const newSocket = io(SOCKET_URL, {
         forceNew: false,
         transports: ['websocket', 'polling']
       })

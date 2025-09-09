@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useGetUser } from '@/hooks/useGetUser'
 import { LiveChatComponent } from './LiveChatComponent'
+import { SOCKET_URL } from '@/lib/socket-config'
 
 interface SessionInfo {
   currentMovie: {
@@ -51,7 +52,7 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
 
   // Socket connection and event handlers
   useEffect(() => {
-    const newSocket = io('https://moodly-blond.vercel.app/')
+    const newSocket = io(SOCKET_URL)
 
     newSocket.on('connect', () => {
       console.log('🔌 Connected to sync server')

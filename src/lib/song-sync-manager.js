@@ -15,7 +15,7 @@ class SongSyncManager {
     try {
       console.log(`🎵 Initializing song queue for ${this.mood} mood...`)
       
-      const response = await fetch(`https://moodly-blond.vercel.app/api/recommendations/songs?mood=${this.mood}`)
+      const response = await fetch(`http://localhost:9513/api/recommendations/songs?mood=${this.mood}`)
       
       if (!response.ok) {
         throw new Error(`API responded with status: ${response.status}`)

@@ -11,6 +11,8 @@ async function getRandomWord(): Promise<string> {
 
 async function generateUniqueUsername(): Promise<string> {
   const word = await getRandomWord()
+  console.log(`word ${word}`)
+  console.log( `Dektesi Anon${word}${Math.floor(Math.random() * 1000)}`)
   return `Anon${word}${Math.floor(Math.random() * 1000)}`
 }
 

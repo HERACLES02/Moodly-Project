@@ -5,6 +5,7 @@ import { io, Socket } from 'socket.io-client'
 import { useGetUser } from '@/hooks/useGetUser'
 import { LiveChatComponent } from './LiveChatComponent'
 import './syncedRadio.css'
+import { SOCKET_URL } from '@/lib/socket-config'
 
 interface RadioSessionInfo {
   currentSong: {
@@ -48,7 +49,7 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
 
   // Socket connection and event handlers
   useEffect(() => {
-    const newSocket = io('https://moodly-blond.vercel.app/')
+    const newSocket = io(SOCKET_URL)
 
     newSocket.on('connect', () => {
       setIsConnected(true)
