@@ -31,12 +31,12 @@ class MovieSyncManager {
         return true
       } else {
         // Fallback movies if API fails
-        console.log(`⚠️ ${this.mood} API failed, using fallback movies`)
+        console.log(`${this.mood} API failed, using fallback movies`)
         this.movieQueue = this.getFallbackMovies(this.mood)
         return true
       }
     } catch (error) {
-      console.error(`❌ Failed to initialize ${this.mood} queue, using fallback:`, error)
+      console.error(`Failed to initialize ${this.mood} queue, using fallback:`, error)
       this.movieQueue = this.getFallbackMovies(this.mood)
       return true
     }
@@ -221,18 +221,8 @@ class MovieSyncManager {
     }
   }
 
-  // Admin functions
-  skipToNextMovie() {
-    console.log(`⏭️ Admin skipping ${this.mood} movie`)
-    const newSessionInfo = this.switchToNextMovie()
-    
-    // Notify socket server about the movie change
-    if (this.onMovieChanged) {
-      this.onMovieChanged(this.mood, newSessionInfo)
-    }
-    
-    return newSessionInfo
-  }
+
+  
 
   changeMovieDuration(newDuration) {
     if (typeof newDuration === 'number' && newDuration > 0) {

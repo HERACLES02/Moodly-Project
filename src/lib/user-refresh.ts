@@ -43,3 +43,4 @@ export const refreshAfterUserUpdate = () => {
     refreshAllUserDisplays()
   }, 500)
 }
+

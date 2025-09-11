@@ -81,15 +81,76 @@
 }
     
     .cat {
-        /* Cat Theme - Soft purples and lavenders */
-        --background: rgb(219, 164, 219);       /* Light plum from hsl(300 43% 75%) */
-        --foreground: rgb(73, 79, 91);          /* Dark gray-blue from hsl(218 11% 32%) */
-        --primary: rgb(166, 118, 214);          /* Purple from hsl(270 54% 65%) */
-        --secondary: rgb(216, 192, 216);        /* Light lavender from hsl(300 24% 80%) */
-        --accent: rgb(166, 118, 214); 
-    --componentbg: rgba(224, 185, 255, 0.596);
+        /* Cat Theme - Cozy pastel colors */
+        --background: rgb(248, 187, 217);           /* Baby pink fallback */
+        --foreground: rgb(88, 69, 99);              /* Soft dark mauve for text readability */
+        --primary: rgb(212, 165, 216);              /* Light purple for primary elements */
+        --secondary: rgb(225, 190, 231);            /* Soft lavender for secondary elements */
+        --accent: rgb(248, 187, 217);               /* Baby pink for accents and highlights */
+        --componentbg: rgba(234, 203, 246, 0.6);    /* Very light lavender for component backgrounds */
+    }
 
-                  /* Same purple as primary from hsl(270 54% 65%) */
+    /* Override background for main containers in Cat theme */
+    .cat body {
+        background: 
+            linear-gradient(135deg,
+                rgba(255, 0, 128, 0.3) 0%,    /* Baby pink base */
+                rgba(225, 190, 231, 0.4) 25%,   /* Soft lavender */
+                rgba(212, 165, 216, 0.3) 50%,   /* Light purple */
+                rgba(234, 203, 246, 0.4) 75%,   /* Pale lavender */
+                rgba(0, 255, 225, 0.3) 100%   /* Back to baby pink */
+            ) !important;
+        background-size: cover !important;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Add floating paw prints for cat theme */
+    .cat body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            /* Paw print pattern using radial gradients */
+            radial-gradient(circle 3px at 50px 100px, rgba(212, 165, 216, 0.4) 50%, transparent 50%),
+            radial-gradient(circle 2px at 45px 95px, rgba(212, 165, 216, 0.4) 50%, transparent 50%),
+            radial-gradient(circle 2px at 55px 95px, rgba(212, 165, 216, 0.4) 50%, transparent 50%),
+            radial-gradient(circle 2px at 52px 90px, rgba(212, 165, 216, 0.4) 50%, transparent 50%),
+            radial-gradient(circle 2px at 48px 90px, rgba(212, 165, 216, 0.4) 50%, transparent 50%),
+            
+            radial-gradient(circle 3px at 200px 50px, rgba(248, 187, 217, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 195px 45px, rgba(248, 187, 217, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 205px 45px, rgba(248, 187, 217, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 202px 40px, rgba(248, 187, 217, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 198px 40px, rgba(248, 187, 217, 0.3) 50%, transparent 50%),
+
+            radial-gradient(circle 3px at 350px 150px, rgba(225, 190, 231, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 345px 145px, rgba(225, 190, 231, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 355px 145px, rgba(225, 190, 231, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 352px 140px, rgba(225, 190, 231, 0.3) 50%, transparent 50%),
+            radial-gradient(circle 2px at 348px 140px, rgba(225, 190, 231, 0.3) 50%, transparent 50%);
+        background-repeat: repeat;
+        background-size: 400px 200px;
+        animation: floatPaws 15s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.6;
+    }
+
+    /* Gentle floating animation for paw prints */
+    @keyframes floatPaws {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(2deg); }
+        100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    /* Ensure content appears above the paw prints */
+    .cat body > * {
+        position: relative;
+        z-index: 2;
     }
     
     .happy {

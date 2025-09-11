@@ -6,7 +6,6 @@ import NavbarComponent from '@/components/NavbarComponent'
 export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  // Ban Words Section
   const [bannedWords, setBannedWords] = useState<string[]>([])
   const [newBannedWord, setNewBannedWord] = useState('')
   const [banLoading, setBanLoading] = useState(false)
@@ -213,7 +212,8 @@ export default function AdminPage() {
               <th className="table-cell header-cell">Email</th>
               <th className="table-cell header-cell">Username</th>
               <th className="table-cell header-cell">Status</th>
-              <th className="table-cell header-cell">Actions</th>
+              <th className="table-cell header-cell">Update Name</th>
+              {/* <th className="table-cell header-cell">Actions</th> */}
             </tr>
           </thead>
           <tbody className="table-body">
@@ -222,9 +222,15 @@ export default function AdminPage() {
                 <td className="table-cell">{user.email}</td>
                 <td className="table-cell username-cell">{user.anonymousName}</td>
                 <td className="table-cell status-cell">
-                  <span className={`status-badge ${user.isBanned ? 'banned' : 'active'}`}>
+                  <span className={`status-badge ${user.isBanned ? 'banned' : 'active'} mr-5`}>
                     {user.isBanned ? 'Banned' : 'Active'}
                   </span>
+                   <button 
+                      onClick={() => handleBan(user.id)}
+                      className={`action-button ${user.isBanned ? 'unban-button' : 'ban-button'}`}
+                    >
+                      {user.isBanned ? "Unban" : "Ban"}
+                    </button>
                 </td>
                 <td className="table-cell actions-cell">
                   <div className="action-group">
@@ -239,12 +245,7 @@ export default function AdminPage() {
                     >
                       Update
                     </button>
-                    <button 
-                      onClick={() => handleBan(user.id)}
-                      className={`action-button ${user.isBanned ? 'unban-button' : 'ban-button'}`}
-                    >
-                      {user.isBanned ? "Unban" : "Ban"}
-                    </button>
+                   
                   </div>
                 </td>
               </tr>

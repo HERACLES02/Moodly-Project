@@ -107,6 +107,7 @@
 
 .status-cell {
     text-align: center;
+    gap: 5rem;
 }
 
 .status-badge {

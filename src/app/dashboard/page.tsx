@@ -5,7 +5,7 @@ import { useGetUser } from '@/hooks/useGetUser'
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import SelectTheme from '@/components/SelectTheme'
 import FirstMoodSelection from '@/components/FirstMoodSelection'
 import { useTheme } from 'next-themes'
@@ -77,6 +77,10 @@ export default function Dashboard() {
 
   const handleSongClick = (songId: number) => {
     router.push(`/song/listen/${songId}`)
+  }
+
+  const handlepageclick = () =>{
+    redirect('/hello')
   }
 
   const supportedMoods = ['happy', 'sad']
@@ -158,6 +162,8 @@ export default function Dashboard() {
           </main>
         </>
       )}
+
+      
     </div>
   )
 }

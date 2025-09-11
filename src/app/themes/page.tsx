@@ -32,8 +32,8 @@ export default function ThemesPage() {
       <NavbarComponent />
       
       <main className="themes-main">
-        <div className="themes-content">
-          <div className="themes-header">
+        <div className="themes-content ">
+          <div className="themes-header mt-20">
             <h1 className="themes-title">Redeem Your Mood Points</h1>
             <p className="themes-subtitle">
               Personalize your dashboard with exclusive Moodly themes!
@@ -52,7 +52,7 @@ export default function ThemesPage() {
             {/* Cat Theme */}
             <RedeemableCard
               name="Cat"
-              price={600}
+              price={6}
               type="theme"
               thumbnailPath="cat-image"
             />

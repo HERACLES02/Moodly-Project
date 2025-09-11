@@ -62,23 +62,23 @@ function initSocket(server) {
           const sessionInfo = moodSyncManager.addViewer(socket.id, username, mood)
           
           if (sessionInfo) {
-            // FIXED: Only send session-sync to the NEW user, not everyone
+          
             socket.emit('session-sync', sessionInfo)
             
             // Send a confirmation message specifically for chat
             socket.emit('chat-ready', { 
-              message: 'Chat connected successfully',
+              message: 'Chat connected ',
               streamId: streamId
             })
             
-            // FIXED: Send user-joined message only to OTHER users, not the new user
+        
             socket.to(streamId).emit('user-joined', {
               message: `${username} joined the ${mood} watch party`,
               type: 'system',
               timestamp: new Date()
             })
             
-            // FIXED: Send viewer count update to ALL users separately
+            
             io.to(streamId).emit('viewer-count-update', {
               count: moodSyncManager.viewers.size
             })
@@ -161,14 +161,13 @@ function initSocket(server) {
   })
 })
 
-      // FIXED: Handle session info requests without affecting others
+    
       socket.on('get-session-info', () => {
         if (socket.mood && socket.sessionType === 'movie') {
           const moodSyncManager = getSyncManager(socket.mood)
           const sessionInfo = moodSyncManager.getCurrentSessionInfo()
           if (sessionInfo) {
-            // FIXED: Only send to the requesting user
-            socket.emit('session-sync', sessionInfo)
+          
             console.log(`${socket.mood} session info refreshed for user:`, socket.id)
           } else {
             socket.emit('session-error', { message: `No active ${socket.mood} session` })
@@ -190,7 +189,7 @@ function initSocket(server) {
         }
       })
 
-      // Handle user disconnection
+
       socket.on('disconnect', () => {
         if (socket.username && socket.streamId && socket.mood) {
           if (socket.sessionType === 'radio') {
