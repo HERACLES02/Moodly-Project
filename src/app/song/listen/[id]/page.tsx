@@ -43,7 +43,7 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
 
     const fetchSongData = async () => {
         try {
-            const response = await fetch(`https://moodly-blond.vercel.app/api/get-song-data?id=${id}`)
+            const response = await fetch(`http://localhost:9513/api/get-song-data?id=${id}`)
             const songData = await response.json()
             setSong(songData)
         } catch (error) {

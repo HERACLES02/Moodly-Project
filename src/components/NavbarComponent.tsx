@@ -13,6 +13,7 @@ import LoginBonus from "@/components/LoginBonus"
 import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
 import { useGetUser } from "@/hooks/useGetUser"
 import { useState } from "react"
+import { redirect } from "next/navigation"
 
 interface NavbarProps {
     onSelectMoodClick?: (mood: string) => void
@@ -137,6 +138,9 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
                         src="/images/moodly-logo.gif"
                         alt="Moodly Logo"
                         className="logo-gif"
+                        onClick={()=> {
+                            redirect("/dashboard")
+                        }}
                     />
                 </div>
 

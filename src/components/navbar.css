@@ -30,6 +30,10 @@
     height: auto;
     object-fit: cover; /* This crops the image */
     object-position: center; /* Centers the logo part */
+
+}
+.logo-gif:hover{
+    cursor: pointer;
 }
 
 .UserSection {

@@ -43,7 +43,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
 
     const fetchMovieData = async () => {
         try {
-            const response = await fetch(`https://moodly-blond.vercel.app/api/get-movie-data?id=${id}`)
+            const response = await fetch(`http://localhost:9513/api/get-movie-data?id=${id}`)
             const movieData = await response.json()
             setMovie(movieData)
         } catch (error) {

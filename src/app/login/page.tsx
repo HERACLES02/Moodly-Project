@@ -48,7 +48,7 @@ function LoginForm() {
   return (
     <div className="">
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="moodlyImage scale-180 mb-5">
+      <div className="moodlyImage mb-5 h-50 w-75">
                     <img
                         src="/images/moodly-logo.gif"
                         alt="Moodly Logo"
