@@ -2,16 +2,13 @@
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
-import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
-import SelectTheme from '@/components/SelectTheme'
 import './page.css'
 
 export default function ListenMusic({ params }: { params: Promise<{ id: string }> }) {
     const [id, setId] = useState<string>('')
     const [song, setSong] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-    const { user } = useGetUser()
     const { addPoints } = usePoints()
     const [hasEarnedListenPoints, setHasEarnedListenPoints] = useState(false)
 
@@ -43,7 +40,7 @@ export default function ListenMusic({ params }: { params: Promise<{ id: string }
 
     const fetchSongData = async () => {
         try {
-            const response = await fetch(`http://localhost:9513/api/get-song-data?id=${id}`)
+            const response = await fetch(`https://moodly-blond.vercel.app/api/get-song-data?id=${id}`)
             const songData = await response.json()
             setSong(songData)
         } catch (error) {

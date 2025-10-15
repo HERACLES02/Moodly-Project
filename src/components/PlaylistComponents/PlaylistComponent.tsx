@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "./playlist.css";
-import { useGetUser } from "@/hooks/useGetUser";
+
+import { useUser } from "@/contexts/UserContext";
 
 
 
@@ -13,11 +14,10 @@ interface PlaylistModalProps {
 }
 
 const PlaylistComponent: React.FC<PlaylistModalProps> = ({ onClose, itemId, type }) => {
-    const { user, setUser } = useGetUser()
+    const { user } = useUser()
     const [playlists, setPlaylists] = useState(null)
     const [showNewPlaylist, setShowNewPlaylist] = useState(false);
     const [newPlaylistName, setNewPlaylistName] = useState("");
-    const [isPrivate, setIsPrivate] = useState(false);
 
     useEffect(() => {
   const getPlaylist = async () => {

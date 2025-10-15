@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Film, Music, Trophy } from "lucide-react";
 import { usePoints } from "@/hooks/usePoints";
+import { useUser } from "@/contexts/UserContext";
 
 interface WeeklyProgress {
   moviesWatched: number;
@@ -11,37 +12,17 @@ interface WeeklyProgress {
 }
 
 export default function WeeklyProgressCompact() {
+  const { user } = useUser()
+  
   const [progress, setProgress] = useState<WeeklyProgress | null>(null);
 
-
-  useEffect(() => {
-    fetchProgress();
-    
-    window.addEventListener("pointsEarned", fetchProgress);
-    
-    return () => {
-      window.removeEventListener("pointsEarned", fetchProgress);
-    };
-  }, []);
-
-  const fetchProgress = async () => {
-    try {
-      const response = await fetch("/api/points/weekly-activity");
-
-      if (!response.ok) {
-        const text = await response.text(); // log raw response
-        console.error("Server returned error:", text);
-        return; // don’t call response.json() if server returned HTML
-      }
-
-      const data = await response.json();
-      if (data.weeklyProgress) setProgress(data.weeklyProgress);
-
-    } catch (error) {
-      console.error("Failed to fetch weekly progress:", error);
+  useEffect( () => {
+    if (user){
+      setProgress(user?.weeklyActivities)
     }
-  };
+  }, [user?.weeklyAcitvities])
 
+  
 
   
   if (!progress) return null;

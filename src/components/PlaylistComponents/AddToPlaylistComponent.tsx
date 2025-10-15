@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
 import './addtoplaylist.css'
 import PlaylistComponent from './PlaylistComponent'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import { usePoints } from '@/hooks/usePoints'
 
 interface AddtoPlaylistProps {
@@ -16,7 +16,9 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
   const [showPlaylist, setShowPlaylist] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [favoritesPlaylistId, setFavoritesPlaylistId] = useState<string | null>(null)
-  const { user } = useGetUser()
+  
+
+  const { user } = useUser()
   const { addPoints, deductPoints, isAdding } = usePoints()
 
   // Check if item is already favorited when component loads
@@ -49,8 +51,6 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
       // Remove from favorites
       try {
         // First, deduct points
-
-
         await deductPoints("unfavorite", itemId, type === "MOVIE" ? "movie" : "song")
         
         // Then remove from favorites playlist
@@ -64,7 +64,7 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
         })
 
         if (response.ok) {
-
+          setIsFavorited(false)
           console.log('🚫 Removed from favorites and deducted points')
         }
       } catch (error) {
@@ -77,18 +77,21 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
         await addPoints("favorite", itemId, type === "MOVIE" ? "movie" : "song")
         
         // Then add to favorites playlist
-        const response = await fetch('/api/playlist/add-to-playlist', {
+        const response = await fetch('/api/playlist/add-to-favorites', {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
-            playlistId: favoritesPlaylistId, 
-            itemId: itemId 
+            userId: user.id, 
+            itemId: itemId, 
+            type: type 
           })
         })
 
         if (response.ok) {
-
-          console.log('💖 Added to favorites and earned points')
+          const data = await response.json()
+          setIsFavorited(true)
+          setFavoritesPlaylistId(data.playlistId)
+          console.log('❤️ Added to favorites and earned points')
         }
       } catch (error) {
         console.error('Error adding to favorites:', error)
@@ -97,20 +100,9 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
   }
 
   return (
-    <>
-      {showPlaylist && (
-        <PlaylistComponent 
-          type={type} 
-          itemId={itemId} 
-          onClose={() => setShowPlaylist(false)}
-        />
-      )}
-      <div className='flex'>
-<button className="action-button" title="Add to playlist" onClick={handlePlaylist}>
-        +
-      </button>
-      
-      <button
+    <div className="add-to-playlist-container">
+      {/* Favorite Button */}
+     <button
         onClick={() => {
           setIsFavorited(!isFavorited)
           handleFavorite()}}
@@ -123,8 +115,20 @@ export default function AddToPlaylistComponent({ itemId, type }:  AddtoPlaylistP
           fill={isFavorited ? 'currentColor' : 'none'}
         />
       </button>
-      </div>
-      
-    </>
+
+      {/* Add to Playlist Button */}
+      <button className="action-button" title="Add to playlist" onClick={handlePlaylist}>
+        +
+      </button>
+
+      {/* Playlist Modal */}
+      {showPlaylist && (
+        <PlaylistComponent 
+          itemId={itemId}
+          type={type}
+          onClose={() => setShowPlaylist(false)}
+        />
+      )}
+    </div>
   )
 }

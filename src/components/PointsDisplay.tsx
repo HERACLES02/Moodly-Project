@@ -3,35 +3,36 @@
 import { useEffect, useState } from "react";
 import { Trophy } from "lucide-react";
 import "./PointsDisplay.css";
+import { useUser } from "@/contexts/UserContext";
 
 export default function PointsDisplay() {
-  const [points, setPoints] = useState<number>(0);
+  const { user } = useUser()
 
 
-  useEffect(() => {
-    fetchPoints();
+  // useEffect(() => {
+  //   fetchPoints();
 
-    window.addEventListener("pointsEarned", fetchPoints);
+  //   window.addEventListener("pointsEarned", fetchPoints);
     
-    return () => {
-      window.removeEventListener("pointsEarned", fetchPoints);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("pointsEarned", fetchPoints);
+  //   };
+  // }, []);
 
-  const fetchPoints = async () => {
-    try {
-      const response = await fetch("/api/points/get");
-      const data = await response.json();
+  // const fetchPoints = async () => {
+  //   try {
+  //     const response = await fetch("/api/points/get");
+  //     const data = await response.json();
       
-      if (data.points > points) {
-        console.log(' Points Updated:', data.points);
-      }
+  //     if (data.points > points) {
+  //       console.log(' Points Updated:', data.points);
+  //     }
       
-      setPoints(data.points || 0);
-    } catch (error) {
-      console.error("Failed to fetch points:", error);
-    }
-  };
+  //     setPoints(data.points || 0);
+  //   } catch (error) {
+  //     console.error("Failed to fetch points:", error);
+  //   }
+  // };
 
 
   return (
@@ -41,7 +42,7 @@ export default function PointsDisplay() {
           Your Points:
         </span>
         <span className="points-value">
-          {points.toLocaleString()}
+          {user?.points}
         </span>
       </div>
     );

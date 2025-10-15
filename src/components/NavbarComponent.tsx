@@ -4,14 +4,13 @@ import "./navbar.css"
 import "./WeeklyProgressCompact.css"
 import ThemeSelector from "./ThemeSelector"
 import AvatarSelector from "./AvatarSelector"
-import DisplayUser from "./DisplayUser"
 import ProfileDropdown from "./ProfileDropdown"
 import NotesSection from "./NotesSection"
 import MoodSelector from "./MoodSelector"
 import PointsDisplay from "@/components/PointsDisplay"
 import LoginBonus from "@/components/LoginBonus"
 import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
-import { useGetUser } from "@/hooks/useGetUser"
+import { useUser } from "@/contexts/UserContext"  // ← CHANGED: Import from context instead of hook
 import { useState } from "react"
 import { redirect } from "next/navigation"
 
@@ -20,7 +19,9 @@ interface NavbarProps {
 }
 
 export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
-    const { user, setUser } = useGetUser()
+
+    const { user, updateUserAvatar, updateUserTheme, updateUserMood } = useUser()
+    
     const [moodSelected, setMoodSelected] = useState(false)
     const [noteSelected, setNoteSelected] = useState(false)
     const [themeSelected, setThemeSelected] = useState(false)
@@ -88,33 +89,39 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
         setAvatarSelected(false)
     }
 
-    /** Handle Avatar Update */
+    /** 
+     * Handle Avatar Update
+     * ────────────────────────────────────────────────────────────────
+     * CHANGED: Now uses updateUserAvatar() from context
+     * This instantly updates the UI without refetching
+     */
     function handleAvatarSelection(avatarId: string) {
         console.log("Avatar selected in Navbar:", avatarId)
-        if (user && setUser) {
-            setUser({
-                ...user,
-                currentAvatarId: avatarId === "default" ? null : avatarId
-            })
-        }
+        updateUserAvatar(avatarId === "default" ? null : avatarId)
         setAvatarSelected(false)
     }
 
-    /** Handle Theme Update */
+    /** 
+     * Handle Theme Update
+     * ────────────────────────────────────────────────────────────────
+     * CHANGED: Now uses updateUserTheme() from context
+     * This instantly updates the UI without refetching
+     */
     function handleThemeSelection(theme: string) {
         console.log("Theme selected in Navbar:", theme)
-        if (user && setUser) {
-            setUser({
-                ...user,
-                currentTheme: theme
-            })
-        }
+        updateUserTheme(theme)
         setThemeSelected(false)
     }
 
-    /** Handle Mood Update */
+    /** 
+     * Handle Mood Update
+     * ────────────────────────────────────────────────────────────────
+     * CHANGED: Now uses updateUserMood() from context
+     * This instantly updates the UI without refetching
+     */
     function handleMoodSelection(mood: string) {
         console.log("Mood selected in Navbar:", mood)
+        updateUserMood(mood)
         if (onSelectMoodClick && mood) {
             onSelectMoodClick(mood)
         }
@@ -133,14 +140,14 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
             {/* Navbar */}
             <nav className="navbar">
                 {/* Logo */}
-                <div className="moodlyImage">
+                <div className="moodlyImage"
+                onClick={() => {
+                    redirect('/dashboard')
+                }}>
                     <img
                         src="/images/moodly-logo.gif"
                         alt="Moodly Logo"
                         className="logo-gif"
-                        onClick={()=> {
-                            redirect("/dashboard")
-                        }}
                     />
                 </div>
 

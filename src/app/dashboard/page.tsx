@@ -1,26 +1,28 @@
 'use client'
 
+
+
 import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+
 import NavbarComponent from '@/components/NavbarComponent'
 import MoodMovies from '@/components/MoodMovies/MoodMovies'
 import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
 import { redirect, useRouter } from 'next/navigation'
-import SelectTheme from '@/components/SelectTheme'
-import FirstMoodSelection from '@/components/FirstMoodSelection'
 import { useTheme } from 'next-themes'
 import { signOut } from 'next-auth/react'
+import { useUser } from '@/contexts/UserContext'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
-  const { user } = useGetUser()
+  const { user, updateUserMood } = useUser()
   const router = useRouter()
   const { setTheme } = useTheme()
 
   useEffect(() => {
     if (user?.mood) {
       setCurrentMood(user.mood)
+      console.log(user)
       console.log('Dashboard: User mood from context:', user.mood)
       
       if (user?.currentTheme != "default"){
@@ -68,7 +70,7 @@ export default function Dashboard() {
 
   const handleMoodSelected = (mood: string) => {
     console.log('Dashboard received mood from navbar:', mood)
-    if (mood) setCurrentMood(mood)
+    if (mood) updateUserMood(mood)
   }
 
   const handleMovieClick = (movieId: number) => {
@@ -79,12 +81,9 @@ export default function Dashboard() {
     router.push(`/song/listen/${songId}`)
   }
 
-  const handlepageclick = () =>{
-    redirect('/hello')
-  }
 
   const supportedMoods = ['happy', 'sad']
-  const normalizedMood = currentMood?.toLowerCase()
+  const normalizedMood = user?.mood?.toLowerCase()
   const showRecommendations = normalizedMood && supportedMoods.includes(normalizedMood)
 
 
@@ -105,17 +104,14 @@ export default function Dashboard() {
           <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
           <main className="max-w-6xl mx-auto p-8">
-            {/* testing theme selection */}
-            {/* <div className="theme-card mb-6 p-4">
-              <SelectTheme />
-            </div> */}
+
 
             {showRecommendations ? (
               <div className="mood-recommendations-section">
                 <MoodMovies mood={normalizedMood!} onMovieClick={handleMovieClick} />
                 <MoodMusic mood={normalizedMood!} onSongClick={handleSongClick} />
 
-                {/* Join Live / Radio Buttons */}
+                Join Live / Radio Buttons
                 <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                   <button
                     onClick={() => router.push(`/livestream/${normalizedMood}`)}
@@ -167,3 +163,4 @@ export default function Dashboard() {
     </div>
   )
 }
+

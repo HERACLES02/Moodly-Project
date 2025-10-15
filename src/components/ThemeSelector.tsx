@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import { useTheme } from 'next-themes'
 import './ThemeSelector.css'
 
@@ -11,35 +11,16 @@ interface ThemeSelectorProps {
 }
 
 export default function ThemeSelector({ onClose, onThemeSelect }: ThemeSelectorProps) {
-  const [unlockedThemes, setUnlockedThemes] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
-  const { user, setUser } = useGetUser()
+  const { user, updateUserTheme } = useUser()
   const { setTheme } = useTheme()
 
-  useEffect(() => {
-    fetchUnlockedThemes()
-  }, [])
+  const unlockedThemes = user?.unlockedThemes 
+    ? ['Default', ...user.unlockedThemes.split(',').filter(Boolean) ]
+    : ['Default']
 
-  const fetchUnlockedThemes = async () => {
-    try {
-      // Get unlocked themes from API
-      const response = await fetch('/api/themes/unlocked')
-      const data = await response.json()
-      const unlocked = data.unlockedThemes || []
-      
-      // Always include default theme + unlocked premium themes
-      const allThemes = ['default', ...unlocked]
-      setUnlockedThemes(allThemes)
-      
-      console.log('Available themes:', allThemes)
-    } catch (error) {
-      console.error('Error fetching unlocked themes:', error)
-      // Fallback to just default if API fails
-      setUnlockedThemes(['default'])
-    } finally {
-      setLoading(false)
-    }
-  }
+  const loading = !user // Simple loading check
+
+  
 
   const handleThemeSelect = async (selectedTheme: string) => {
     try {
@@ -47,22 +28,20 @@ export default function ThemeSelector({ onClose, onThemeSelect }: ThemeSelectorP
       const response = await fetch('/api/themes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ themeId: selectedTheme, action: 'apply' })
+        body: JSON.stringify({ themeId: selectedTheme.toLowerCase(), action: 'apply' })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        // Update user context - this will trigger ThemeProvider to handle theme switching
-        if (user) {
-          setUser({ 
-            ...user, 
-            currentTheme: selectedTheme 
-          })
-        }
+        // ════════════════════════════════════════════════════════════
+        // CHANGED: Update context instead of setUser
+        // ════════════════════════════════════════════════════════════
+        updateUserTheme(selectedTheme)
+        console.log('✅ Updated theme in context:', selectedTheme)
 
         // Apply theme logic using provider
-        if (selectedTheme === 'default') {
+        if (selectedTheme === 'Default') {
           // For default theme, use mood if available
           if (user?.mood) {
             setTheme(user.mood.toLowerCase())

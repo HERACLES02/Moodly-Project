@@ -59,3 +59,9 @@
 .heart-icon.filled {
     color: #ef4444;
 }
+
+.add-to-playlist-container{
+    display: flex;
+    gap: 1rem;
+
+}

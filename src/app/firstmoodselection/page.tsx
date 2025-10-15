@@ -1,25 +1,25 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import { useTheme } from 'next-themes'
 import './FirstMoodSelection.css'
 import { redirect } from "next/navigation"
 import { signOut } from 'next-auth/react'
-
-
 
 export default function FirstMoodSelection() {
   const { theme, setTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [showTitle, setShowTitle] = useState(false)
   const [showMoods, setShowMoods] = useState(false)
-  const { user, setUser } = useGetUser()
-  // ADDED THIS LINE:
-    const [isMounted, setIsMounted] = useState(false)
+  
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // ══════════════════════════════════════════════════════════════════
+  const { user, updateUserMood } = useUser()
+  const [isMounted, setIsMounted] = useState(false)
 
-
-  // This array contains all the mood options, exactly like in MoodSelector
+  // This array contains all the mood options
   const moodOptions = [
     { name: 'Happy', color: 'bg-yellow-300' },
     { name: 'Calm', color: 'bg-blue-300' },
@@ -31,13 +31,10 @@ export default function FirstMoodSelection() {
     { name: 'Grateful', color: 'bg-green-300' }
   ]
 
-
-  
-useEffect(() => {
-  setTheme("default")          // ADDED THIS
-
-  setIsMounted(true)     // ADDED THIS
-})
+  useEffect(() => {
+    setTheme("default")
+    setIsMounted(true)
+  }, [setTheme])
 
   useEffect(() => {
     // First, show the title with animation
@@ -56,37 +53,34 @@ useEffect(() => {
       clearTimeout(moodsTimer)
     }
   }, [])
+
   if (!isMounted) return null
 
   const handleAutoSignOut = async () => {
-        await signOut({ redirect: false })
-            
-            redirect('/login')
-          }
-      
-  
-  
-      if (user?.isBanned){
-        return (
-          <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
+    await signOut({ redirect: false })
+    redirect('/login')
+  }
+
+  if (user?.isBanned) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen scale-200 cursor-pointer" onClick={handleAutoSignOut}>
         <div className="theme-btn inline-flex font-black items-center justify-center">
-          <button >
+          <button>
             You are banned. Click to sign out.
           </button>
         </div>
       </div>
-  
-          
-        )
-      }
-  
+    )
+  }
+
+  // ══════════════════════════════════════════════════════════════════
   // This function handles when user clicks a mood button
+  // ══════════════════════════════════════════════════════════════════
   const handleMoodSelect = async (moodName: string) => {
-    // Prevent multiple clicks while processing
     setIsLoading(true)
     
     try {
-      // Send the mood to the API (same as MoodSelector component)
+      // Send the mood to the API
       const response = await fetch('/api/moods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,18 +90,14 @@ useEffect(() => {
       const data = await response.json()
 
       if (response.ok) {
-        // Update the user context with the new mood
-        if (user) {
-          setUser({ ...user, mood: moodName })
-        }
+        // ════════════════════════════════════════════════════════════
+        // CHANGED: Update context instead of setUser
+        // ════════════════════════════════════════════════════════════
+        updateUserMood(moodName)
+        console.log('✅ First mood saved and updated in context:', moodName)
         
-        console.log('First mood saved:', data.message)
-        
-        // Small delay for better user experience
         setTimeout(() => {
-          // This will trigger the dashboard to show the real content
-          setTheme(moodName.toLowerCase())
-          redirect('/dashboard')
+          window.location.href = '/dashboard'
         }, 500)
       } else {
         console.error('Failed to save mood:', data.error)
@@ -122,30 +112,40 @@ useEffect(() => {
   }
 
   return (
-    <div className="first-mood-container">
-      {/* Main Title with Animation */}
-      <h1 className={`first-mood-title ${showTitle ? 'title-visible' : ''}`}>
-        What is your mood for today?
-      </h1>
+    <div className="first-mood-background">
+      <div className="first-mood-container">
+        <div className={`first-mood-content ${showTitle ? 'show' : ''}`}>
+          <h1 className="first-mood-title">
+            Welcome to Moodly! 🎭
+          </h1>
+          <p className="first-mood-subtitle">
+            How are you feeling today?
+          </p>
 
-      {/* Mood Selection Grid */}
-      <div className={`first-mood-buttons ${showMoods ? 'moods-visible' : ''}`}>
-        {moodOptions.map((mood) => (
-          <button
-            key={mood.name}
-            onClick={() => handleMoodSelect(mood.name)}
-            disabled={isLoading}
-            className="theme-button"
-          >
-            
-            {/* Mood Name */}
-            <span className="mood-name">{mood.name}</span>
-          </button>
-        ))}
+          <div className={`mood-options-grid ${showMoods ? 'show' : ''}`}>
+            {moodOptions.map((mood, index) => (
+              <button
+                key={mood.name}
+                onClick={() => handleMoodSelect(mood.name)}
+                disabled={isLoading}
+                className={`mood-option-button ${mood.color}`}
+                style={{
+                  animationDelay: `${index * 0.1}s`
+                }}
+              >
+                <span className="mood-name">{mood.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {isLoading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+              <p>Setting up your experience...</p>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Loading State */}
-      
     </div>
   )
 }

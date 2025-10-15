@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import './RedeemableCard.css'
 import { useTheme } from 'next-themes'
 
+// ═══════════════════════════════════════════════════════════════════
 // Step 1: Define the props interface
-// This is exactly what you'll pass from the themes page - nothing more, nothing less
+// ═══════════════════════════════════════════════════════════════════
 interface RedeemableCardProps {
   name: string           // "Van Gogh", "Cat", etc.
   price: number         // 3, 6, etc. (points required)
@@ -15,34 +16,37 @@ interface RedeemableCardProps {
 }
 
 export default function RedeemableCard({ name, price, type, thumbnailPath }: RedeemableCardProps) {
+  // ═══════════════════════════════════════════════════════════════════
   // Step 2: Set up state for managing component data
-  // These states handle all the logic internally
-  const [userPoints, setUserPoints] = useState(0)
+  // ═══════════════════════════════════════════════════════════════════
   const [unlockedItems, setUnlockedItems] = useState<string[]>([])
   const [currentTheme, setCurrentTheme] = useState('default')
   const [loading, setLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
   const { setTheme } = useTheme()
   
-  // Get user context to update it when theme changes
-  const { user, setUser } = useGetUser()
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // Get user data AND update functions from context
+  // ══════════════════════════════════════════════════════════════════
+  const { user, updateUserPoints, updateUserTheme, updateUserAvatar } = useUser()
 
   // Step 3: Convert the name to ID format for database operations
   // This converts "Van Gogh" to "van-gogh" for consistent database storage
   const itemId = name.toLowerCase().replace(/\s+/g, '')
 
-  // Step 4: Fetch user data when component mounts
-  // This gets the user's points, unlocked items, and current theme/avatar
+  // ═══════════════════════════════════════════════════════════════════
+  // Step 4: Fetch unlocked items data when component mounts
+  // ═══════════════════════════════════════════════════════════════════
+  // NOTE: We still need to fetch unlocked items because this data
+  // isn't stored in the user context
   useEffect(() => {
-    fetchUserData()
-  }, [])
+    fetchItemData()
+  }, [type])
 
-  const fetchUserData = async () => {
+  const fetchItemData = async () => {
     try {
-      // Get user points first (same endpoint for both themes and avatars)
-      const userResponse = await fetch('/api/getUser')
-      const userData = await userResponse.json()
-      setUserPoints(userData.points || 0)
+      setLoading(true)
 
       if (type === 'theme') {
         // Get current theme and unlocked themes
@@ -65,18 +69,20 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
       }
       
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      console.error('Error fetching item data:', error)
     } finally {
       setLoading(false)
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 5: Check if user owns this item
-  // This determines whether to show "Redeem" or "Apply" button
+  // ═══════════════════════════════════════════════════════════════════
   const isUnlocked = unlockedItems.includes(itemId)
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 6: Handle the main action (Redeem or Apply)
-  // This function contains all the clicking logic
+  // ═══════════════════════════════════════════════════════════════════
   const handleAction = async () => {
     // Prevent multiple clicks while processing
     if (isProcessing) return
@@ -106,25 +112,29 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
         // Show success message
         alert(data.message)
         
-        // Refresh user data to update the component state
-        await fetchUserData()
-        
-        // Update user context if applying
-        if (action === 'apply' && user) {
-          if (type === 'theme') {
-            setUser({ 
-              ...user, 
-              currentTheme: itemId 
-            })
-            setTheme(itemId.toLowerCase())
-          } else if (type === 'avatar') {
-            setUser({ 
-              ...user, 
-              currentAvatarId: data.avatarId 
-            })
-          }
-          console.log(`Updated user context with new ${type}:`, itemId)
+        // ════════════════════════════════════════════════════════════
+        // CHANGED: Update context instead of refetching everything
+        // ════════════════════════════════════════════════════════════
+        if (action === 'redeem') {
+          // User just bought this item - update points in context
+          updateUserPoints(data.newPoints)
+          console.log('✅ Updated points in context:', data.newPoints)
         }
+        
+        if (action === 'apply') {
+          // User applied this item - update theme/avatar in context
+          if (type === 'theme') {
+            updateUserTheme(itemId)
+            setTheme(itemId.toLowerCase())
+            console.log('✅ Updated theme in context:', itemId)
+          } else if (type === 'avatar') {
+            updateUserAvatar(data.avatarId)
+            console.log('✅ Updated avatar in context:', data.avatarId)
+          }
+        }
+        
+        // Refresh local item data (unlocked items list and current item)
+        await fetchItemData()
       } else {
         // Show error message
         alert(data.error || 'Something went wrong')
@@ -137,11 +147,17 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 7: Determine button text based on current state
-  // This logic determines what text to show on the button
+  // ═══════════════════════════════════════════════════════════════════
   const getButtonText = () => {
     if (loading) return 'LOADING...'
     if (isProcessing) return 'PROCESSING...'
+    
+    // ────────────────────────────────────────────────────────────────
+    // CHANGED: Get user points from context instead of local state
+    // ────────────────────────────────────────────────────────────────
+    const userPoints = user?.points || 0
     
     if (isUnlocked) {
       // User owns this item
@@ -161,10 +177,16 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 8: Determine button styling based on current state
-  // This logic determines what CSS class to apply to the button
+  // ═══════════════════════════════════════════════════════════════════
   const getButtonClass = () => {
     if (loading || isProcessing) return 'loading'
+    
+    // ────────────────────────────────────────────────────────────────
+    // CHANGED: Get user points from context instead of local state
+    // ────────────────────────────────────────────────────────────────
+    const userPoints = user?.points || 0
     
     if (isUnlocked) {
       if ((type === 'theme' && currentTheme === itemId) || 
@@ -177,17 +199,22 @@ export default function RedeemableCard({ name, price, type, thumbnailPath }: Red
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 9: Determine if button should be disabled
-  // This prevents clicks when user can't afford or when processing
+  // ═══════════════════════════════════════════════════════════════════
   const isButtonDisabled = () => {
     if (loading || isProcessing) return true
+    
+    const userPoints = user?.points || 0
     if (!isUnlocked && userPoints < price) return true
     if ((type === 'theme' && currentTheme === itemId) || 
         (type === 'avatar' && currentTheme === itemId)) return true
     return false
   }
 
+  // ═══════════════════════════════════════════════════════════════════
   // Step 10: Render the component
+  // ═══════════════════════════════════════════════════════════════════
   return (
     <div className={`redeemable-card ${type}-card ${itemId}-card`}>
       {/* Preview section with image and labels */}

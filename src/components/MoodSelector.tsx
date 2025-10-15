@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
 import { useTheme } from 'next-themes'
+import { useUser } from '@/contexts/UserContext'
 
 interface MoodSelectorProps {
   onClose?: () => void
@@ -11,7 +11,7 @@ interface MoodSelectorProps {
 export default function MoodSelector({ onClose, onMoodSelect }: MoodSelectorProps) {
   const [isLoading, setIsLoading] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
-  const { user, setUser } = useGetUser()
+  const { user, setUser } = useUser()
   const { theme, setTheme } = useTheme()
 
   const moodOptions = [

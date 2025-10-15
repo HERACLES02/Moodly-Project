@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'
 
 interface NotesSectionProps {
   onClose?: () => void
@@ -11,7 +11,7 @@ export default function NotesSection({ onClose }: NotesSectionProps) {
   const [content, setContent] = useState('')
   const [notes, setNotes] = useState<any[]>([])
   const noteRef = useRef<HTMLDivElement>(null)
-  const { user, setUser } = useGetUser()
+  const { user, setUser } = useUser()
 
   useEffect(() => {
     fetchNotes()

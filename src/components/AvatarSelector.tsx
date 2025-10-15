@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import './AvatarSelector.css'
 
 interface AvatarSelectorProps {
@@ -16,48 +16,33 @@ interface AvatarOption {
 }
 
 export default function AvatarSelector({ onClose, onAvatarSelect }: AvatarSelectorProps) {
-  const [unlockedAvatars, setUnlockedAvatars] = useState<AvatarOption[]>([])
-  const [loading, setLoading] = useState(true)
-  const { user, setUser } = useGetUser()
+  // const [unlockedAvatars, setUnlockedAvatars] = useState<AvatarOption[]>([])
+  // const [loading, setLoading] = useState(true)
+  
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // ══════════════════════════════════════════════════════════════════
+  const { user, updateUserAvatar } = useUser()
+  const unlockedAvatars = user?.unlockedAvatars 
+    ? ['Default', ...user?.unlockedAvatars  ]
+    : ['Default']
 
-  useEffect(() => {
-    fetchUnlockedAvatars()
-  }, [])
+  const loading = !user // Simple loading check
+  // useEffect(() => {
+  //   getAvatars()
+  //   setLoading(false)
 
-  const fetchUnlockedAvatars = async () => {
-    try {
-      // Get unlocked avatars from API
-      const response = await fetch('/api/avatars/unlocked')
-      const data = await response.json()
-      
-      if (data.avatarDetails) {
-        // Include default option + unlocked avatars
-        const allAvatars = [
-          { id: 'default', name: 'Default', imagePath: '' }, // Empty path means use emoji
-          ...data.avatarDetails
-        ]
-        setUnlockedAvatars(allAvatars)
-        console.log('Available avatars:', allAvatars)
-      } else {
-        // Fallback to just default if API fails
-        const defaultOnly = [{ id: 'default', name: 'Default', imagePath: '' }]
-        setUnlockedAvatars(defaultOnly)
-        console.log('Available avatars (fallback):', defaultOnly)
-      }
-      
-    } catch (error) {
-      console.error('Error fetching unlocked avatars:', error)
-      // Fallback to just default if API fails
-      const defaultOnly = [{ id: 'default', name: 'Default', imagePath: '' }]
-      setUnlockedAvatars(defaultOnly)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // }, [])
+
+  // const getAvatars = () => {
+  //   setUnlockedAvatars(user?.unlockedAvatars)
+  // }
+
+  
 
   const handleAvatarSelect = async (selectedAvatarId: string) => {
-    try {
-      if (selectedAvatarId === 'default') {
+    try {console.log(selectedAvatarId)
+      if (selectedAvatarId?.toLowerCase() === "default") {
         // Apply default avatar (remove current avatar)
         const response = await fetch('/api/getUser', {
           method: 'PATCH',
@@ -68,14 +53,11 @@ export default function AvatarSelector({ onClose, onAvatarSelect }: AvatarSelect
         const data = await response.json()
 
         if (data.success) {
-          // Update user context
-          if (user) {
-            setUser({ 
-              ...user, 
-              currentAvatarId: null 
-            })
-          }
-          console.log('Applied default avatar')
+          // ════════════════════════════════════════════════════════════
+          // CHANGED: Update context instead of setUser
+          // ════════════════════════════════════════════════════════════
+          updateUserAvatar(null)
+          console.log('✅ Applied default avatar and updated context')
         } else {
           alert(data.error || 'Failed to apply avatar')
           return
@@ -91,14 +73,11 @@ export default function AvatarSelector({ onClose, onAvatarSelect }: AvatarSelect
         const data = await response.json()
 
         if (data.success) {
-          // Update user context
-          if (user) {
-            setUser({ 
-              ...user, 
-              currentAvatarId: selectedAvatarId 
-            })
-          }
-          console.log('Applied avatar:', selectedAvatarId)
+          // ════════════════════════════════════════════════════════════
+          // CHANGED: Update context instead of setUser
+          // ════════════════════════════════════════════════════════════
+          updateUserAvatar(selectedAvatarId)
+          console.log('✅ Applied avatar and updated context:', selectedAvatarId)
         } else {
           alert(data.error || 'Failed to apply avatar')
           return
@@ -159,8 +138,8 @@ export default function AvatarSelector({ onClose, onAvatarSelect }: AvatarSelect
                   const isActive = getCurrentAvatarId() === avatar.id
                   return (
                     <button
-                      key={avatar.id}
-                      onClick={() => handleAvatarSelect(avatar.id)}
+                      key={avatar.id || "Default"}
+                      onClick={() => handleAvatarSelect(avatar.id || "default")}
                       className={`avatar-option ${isActive ? 'active' : ''}`}
                     >
                       <div className="avatar-option-preview">
@@ -168,7 +147,7 @@ export default function AvatarSelector({ onClose, onAvatarSelect }: AvatarSelect
                       </div>
                       <div className="avatar-option-info">
                         <span className="avatar-option-name">
-                          {avatar.name}
+                          {avatar.name || "Default"}
                         </span>
                         {isActive && (
                           <span className="avatar-option-active">✓ Active</span>

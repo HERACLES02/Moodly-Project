@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import NavbarComponent from '@/components/NavbarComponent'
-import { useGetUser } from '@/hooks/useGetUser'
 import './playlist.css'
+import { useUser } from '@/contexts/UserContext'
 
 interface Playlist {
   id: string
@@ -20,7 +20,7 @@ export default function PlaylistPage() {
   const [loading, setLoading] = useState(true)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
   const [filterType, setFilterType] = useState<string | null>(null)
-  const { user } = useGetUser()
+  const { user } = useUser()
   const router = useRouter()
 
   useEffect(() => {

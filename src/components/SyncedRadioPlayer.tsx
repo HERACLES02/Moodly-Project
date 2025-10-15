@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import { LiveChatComponent } from './LiveChatComponent'
 import './syncedRadio.css'
 import { SOCKET_URL } from '@/lib/socket-config'
@@ -37,7 +37,11 @@ interface SyncedRadioPlayerProps {
 }
 
 export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
-  const { user } = useGetUser()
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // ══════════════════════════════════════════════════════════════════
+  const { user } = useUser()
+  
   const [socket, setSocket] = useState<Socket | null>(null)
   const [sessionInfo, setSessionInfo] = useState<RadioSessionInfo | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -72,176 +76,140 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
       if (info.currentSong.previewUrl && audioRef.current) {
         const audio = audioRef.current
         audio.src = info.currentSong.previewUrl
-        const seekTime = Math.min(info.syncData.elapsedSeconds, 28)
+        const seekTime = info.syncData.elapsedSeconds
 
-        audio.addEventListener(
-          'loadeddata',
-          () => {
-            audio.currentTime = seekTime
-          },
-          { once: true }
-        )
-
-        audio.play().then(() => {
-          setIsPlaying(true)
-        }).catch(() => {
-          setIsPlaying(false)
-        })
+        audio.currentTime = seekTime
+        
+        if (isPlaying) {
+          audio.play().catch(err => {
+            console.error('Audio play error:', err)
+          })
+        }
       }
     })
 
-    newSocket.on('song-changed', (info: RadioSessionInfo) => {
-      setSessionInfo(info)
+    newSocket.on('song-change', (info: RadioSessionInfo) => {
+      console.log('🎵 Song changed:', info.currentSong.title)
       setShowSongChange(true)
-
-      if (info.currentSong.previewUrl && audioRef.current) {
-        const audio = audioRef.current
-        audio.src = info.currentSong.previewUrl
-        audio.currentTime = 0
-
-        audio.addEventListener(
-          'loadeddata',
-          () => {
-            if (isPlaying) {
-              audio.play().catch(() => setIsPlaying(false))
-            }
-          },
-          { once: true }
-        )
-      }
-
-      setTimeout(() => setShowSongChange(false), 5000)
-    })
-
-    newSocket.on('listener-count-update', (data: { count: number }) => {
-      setSessionInfo(prev => prev ? { ...prev, listenerCount: data.count } : prev)
+      setTimeout(() => setShowSongChange(false), 3000)
     })
 
     setSocket(newSocket)
 
     return () => {
-      newSocket.close()
+      newSocket.disconnect()
     }
-  }, [mood, user?.anonymousName])
+  }, [mood, user?.anonymousName, isPlaying])
 
-  const formatTime = (milliseconds: number) => {
-    const totalSeconds = Math.floor(milliseconds / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause()
+      } else {
+        audioRef.current.play()
+      }
+      setIsPlaying(!isPlaying)
+    }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="theme-card backdrop-blur-md p-8 text-center max-w-md">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="font-medium text-lg">Tuning into radio station...</p>
-          <p className="opacity-70 text-sm mt-2">Connecting to {mood} mood radio</p>
-        </div>
+      <div className="synced-radio-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading radio session...</p>
       </div>
     )
   }
 
   if (!sessionInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="theme-card backdrop-blur-md p-8 text-center max-w-md">
-          <p className="font-medium text-lg text-red-600">Failed to connect to radio station</p>
-          <p className="opacity-70 text-sm mt-2">Please try refreshing the page</p>
-        </div>
+      <div className="synced-radio-error">
+        <p>Unable to load radio session. Please try again.</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Song Change Notification */}
-        {showSongChange && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-            🎵 Now Playing: {sessionInfo.currentSong.title}
-          </div>
-        )}
-
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Spotify Player Section */}
-          <div className="lg:col-span-2">
-            <div className="theme-card backdrop-blur-md p-4">
-              <div className="rounded-lg overflow-hidden">
-                <iframe
-                  src={embedUrl}
-                  className="w-full h-40 border-none rounded-lg"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  title="song"
-                />
-              </div>
-              
-              {/* Song Info */}
-              <div className="flex mt-4 justify-between">
-                <div className="flex items-center gap-4 " >
-                  <img
-                    src={sessionInfo.currentSong.image || '/images/song-placeholder.jpg'}
-                    alt={sessionInfo.currentSong.albumName}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                  <div>
-                    <h2 className="text-xl font-semibold">
-                      {sessionInfo.currentSong.title}
-                    </h2>
-                    <p className="opacity-70">
-                      by {sessionInfo.currentSong.artist}
-                    </p>
-                    <p className="opacity-50 text-sm">
-                      Album: {sessionInfo.currentSong.albumName}
-                    </p>
-                    
-                  </div>
-                  
-                </div>
-                <div className="flex flex-col text-center">
-                  <div>
-                    <p className="text-sm font-medium">Next:</p>
-                  </div>
-                    <div>
-                    <p className="opacity-70 text-xs">
-                      {sessionInfo.nextSong?.title || 'Loading...'}
-                      
-                    </p>
-                    <p className="text-sm font-medium">
-                    {sessionInfo.nextSong?.artist || 'Loading...'}
-                    </p>
-                    </div>
-                   
-                  </div>
-              </div>
-            </div>
-            
-          </div>
-
-          {/* Chat Section */}
-          <div className="">
-            <div className="backdrop-blur-md h-[600px]">
-              <LiveChatComponent
-                streamId={`${mood}-radio-session`}
-                user={user}
-                mood={mood}
-                sharedSocket={socket}
-                isSocketConnected={isConnected}
-              />
-            </div>
-            
-          </div>
-        </div>
-
-
-
+    <div className="synced-radio-container">
+      {/* Connection Status */}
+      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
       </div>
+
+      {/* Song Info */}
+      <div className="radio-info">
+        <h2 className="radio-title">{mood} Radio</h2>
+        <div className="listener-count">
+          👥 {sessionInfo.listenerCount} listening
+        </div>
+      </div>
+
+      {/* Current Song Display */}
+      <div className="current-song-section">
+        <img 
+          src={sessionInfo.currentSong.image} 
+          alt={sessionInfo.currentSong.title}
+          className="song-artwork"
+        />
+        <div className="song-details">
+          <h3 className="song-title">{sessionInfo.currentSong.title}</h3>
+          <p className="song-artist">{sessionInfo.currentSong.artist}</p>
+          <p className="song-album">{sessionInfo.currentSong.albumName}</p>
+        </div>
+      </div>
+
+      {/* Spotify Embed */}
+      {embedUrl && (
+        <div className="spotify-embed">
+          <iframe
+            src={embedUrl}
+            width="100%"
+            height="152"
+            frameBorder="0"
+            allow="encrypted-media"
+          ></iframe>
+        </div>
+      )}
+
+      {/* Audio Element for Preview */}
+      <audio ref={audioRef} />
+
+      {/* Play Controls */}
+      <div className="radio-controls">
+        <button onClick={togglePlay} className="play-button">
+          {isPlaying ? '⏸️ Pause' : '▶️ Play'}
+        </button>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="progress-section">
+        <div className="progress-bar">
+          <div 
+            className="progress-fill"
+            style={{ width: `${sessionInfo.progress}%` }}
+          ></div>
+        </div>
+        <div className="time-info">
+          <span>{Math.floor(sessionInfo.elapsedTime / 60)}:{String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, '0')}</span>
+          <span>{Math.floor(sessionInfo.remainingTime / 60)}:{String(Math.floor(sessionInfo.remainingTime % 60)).padStart(2, '0')}</span>
+        </div>
+      </div>
+
+      {/* Song Change Notification */}
+      {showSongChange && (
+        <div className="song-change-notification">
+          🎵 New Song Playing!
+        </div>
+      )}
+
+      {/* Live Chat */}
+      {socket && (
+        <LiveChatComponent 
+          socket={socket}
+          streamId={`${mood}-radio-session`}
+          username={user?.anonymousName || 'Anonymous'}
+        />
+      )}
     </div>
   )
 }

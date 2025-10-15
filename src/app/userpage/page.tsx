@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import NavbarComponent from '@/components/NavbarComponent'
-import { useGetUser } from '@/hooks/useGetUser'
 import './userpage.css'
 import '@/components/ThemeOverrides.css' 
 import PointHistory from '@/components/PointHistory'
+import { useUser } from '@/contexts/UserContext'
 
 export default function UserPage() {
-  const { user } = useGetUser()
+  const { user } = useUser()
   const router = useRouter()
   const [currentMood, setCurrentMood] = useState<string | null>(null)
   const [musicPlaylists, setMusicPlaylists] = useState<any[]>([])

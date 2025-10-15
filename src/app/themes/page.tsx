@@ -3,13 +3,15 @@
 import { useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import RedeemableCard from '@/components/RedeemableCard'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import './themes.css'
 import { useTheme } from 'next-themes'
-import SelectTheme from '@/components/SelectTheme'
 
 export default function ThemesPage() {
-  const { user } = useGetUser()
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // ══════════════════════════════════════════════════════════════════
+  const { user } = useUser()
   const { setTheme } = useTheme()
 
   useEffect(() => {
@@ -22,18 +24,15 @@ export default function ThemesPage() {
       setTheme(user.mood.toLowerCase());
     }
     }
-
-
-  }, [user?.currentTheme, user?.mood, ] )
-
+  }, [user?.currentTheme, user?.mood, setTheme] )
 
   return (
     <div className="themes-container">
       <NavbarComponent />
       
       <main className="themes-main">
-        <div className="themes-content ">
-          <div className="themes-header mt-20">
+        <div className="themes-content">
+          <div className="themes-header">
             <h1 className="themes-title">Redeem Your Mood Points</h1>
             <p className="themes-subtitle">
               Personalize your dashboard with exclusive Moodly themes!
@@ -52,48 +51,50 @@ export default function ThemesPage() {
             {/* Cat Theme */}
             <RedeemableCard
               name="Cat"
-              price={6}
+              price={20}
               type="theme"
               thumbnailPath="cat-image"
             />
-             <RedeemableCard
-    name="Avagato"
-    price={5}
-    type="avatar"
-    thumbnailPath="/images/avatars/Avagato.jpg"
-  />
 
-  {/* Baenana Avatar */}
-  <RedeemableCard
-    name="Baenana"
-    price={8}
-    type="avatar"
-    thumbnailPath="/images/avatars/Baenana.jpg"
-  />
+            {/* Avagato Avatar */}
+            <RedeemableCard
+              name="Avagato"
+              price={5}
+              type="avatar"
+              thumbnailPath="/images/avatars/Avagato.jpg"
+            />
 
-  {/* Buluberry Avatar */}
-  <RedeemableCard
-    name="Buluberry"
-    price={10}
-    type="avatar"
-    thumbnailPath="/images/avatars/Buluberry.jpg"
-  />
+            {/* Baenana Avatar */}
+            <RedeemableCard
+              name="Baenana"
+              price={8}
+              type="avatar"
+              thumbnailPath="/images/avatars/Baenana.jpg"
+            />
 
-  {/* Peeckaboo Avatar */}
-  <RedeemableCard
-    name="Peeckaboo"
-    price={12}
-    type="avatar"
-    thumbnailPath="/images/avatars/Peeckaboo.jpg"
-  />
+            {/* Buluberry Avatar */}
+            <RedeemableCard
+              name="Buluberry"
+              price={10}
+              type="avatar"
+              thumbnailPath="/images/avatars/Buluberry.jpg"
+            />
 
-  {/* Storoberry Avatar */}
-  <RedeemableCard
-    name="Storoberry"
-    price={12}
-    type="avatar"
-    thumbnailPath="/images/avatars/Storoberry.jpg"
-  />
+            {/* Peeckaboo Avatar */}
+            <RedeemableCard
+              name="Peeckaboo"
+              price={12}
+              type="avatar"
+              thumbnailPath="/images/avatars/Peeckaboo.jpg"
+            />
+
+            {/* Storoberry Avatar */}
+            <RedeemableCard
+              name="Storoberry"
+              price={12}
+              type="avatar"
+              thumbnailPath="/images/avatars/Storoberry.jpg"
+            />
           </div>
 
           <div className="themes-footer">

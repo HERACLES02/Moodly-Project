@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import './MoodMovies.css'
+import { Spinner } from '../ui/spinner'
 
 
 interface Movie {
@@ -25,7 +26,9 @@ export default function MoodMovies({ mood, onMovieClick }: MoodMoviesProps) {
 
 
   useEffect(() => {
+
     if (!mood) return
+    
     fetchMovies()
   }, [mood])
 
@@ -35,6 +38,7 @@ export default function MoodMovies({ mood, onMovieClick }: MoodMoviesProps) {
 
     try {
       const normalizedMood = mood.toLowerCase()
+      console.log("ASDASDASDS")
       const response = await fetch(`/api/recommendations/movies?mood=${normalizedMood}`)
 
       if (!response.ok) throw new Error(`Failed to fetch movies: ${response.status}`)
@@ -86,10 +90,14 @@ export default function MoodMovies({ mood, onMovieClick }: MoodMoviesProps) {
 
   if (loading)
     return (
-      <div className="mood-movies-container">
-        <h2 className="mood-movies-title">🎬 Movies for your {mood} mood</h2>
-        <div className="mood-movies-loading">Loading movies...</div>
-      </div>
+      <div className="mood-movies-container relative">
+  <h2 className="mood-movies-title">🎬 Movies</h2>
+
+  <div className="absolute inset-0 flex justify-center items-center">
+    <Spinner />
+  </div>
+</div>
+
     )
 
   if (error)

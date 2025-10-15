@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import NavbarComponent from '@/components/NavbarComponent'
 import AddToPlaylistComponent from '@/components/PlaylistComponents/AddToPlaylistComponent'
-import { useGetUser } from '@/hooks/useGetUser'
 import { usePoints } from '@/hooks/usePoints'
 
 import './page.css'
@@ -11,7 +10,6 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
     const [id, setId] = useState<string>('')
     const [movie, setMovie] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-    const { user } = useGetUser()
     const { addPoints } = usePoints()
     const [hasEarnedWatchPoints, setHasEarnedWatchPoints] = useState(false)
 
@@ -43,7 +41,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
 
     const fetchMovieData = async () => {
         try {
-            const response = await fetch(`http://localhost:9513/api/get-movie-data?id=${id}`)
+            const response = await fetch(`https://moodly-blond.vercel.app/api/get-movie-data?id=${id}`)
             const movieData = await response.json()
             setMovie(movieData)
         } catch (error) {
@@ -57,7 +55,7 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
         return <div>Loading...</div>
     }
 
-    const embedUrl = `https://vidsrc.xyz/embed/movie?tmdb=${id}`
+    const embedUrl = `https://www.vidking.net/embed/movie/${id}`
     
     return (
         <>
@@ -70,9 +68,11 @@ export default function WatchMovies({ params }: { params: Promise<{ id: string }
             <div className="video-container p-2">
                 <iframe
                     src={embedUrl}
+                    sandbox="allow-scripts allow-same-origin"
                     className="video-player"
                     allowFullScreen
                     title={`Watch ${movie?.title || 'Movie'}`}
+                    
                 >
                 </iframe>
             </div>

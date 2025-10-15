@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
-import { useGetUser } from '@/hooks/useGetUser'
+import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
 import { LiveChatComponent } from './LiveChatComponent'
 import { SOCKET_URL } from '@/lib/socket-config'
 
@@ -36,7 +36,11 @@ interface SyncedMoviePlayerProps {
 }
 
 export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
-  const { user } = useGetUser()
+  // ══════════════════════════════════════════════════════════════════
+  // CHANGED: Use context instead of useGetUser
+  // ══════════════════════════════════════════════════════════════════
+  const { user } = useUser()
+  
   const [socket, setSocket] = useState<Socket | null>(null)
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -75,59 +79,31 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       setSessionInfo(info)
       
       if (!hasInitialLoad) {
-        console.log('🎬 Initial movie load for new user:', info.currentMovie.title)
+        console.log('🎬 Initial movie load')
         setUserCurrentMovie(info.currentMovie)
         setHasInitialLoad(true)
-      } else {
-        console.log('🔄 Server movie update received, user stays on their current movie')
-        
-        if (!autoPlay) {
-          setShowNextButton(true)
-        } else if (userCurrentMovie?.id !== info.currentMovie.id) {
-          console.log('⏭️ Auto-switching to new movie')
-          setUserCurrentMovie(info.currentMovie)
-          setShowMovieChange(true)
-          setTimeout(() => setShowMovieChange(false), 5000)
-        }
       }
       
       setIsLoading(false)
     })
 
-    newSocket.on('movie-changed', (info: SessionInfo) => {
-      console.log('🎬 Movie changed on server:', info.currentMovie.title)
-      setSessionInfo(info)
+    newSocket.on('movie-change', (info: SessionInfo) => {
+      console.log('🎬 Movie changed:', info.currentMovie.title)
+      setShowMovieChange(true)
+      setShowNextButton(true)
       
-      if (autoPlay) {
-        setUserCurrentMovie(info.currentMovie)
-        setShowMovieChange(true)
-        setTimeout(() => setShowMovieChange(false), 5000)
-      } else {
-        setShowNextButton(true)
-      }
-    })
-
-    newSocket.on('viewer-count-update', (data: { count: number }) => {
-      setSessionInfo(prev => prev ? { ...prev, viewerCount: data.count } : prev)
+      setTimeout(() => setShowMovieChange(false), 5000)
     })
 
     setSocket(newSocket)
 
     return () => {
-      newSocket.close()
+      newSocket.disconnect()
     }
-  }, [mood, user?.anonymousName, autoPlay, userCurrentMovie?.id])
+  }, [mood, user?.anonymousName, hasInitialLoad])
 
-  const formatTime = (milliseconds: number) => {
-    const totalSeconds = Math.floor(milliseconds / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
-
-  const goToNextMovie = () => {
-    if (sessionInfo) {
-      console.log('⏭️ User manually switching to next movie')
+  const handleWatchNext = () => {
+    if (sessionInfo?.currentMovie) {
       setUserCurrentMovie(sessionInfo.currentMovie)
       setShowNextButton(false)
     }
@@ -135,101 +111,101 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="theme-card backdrop-blur-md p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="font-medium">Starting synchronized session...</p>
-          <p className="opacity-70 text-sm mt-2">
-            Connecting to {mood} mood stream
-          </p>
-        </div>
+      <div className="synced-movie-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading movie session...</p>
       </div>
     )
   }
 
-  if (!sessionInfo) {
+  if (!sessionInfo || !userCurrentMovie) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="theme-card backdrop-blur-md p-8 text-center">
-          <p className="font-medium text-red-600">
-            Failed to connect to synchronized session
-          </p>
-          <p className="opacity-70 text-sm mt-2">
-            Please try refreshing the page
-          </p>
-        </div>
+      <div className="synced-movie-error">
+        <p>Unable to load movie session. Please try again.</p>
       </div>
     )
   }
-  
-  const VideoPlayer = () => (
-    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
-      <iframe
-        ref={iframeRef}
-        src={userCurrentMovie?.vidsrcUrl || sessionInfo?.currentMovie.vidsrcUrl}
-        className="w-full h-full"
-        allowFullScreen
-        title={userCurrentMovie?.title || sessionInfo?.currentMovie.title}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      />
-      
-    </div>
-  )
+
+  const currentMovieUrl = userCurrentMovie.synchronizedUrl || userCurrentMovie.vidsrcUrl
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        
-        {showMovieChange && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-            🎬 Now Playing: {userCurrentMovie?.title || sessionInfo.currentMovie.title}
-          </div>
-        )}
-
-
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <div className="lg:col-span-2">
-            <div className="theme-card backdrop-blur-md p-4">
-              <VideoPlayer />
-              
-              <div className="mt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold">
-                      {userCurrentMovie?.title || sessionInfo.currentMovie.title}
-                    </h2>
-
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">Next:</p>
-                    <p className="opacity-70 text-xs">
-                      {sessionInfo.nextMovie?.title || 'Loading...'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="">
-            <div className="backdrop-blur-md h-[600px]">
-              <LiveChatComponent
-                streamId={`${mood}-sync-session`}
-                user={user}
-                mood={mood}
-                sharedSocket={socket}
-                isSocketConnected={isConnected}
-              />
-            </div>
-          </div>
-        </div>
-
-       
-
-
+    <div className="synced-movie-container">
+      {/* Connection Status */}
+      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
       </div>
+
+      {/* Movie Info */}
+      <div className="movie-info">
+        <h2 className="movie-title">{userCurrentMovie.title}</h2>
+        <div className="viewer-count">
+          👥 {sessionInfo.viewerCount} watching
+        </div>
+      </div>
+
+      {/* Movie Player */}
+      <div className="movie-player-wrapper">
+        <iframe
+          ref={iframeRef}
+          src={currentMovieUrl}
+          className="movie-iframe"
+          allowFullScreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+      </div>
+
+      {/* Next Movie Button */}
+      {showNextButton && sessionInfo.currentMovie.id !== userCurrentMovie.id && (
+        <div className="next-movie-banner">
+          <p>A new movie is playing!</p>
+          <button onClick={handleWatchNext} className="watch-next-button">
+            Watch "{sessionInfo.currentMovie.title}" Now
+          </button>
+        </div>
+      )}
+
+      {/* Movie Details */}
+      <div className="movie-details-section">
+        <img 
+          src={userCurrentMovie.poster} 
+          alt={userCurrentMovie.title}
+          className="movie-poster"
+        />
+        <div className="movie-description">
+          <h3>About this movie</h3>
+          <p>{userCurrentMovie.overview}</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="progress-section">
+        <div className="progress-bar">
+          <div 
+            className="progress-fill"
+            style={{ width: `${sessionInfo.progress}%` }}
+          ></div>
+        </div>
+        <div className="time-info">
+          <span>{Math.floor(sessionInfo.elapsedTime / 60)}:{String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, '0')}</span>
+          <span>{Math.floor(sessionInfo.remainingTime / 60)}:{String(Math.floor(sessionInfo.remainingTime % 60)).padStart(2, '0')}</span>
+        </div>
+      </div>
+
+      {/* Movie Change Notification */}
+      {showMovieChange && (
+        <div className="movie-change-notification">
+          🎬 New Movie Starting Soon!
+        </div>
+      )}
+
+      {/* Live Chat */}
+      {socket && (
+        <LiveChatComponent 
+          socket={socket}
+          streamId={`${mood}-sync-session`}
+          username={user?.anonymousName || 'Anonymous'}
+        />
+      )}
     </div>
   )
 }
