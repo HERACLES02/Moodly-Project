@@ -1,7 +1,5 @@
 'use client'
 
-
-
 import { useState, useEffect } from 'react'
 
 import NavbarComponent from '@/components/NavbarComponent'
@@ -11,6 +9,7 @@ import { redirect, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { signOut } from 'next-auth/react'
 import { useUser } from '@/contexts/UserContext'
+import SearchBar from '@/components/SearchBar'
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -26,14 +25,10 @@ export default function Dashboard() {
       console.log('Dashboard: User mood from context:', user.mood)
       
       if (user?.currentTheme != "default"){
-
         setTheme(user.currentTheme?.toLowerCase())
-      }else{
+      } else {
         setTheme(user.mood.toLowerCase())
       }
-
-       
-
     }
   }, [user?.mood])
 
@@ -41,32 +36,22 @@ export default function Dashboard() {
     setIsMounted(true)
   }, [])
 
+  const handleAutoSignOut = async () => {
+    await signOut({ redirect: false })
+    router.push('/login')
+  }
 
-    const handleAutoSignOut = async () => {
-      await signOut({ redirect: false })
-          
-          router.push('/login')
-        }
-    
-
-
-    if (user?.isBanned){
-      return (
-        <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
-      <div className="theme-btn inline-flex font-black items-center justify-center">
-        <button >
-          You are banned. Click to sign out.
-        </button>
+  if (user?.isBanned){
+    return (
+      <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
+        <div className="theme-btn inline-flex font-black items-center justify-center">
+          <button>
+            You are banned. Click to sign out.
+          </button>
+        </div>
       </div>
-    </div>
-
-        
-      )
-    }
-
-
-
-
+    )
+  }
 
   const handleMoodSelected = (mood: string) => {
     console.log('Dashboard received mood from navbar:', mood)
@@ -81,37 +66,62 @@ export default function Dashboard() {
     router.push(`/song/listen/${songId}`)
   }
 
+  const supportedMoods = [
+    'happy',
+    'calm',
+    'energetic',
+    'anxious',
+    'sad',
+    'excited',
+    'tired',
+    'grateful',
+  ] as const
 
-  const supportedMoods = ['happy', 'sad']
+
   const normalizedMood = user?.mood?.toLowerCase()
-  const showRecommendations = normalizedMood && supportedMoods.includes(normalizedMood)
-
-
+  const showRecommendations =
+    !!normalizedMood && supportedMoods.includes(normalizedMood as (typeof supportedMoods)[number])
+  const pick = (m: SearchMode) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();      // prevent document listener from firing first
+    setMode(m);
+  };
   if (!isMounted) {
     return null
   }
 
   return (
     <div className="min-h-screen">
-      {/* If no mood → Show first mood selection */}
       {!normalizedMood ? (
         <div>
-          
         </div>
       ) : (
         <>
-          {/* Navbar will only render AFTER mount ✅ */}
           <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
           <main className="max-w-6xl mx-auto p-8">
-
-
             {showRecommendations ? (
               <div className="mood-recommendations-section">
+                <section className="mb-6">
+
+                  <SearchBar
+                    placeholder="Type to search…"
+                    onModeChange={(m) => console.log('mode:', m)}
+                    onSubmit={(val, m) => {
+                      console.log('submitted:', { query: val, mode: m });
+                    }}
+                  />
+                </section>
+
+                {/* Movies */}
                 <MoodMovies mood={normalizedMood!} onMovieClick={handleMovieClick} />
+
+                
+
+                {/* Music */}
                 <MoodMusic mood={normalizedMood!} onSongClick={handleSongClick} />
 
-                Join Live / Radio Buttons
+                {/* Join Live / Radio Buttons */}
                 <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                   <button
                     onClick={() => router.push(`/livestream/${normalizedMood}`)}
@@ -151,16 +161,13 @@ export default function Dashboard() {
                   <br />
                   <span className="content-highlight">Currently available for:</span>
                   <br />
-                  Happy and Sad moods
+                     'happy','calm','energetic','anxious','sad','excited','tired','grateful'
                 </p>
               </div>
             )}
           </main>
         </>
       )}
-
-      
     </div>
   )
 }
-
