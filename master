@@ -1,0 +1,276 @@
+[33mcommit b7a51c26cd0a0f4bb08c9fddbe59c8410e3b8603[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: HERACLES02 <iamomio02@gmail.com>
+Date:   Fri Oct 24 00:36:22 2025 +0600
+
+    new moods
+
+[33mcommit d6fd00a69c3933f4fca471d3bb4da2c16e99c5da[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Thu Oct 16 04:53:29 2025 +0600
+
+    Delete route.ts
+
+[33mcommit 6531878ab8a83f3fec39390a1eea10768a8db102[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Thu Oct 16 04:47:31 2025 +0600
+
+    API Updates + Context
+
+[33mcommit 29f0b16545eb1830c569da966f1d7b47452aee37[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Wed Oct 1 14:45:33 2025 +0600
+
+    update
+
+[33mcommit 30efd35a50ea737c8f8ac21bf81933b8655a26b3[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Thu Sep 11 12:09:13 2025 +0600
+
+    Logo thik ase
+
+[33mcommit 30980a5409ba994fcb7c1ae1d16026cf61bf9a0e[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 9 08:16:47 2025 +0600
+
+    moodly logo update in login
+
+[33mcommit 9b106eb51443557c228c9a108c155ae6218da8c9[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 9 08:02:07 2025 +0600
+
+    final edits on admin banning
+
+[33mcommit d2cd762f58173c435f95a096473db208b9932e76[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 9 06:48:48 2025 +0600
+
+    local socket server and name fixes
+
+[33mcommit 48392402b45449edd5514e684c648f14848b83d9[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 9 05:15:29 2025 +0600
+
+    point history and playlist fixes Added
+
+[33mcommit 27eb19698f27d6089c0f7983bc52555ca7d78b9e[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 23:30:22 2025 +0600
+
+    abar api Added
+
+[33mcommit a488301ac05835e0e4f4aa2074c4a9835df4190d[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 23:00:02 2025 +0600
+
+    Onk kichu and api Added
+
+[33mcommit bc04ebaa3da722dac224d7a809e531e76cf7d75d[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 22:26:26 2025 +0600
+
+    PostGress Added
+
+[33mcommit 39391e85ea6baecd99ccea77aeefd23c2c159094[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 22:04:19 2025 +0600
+
+    Add database seeding with initial data
+
+[33mcommit 3dac05d70ca27eb3d244d2925d93ea09d3bb1a96[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 21:39:09 2025 +0600
+
+    Switch to PostgreSQL for Vercel deployment
+
+[33mcommit 15439a7506b3261e7bb7f714c2ca1cd104a9d3ac[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 21:22:54 2025 +0600
+
+    Fix useSearchParams Suspense boundary issue in login page
+
+[33mcommit c61cc3e321c8e01fa2dec466e4bf3c3ea179bc37[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 21:16:53 2025 +0600
+
+    Fix admin routes with proper error handling
+
+[33mcommit 04e711d5ce90af5cc28ffebf1d565dbc0a6a16a9[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 21:08:37 2025 +0600
+
+    Fix NextAuth imports and Edge Runtime issues
+
+[33mcommit cd9bd24e77df1fee618749796ff0ace932fc7ba0[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 21:03:08 2025 +0600
+
+    Fix NextAuth imports and Edge Runtime issues
+
+[33mcommit 026dbb67b0ac280bf5b179546876edfdb2dc7103[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 20:58:55 2025 +0600
+
+    Fix Next.js 15 dynamic route parameter typing
+
+[33mcommit 4b108df48aaf2bfdbd4767ae1f3de5cc10ec1507[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 20:47:10 2025 +0600
+
+    last type safety
+
+[33mcommit 01b1a530e9078a53feac13f708bc067f195e6fd7[m[33m ([m[1;31morigin/Himel-2[m[33m)[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 19:56:16 2025 +0600
+
+    Before Deployment
+
+[33mcommit 359215b276a3bd01894356fdd1f8f7a5a0e184f6[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 19:44:29 2025 +0600
+
+    Merge userpage and playlist functionality from Lamia branch
+    
+    - Added complete playlist functionality with API integration
+    - Added individual playlist view pages
+    - Added playlist management API endpoints
+    - Updated userpage with playlist integration
+    - Added song and movie data API endpoints for playlist items
+
+[33mcommit f8429aaee0266bea60749624c4b4d2b732a6daac[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 19:39:07 2025 +0600
+
+    Backup current Himel-2 state before merge
+
+[33mcommit 9368cf22f2befbdcff47adef5069bf6e832d6e7a[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 19:19:12 2025 +0600
+
+    live stream final update
+
+[33mcommit 6c84e4e69613616c8ef6a5e56422c151050e7887[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 19:15:49 2025 +0600
+
+    deploy korbo hehe baki shob shesh
+
+[33mcommit e443300795df53c93e5a38a72006b29ad080fe91[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 13:24:49 2025 +0600
+
+    Themes done
+
+[33mcommit 231442f7e4a832216ad67afa13f1e71e784d7be9[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 8 02:33:27 2025 +0600
+
+    sample theme system
+
+[33mcommit 93edcd4b08e860e6b49b4954b7f917d7796de6ca[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Sun Sep 7 17:18:48 2025 +0600
+
+    dependency Done
+
+[33mcommit 81067999f7e892342b56afdcb9c1b8d7f261e60d[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Sat Sep 6 06:48:25 2025 +0600
+
+    Themes WORK
+
+[33mcommit 65425cfe9e91fd90e3326b4ef67fa572b9d71311[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Sat Sep 6 06:28:01 2025 +0600
+
+    Latest
+
+[33mcommit d4ca63423e626ec3ed8f1aa2602c216ca54c8e00[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Thu Sep 4 08:38:36 2025 +0600
+
+    add to playlist DONE
+
+[33mcommit afc948faf953cbd99587d0b7e5d19fb6959f7e92[m
+Merge: 43e9d79 2e63cfe
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 18:51:29 2025 +0600
+
+    Merge branch 'Lamia' of https://github.com/HERACLES02/Moodly-Project into Himel-2
+
+[33mcommit 43e9d79759cf74e832f6d9176005319f182c77f0[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 18:47:09 2025 +0600
+
+    Server Update
+
+[33mcommit 2e63cfed62c513465c38f972526a825ff3a7abc8[m
+Author: by-lamia <by.lamiarouf@gmail.com>
+Date:   Tue Sep 2 18:35:29 2025 +0600
+
+    theme systemm point redeem
+
+[33mcommit 7214dd91b0e8f0a6378c3e19eadb8fcc7ba6d2ce[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 17:32:58 2025 +0600
+
+    Typo
+
+[33mcommit f83c76fa3f0b35fd489f200a07785ff9ec59df3c[m
+Merge: c42d8ad e660269
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 17:26:21 2025 +0600
+
+    Merge branch 'Jamil' of https://github.com/HERACLES02/Moodly-Project into Himel-2
+
+[33mcommit c42d8ad95ea48f6efc703917ca9a799d4e517b6b[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 17:22:11 2025 +0600
+
+    livestreamdone kinda
+
+[33mcommit 104fbdf91440c76ad080a692875ffcc7d6a40942[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 13:07:30 2025 +0600
+
+    LiveStream
+
+[33mcommit 677a067aae98becd3bf33110c776affd6ccd0bf2[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Tue Sep 2 07:40:06 2025 +0600
+
+    live stream changes
+
+[33mcommit e780ee2cc4a8fcff089f3df693f4e4ab30c08afe[m
+Author: by-lamia <by.lamiarouf@gmail.com>
+Date:   Tue Sep 2 01:25:38 2025 +0600
+
+    Complete redeem themes page with point deduction functionality
+
+[33mcommit 1c60f54b4933bad78c6c4cc09c7bcc18735226eb[m
+Author: by-lamia <by.lamiarouf@gmail.com>
+Date:   Mon Sep 1 17:42:16 2025 +0600
+
+    new
+
+[33mcommit 4dbd79dd1c50af342dad33816b5fcaf48c21ad31[m
+Merge: 3d8481b e660269
+Author: by-lamia <by.lamiarouf@gmail.com>
+Date:   Mon Sep 1 17:31:48 2025 +0600
+
+    Merge branch 'Jamil' of https://github.com/HERACLES02/Moodly-Project into Lamia
+
+[33mcommit 3d8481bafa179de0649dbfd2cc4a9298dfe50199[m
+Author: by-lamia <by.lamiarouf@gmail.com>
+Date:   Mon Sep 1 17:30:18 2025 +0600
+
+    db
+
+[33mcommit 08819686f7f9fd9ea5a4164870846a7ea30f5f0a[m
+Author: Himel Khan <himel.khan6@gmail.com>
+Date:   Mon Sep 1 13:21:39 2025 +0600
+
+    DB Change
+
+[33mcommit e6602697e9d5644d55669ff744b6d2bec37ae587[m
+Author: HERACLES02 <iamomio02@gmail.com>
+Date: 
