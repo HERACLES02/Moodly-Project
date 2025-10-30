@@ -1,16 +1,14 @@
-'use client'
+"use client"
 
+import { useState, useEffect } from "react"
 
-
-import { useState, useEffect } from 'react'
-
-import NavbarComponent from '@/components/NavbarComponent'
-import MoodMovies from '@/components/MoodMovies/MoodMovies'
-import MoodMusic from '@/components/MoodMusic/MoodMusicComponent'
-import { redirect, useRouter } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { signOut } from 'next-auth/react'
-import { useUser } from '@/contexts/UserContext'
+import NavbarComponent from "@/components/NavbarComponent"
+import MoodMovies from "@/components/MoodMovies/MoodMovies"
+import MoodMusic from "@/components/MoodMusic/MoodMusicComponent"
+import { redirect, useRouter } from "next/navigation"
+import { useTheme } from "next-themes"
+import { signOut } from "next-auth/react"
+import { useUser } from "@/contexts/UserContext"
 
 export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false)
@@ -23,17 +21,13 @@ export default function Dashboard() {
     if (user?.mood) {
       setCurrentMood(user.mood)
       console.log(user)
-      console.log('Dashboard: User mood from context:', user.mood)
-      
-      if (user?.currentTheme != "default"){
+      console.log("Dashboard: User mood from context:", user.mood)
 
+      if (user?.currentTheme != "default") {
         setTheme(user.currentTheme?.toLowerCase())
-      }else{
+      } else {
         setTheme(user.mood.toLowerCase())
       }
-
-       
-
     }
   }, [user?.mood])
 
@@ -41,35 +35,27 @@ export default function Dashboard() {
     setIsMounted(true)
   }, [])
 
+  const handleAutoSignOut = async () => {
+    await signOut({ redirect: false })
 
-    const handleAutoSignOut = async () => {
-      await signOut({ redirect: false })
-          
-          router.push('/login')
-        }
-    
+    router.push("/login")
+  }
 
-
-    if (user?.isBanned){
-      return (
-        <div className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer" onClick={handleAutoSignOut}>
-      <div className="theme-btn inline-flex font-black items-center justify-center">
-        <button >
-          You are banned. Click to sign out.
-        </button>
+  if (user?.isBanned) {
+    return (
+      <div
+        className="flex items-center justify-center h-screen w-screen scale-200 cursor:pointer"
+        onClick={handleAutoSignOut}
+      >
+        <div className="theme-btn inline-flex font-black items-center justify-center">
+          <button>You are banned. Click to sign out.</button>
+        </div>
       </div>
-    </div>
-
-        
-      )
-    }
-
-
-
-
+    )
+  }
 
   const handleMoodSelected = (mood: string) => {
-    console.log('Dashboard received mood from navbar:', mood)
+    console.log("Dashboard received mood from navbar:", mood)
     if (mood) updateUserMood(mood)
   }
 
@@ -81,11 +67,10 @@ export default function Dashboard() {
     router.push(`/song/listen/${songId}`)
   }
 
-
-  const supportedMoods = ['happy', 'sad']
+  const supportedMoods = ["happy", "sad"]
   const normalizedMood = user?.mood?.toLowerCase()
-  const showRecommendations = normalizedMood && supportedMoods.includes(normalizedMood)
-
+  const showRecommendations =
+    normalizedMood && supportedMoods.includes(normalizedMood)
 
   if (!isMounted) {
     return null
@@ -95,46 +80,34 @@ export default function Dashboard() {
     <div className="min-h-screen">
       {/* If no mood → Show first mood selection */}
       {!normalizedMood ? (
-        <div>
-          
-        </div>
+        <div></div>
       ) : (
         <>
           {/* Navbar will only render AFTER mount ✅ */}
           <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
           <main className="max-w-6xl mx-auto p-8">
-
-
             {showRecommendations ? (
               <div className="mood-recommendations-section">
-                <MoodMovies mood={normalizedMood!} onMovieClick={handleMovieClick} />
-                <MoodMusic mood={normalizedMood!} onSongClick={handleSongClick} />
+                <MoodMovies
+                  mood={normalizedMood!}
+                  onMovieClick={handleMovieClick}
+                />
+                <MoodMusic
+                  mood={normalizedMood!}
+                  onSongClick={handleSongClick}
+                />
 
-                Join Live / Radio Buttons
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <div className="flex w-[100%] justify-center items-center gap-1">
                   <button
-                    onClick={() => router.push(`/livestream/${normalizedMood}`)}
-                    style={{
-                      padding: '0.75rem 2rem',
-                      fontSize: '1.1rem',
-                      fontWeight: '600',
-                      background: '#3b82f6',
-                      color: 'white',
-                    }}
+                    onClick={() => router.push(`/stream/${normalizedMood}`)}
+                    className="theme-button"
                   >
                     Join Live Session
                   </button>
                   <button
                     onClick={() => router.push(`/radio/${normalizedMood}`)}
-                    style={{
-                      padding: '0.75rem 2rem',
-                      fontSize: '1.1rem',
-                      fontWeight: '600',
-                      background: '#16a34a',
-                      color: 'white',
-                      marginLeft: '1rem',
-                    }}
+                    className="theme-button"
                   >
                     Join Radio Station
                   </button>
@@ -146,10 +119,13 @@ export default function Dashboard() {
                   Coming Soon for {currentMood} mood!
                 </h2>
                 <p className="content-text mood-text">
-                  We're currently curating personalized movie and music recommendations for "{currentMood}" mood.
+                  We're currently curating personalized movie and music
+                  recommendations for "{currentMood}" mood.
                   <br />
                   <br />
-                  <span className="content-highlight">Currently available for:</span>
+                  <span className="content-highlight">
+                    Currently available for:
+                  </span>
                   <br />
                   Happy and Sad moods
                 </p>
@@ -158,9 +134,6 @@ export default function Dashboard() {
           </main>
         </>
       )}
-
-      
     </div>
   )
 }
-

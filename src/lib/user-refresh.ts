@@ -5,16 +5,18 @@
  * @param userId - The user ID to refresh (or 'current' for current user)
  */
 export const refreshUserDisplay = (userId?: string) => {
-  if (typeof window === 'undefined') return
-  
-  const refreshKey = `refreshUser_${userId || 'current'}`
+  if (typeof window === "undefined") return
+
+  const refreshKey = `refreshUser_${userId || "current"}`
   const refreshFunction = (window as any)[refreshKey]
-  
-  if (refreshFunction && typeof refreshFunction === 'function') {
-    console.log(`🔄 Refreshing user display for: ${userId || 'current'}`)
+
+  if (refreshFunction && typeof refreshFunction === "function") {
+    console.log(`🔄 Refreshing user display for: ${userId || "current"}`)
     refreshFunction()
   } else {
-    console.warn(`⚠️ No refresh function found for user: ${userId || 'current'}`)
+    console.warn(
+      `⚠️ No refresh function found for user: ${userId || "current"}`
+    )
   }
 }
 
@@ -23,14 +25,14 @@ export const refreshUserDisplay = (userId?: string) => {
  * This is useful when a user updates their avatar or notes
  */
 export const refreshAllUserDisplays = () => {
-  if (typeof window === 'undefined') return
-  
+  if (typeof window === "undefined") return
+
   // Refresh current user
-  refreshUserDisplay('current')
-  
+  refreshUserDisplay("current")
+
   // Note: For other users, we'd need to track their IDs
   // This could be enhanced to refresh specific users if needed
-  console.log('🔄 Refreshed all user displays')
+  console.log("🔄 Refreshed all user displays")
 }
 
 /**
@@ -43,4 +45,3 @@ export const refreshAfterUserUpdate = () => {
     refreshAllUserDisplays()
   }, 500)
 }
-

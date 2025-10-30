@@ -1,11 +1,11 @@
-'use client'
+"use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { io, Socket } from 'socket.io-client'
-import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
-import { LiveChatComponent } from './LiveChatComponent'
-import './syncedRadio.css'
-import { SOCKET_URL } from '@/lib/socket-config'
+import { useState, useEffect, useRef } from "react"
+import { io, Socket } from "socket.io-client"
+import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context
+import { LiveChatComponent } from "./LiveChatComponent"
+import "./syncedRadio.css"
+import { SOCKET_URL } from "@/lib/socket-config"
 
 interface RadioSessionInfo {
   currentSong: {
@@ -41,7 +41,7 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
   // CHANGED: Use context instead of useGetUser
   // ══════════════════════════════════════════════════════════════════
   const { user } = useUser()
-  
+
   const [socket, setSocket] = useState<Socket | null>(null)
   const [sessionInfo, setSessionInfo] = useState<RadioSessionInfo | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -49,26 +49,26 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
   const [showSongChange, setShowSongChange] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [embedUrl, setEmbedUrl] = useState('')
+  const [embedUrl, setEmbedUrl] = useState("")
 
   // Socket connection and event handlers
   useEffect(() => {
     const newSocket = io(SOCKET_URL)
 
-    newSocket.on('connect', () => {
+    newSocket.on("connect", () => {
       setIsConnected(true)
-      newSocket.emit('join-radio-session', {
+      newSocket.emit("join-radio-session", {
         streamId: `${mood}-radio-session`,
-        username: user?.anonymousName || 'Anonymous',
-        mood: mood
+        username: user?.anonymousName || "Anonymous",
+        mood: mood,
       })
     })
 
-    newSocket.on('disconnect', () => {
+    newSocket.on("disconnect", () => {
       setIsConnected(false)
     })
 
-    newSocket.on('radio-session-sync', (info: RadioSessionInfo) => {
+    newSocket.on("radio-session-sync", (info: RadioSessionInfo) => {
       setSessionInfo(info)
       setIsLoading(false)
       setEmbedUrl(`https://open.spotify.com/embed/track/${info.currentSong.id}`)
@@ -79,17 +79,17 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
         const seekTime = info.syncData.elapsedSeconds
 
         audio.currentTime = seekTime
-        
+
         if (isPlaying) {
-          audio.play().catch(err => {
-            console.error('Audio play error:', err)
+          audio.play().catch((err) => {
+            console.error("Audio play error:", err)
           })
         }
       }
     })
 
-    newSocket.on('song-change', (info: RadioSessionInfo) => {
-      console.log('🎵 Song changed:', info.currentSong.title)
+    newSocket.on("song-change", (info: RadioSessionInfo) => {
+      console.log("🎵 Song changed:", info.currentSong.title)
       setShowSongChange(true)
       setTimeout(() => setShowSongChange(false), 3000)
     })
@@ -132,8 +132,12 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
   return (
     <div className="synced-radio-container">
       {/* Connection Status */}
-      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+      <div
+        className={`connection-status ${
+          isConnected ? "connected" : "disconnected"
+        }`}
+      >
+        {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
       </div>
 
       {/* Song Info */}
@@ -146,8 +150,8 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
 
       {/* Current Song Display */}
       <div className="current-song-section">
-        <img 
-          src={sessionInfo.currentSong.image} 
+        <img
+          src={sessionInfo.currentSong.image}
           alt={sessionInfo.currentSong.title}
           className="song-artwork"
         />
@@ -177,37 +181,44 @@ export default function SyncedRadioPlayer({ mood }: SyncedRadioPlayerProps) {
       {/* Play Controls */}
       <div className="radio-controls">
         <button onClick={togglePlay} className="play-button">
-          {isPlaying ? '⏸️ Pause' : '▶️ Play'}
+          {isPlaying ? "⏸️ Pause" : "▶️ Play"}
         </button>
       </div>
 
       {/* Progress Bar */}
       <div className="progress-section">
         <div className="progress-bar">
-          <div 
+          <div
             className="progress-fill"
             style={{ width: `${sessionInfo.progress}%` }}
           ></div>
         </div>
         <div className="time-info">
-          <span>{Math.floor(sessionInfo.elapsedTime / 60)}:{String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, '0')}</span>
-          <span>{Math.floor(sessionInfo.remainingTime / 60)}:{String(Math.floor(sessionInfo.remainingTime % 60)).padStart(2, '0')}</span>
+          <span>
+            {Math.floor(sessionInfo.elapsedTime / 60)}:
+            {String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, "0")}
+          </span>
+          <span>
+            {Math.floor(sessionInfo.remainingTime / 60)}:
+            {String(Math.floor(sessionInfo.remainingTime % 60)).padStart(
+              2,
+              "0"
+            )}
+          </span>
         </div>
       </div>
 
       {/* Song Change Notification */}
       {showSongChange && (
-        <div className="song-change-notification">
-          🎵 New Song Playing!
-        </div>
+        <div className="song-change-notification">🎵 New Song Playing!</div>
       )}
 
       {/* Live Chat */}
       {socket && (
-        <LiveChatComponent 
+        <LiveChatComponent
           socket={socket}
           streamId={`${mood}-radio-session`}
-          username={user?.anonymousName || 'Anonymous'}
+          username={user?.anonymousName || "Anonymous"}
         />
       )}
     </div>

@@ -1,6 +1,12 @@
-'use client'
+"use client"
 
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react"
 
 // ═══════════════════════════════════════════════════════════════════
 // STEP 1: Define the User Data Structure
@@ -24,23 +30,19 @@ interface User {
     imagePath: string
     name: string
   }
-  unlockedAvatars?: 
-    {
-      name?: string,
-      imagePath?: string,
-    },
-   weeklyActvities: 
-    {
-      id: string,
-      weekStart: Date,
-      moviesWatched: number,
-      songsListened: number,
-      bonusClaimed: Boolean,
-      createdAt:Date ,
-      updatedAt: Date
-    }
-  
-
+  unlockedAvatars?: {
+    name?: string
+    imagePath?: string
+  }
+  weeklyActvities: {
+    id: string
+    weekStart: Date
+    moviesWatched: number
+    songsListened: number
+    bonusClaimed: Boolean
+    createdAt: Date
+    updatedAt: Date
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -49,15 +51,15 @@ interface User {
 // This interface defines all the tools and data that components can access
 
 interface UserContextType {
-  user: User | null                          // The actual user data
-  setUser: (user: User | null) => void       // Function to completely replace user data
-  loading: boolean                           // Is data currently being fetched?
-  refetchUser: () => Promise<void>           // Function to reload user data from database
-  updateUserPoints: (newPoints: number) => void           // Quick update for points
-  updateUserTheme: (newTheme: string) => void             // Quick update for theme
-  updateUserAvatar: (avatarId: string | null) => void     // Quick update for avatar
-  updateUserMood: (newMood: string) => void               // Quick update for mood
-  updateUserNote: (newNote: string) => void               // Quick update for note
+  user: User | null // The actual user data
+  setUser: (user: User | null) => void // Function to completely replace user data
+  loading: boolean // Is data currently being fetched?
+  refetchUser: () => Promise<void> // Function to reload user data from database
+  updateUserPoints: (newPoints: number) => void // Quick update for points
+  updateUserTheme: (newTheme: string) => void // Quick update for theme
+  updateUserAvatar: (avatarId: string | null) => void // Quick update for avatar
+  updateUserMood: (newMood: string) => void // Quick update for mood
+  updateUserNote: (newNote: string) => void // Quick update for note
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -86,24 +88,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // ─────────────────────────────────────────────────────────────────
   // This function calls your /api/getUser endpoint and updates the state
   // It runs once when the app loads, instead of in every component!
-  
+
   const fetchUser = async () => {
     try {
       setLoading(true)
-      console.log('🔄 UserContext: Fetching user data...')
-      
-      const response = await fetch('/api/getUser')
-      
+      console.log("🔄 UserContext: Fetching user data...")
+
+      const response = await fetch("/api/getUser")
+
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ UserContext: User data loaded:', data)
+        console.log("✅ UserContext: User data loaded:", data)
         setUser(data)
       } else {
-        console.log('⚠️ UserContext: User not logged in or API failed')
+        console.log("⚠️ UserContext: User not logged in or API failed")
         setUser(null)
       }
     } catch (error) {
-      console.error('❌ UserContext: Error fetching user:', error)
+      console.error("❌ UserContext: Error fetching user:", error)
       setUser(null)
     } finally {
       setLoading(false)
@@ -115,7 +117,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // ─────────────────────────────────────────────────────────────────
   // This useEffect runs ONCE when the app first loads
   // It fetches the user data and stores it in the context
-  
+
   useEffect(() => {
     fetchUser()
   }, [])
@@ -125,9 +127,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // ─────────────────────────────────────────────────────────────────
   // Components can call this when they need fresh data from the database
   // Example: After completing a purchase, call refetchUser() to get updated points
-  
+
   const refetchUser = async () => {
-    console.log('🔄 UserContext: Refetching user data...')
+    console.log("🔄 UserContext: Refetching user data...")
     await fetchUser()
   }
 
@@ -136,41 +138,46 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // ─────────────────────────────────────────────────────────────────
   // These functions update the context data instantly WITHOUT calling the API
   // Use these for immediate UI updates after you've already updated the database
-  // 
+  //
   // IMPORTANT: These don't save to database! They just update the local context.
   // Always update the database first, then call these to update the UI.
 
   const updateUserPoints = (newPoints: number) => {
     if (user) {
-      console.log('💰 UserContext: Updating points from', user.points, 'to', newPoints)
+      console.log(
+        "💰 UserContext: Updating points from",
+        user.points,
+        "to",
+        newPoints,
+      )
       setUser({ ...user, points: newPoints })
     }
   }
 
   const updateUserTheme = (newTheme: string) => {
     if (user) {
-      console.log('🎨 UserContext: Updating theme to', newTheme)
+      console.log("🎨 UserContext: Updating theme to", newTheme)
       setUser({ ...user, currentTheme: newTheme })
     }
   }
 
   const updateUserAvatar = (avatarId: string | null) => {
     if (user) {
-      console.log('👤 UserContext: Updating avatar to', avatarId)
+      console.log("👤 UserContext: Updating avatar to", avatarId)
       setUser({ ...user, currentAvatarId: avatarId })
     }
   }
 
   const updateUserMood = (newMood: string) => {
     if (user) {
-      console.log('😊 UserContext: Updating mood to', newMood)
+      console.log("😊 UserContext: Updating mood to", newMood)
       setUser({ ...user, mood: newMood })
     }
   }
 
   const updateUserNote = (newNote: string) => {
     if (user) {
-      console.log('📝 UserContext: Updating note')
+      console.log("📝 UserContext: Updating note")
       setUser({ ...user, note: newNote })
     }
   }
@@ -179,7 +186,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Package Everything to Provide
   // ─────────────────────────────────────────────────────────────────
   // This object contains all the data and functions that components can use
-  
+
   const value: UserContextType = {
     user,
     setUser,
@@ -189,19 +196,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     updateUserTheme,
     updateUserAvatar,
     updateUserMood,
-    updateUserNote
+    updateUserNote,
   }
 
   // ─────────────────────────────────────────────────────────────────
   // Provide the Context to All Children
   // ─────────────────────────────────────────────────────────────────
   // This makes the user data available to every component in the app
-  
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  )
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -212,11 +215,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
 export function useUser() {
   const context = useContext(UserContext)
-  
+
   // Error handling: If someone tries to use this hook outside the provider
   if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider. Did you wrap your app in <UserProvider>?')
+    throw new Error(
+      "useUser must be used within a UserProvider. Did you wrap your app in <UserProvider>?",
+    )
   }
-  
+
   return context
 }
