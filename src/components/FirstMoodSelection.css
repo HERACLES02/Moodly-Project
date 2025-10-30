@@ -1,0 +1,213 @@
+/* FirstMoodSelection.css - Styling for the first-time mood selection component */
+
+/* Step 1: Main container using default theme CSS variables */
+.first-mood-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  z-index: 2; /* Ensure content appears above background animations */
+}
+
+/* Step 2: Animated title with upward movement and fade-in */
+.first-mood-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--accent);
+  margin-bottom: 3rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  
+  /* Initial state - hidden and slightly below */
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.8s ease-out;
+}
+
+/* Step 3: Title visible state - slides up and fades in */
+.first-mood-title.title-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Step 4: Mood buttons grid container */
+.first-mood-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  max-width: 800px;
+  width: 100%;
+  
+  /* Initial state - hidden and slightly below */
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+
+/* Step 5: Mood buttons visible state - slides up and fades in */
+.first-mood-buttons.moods-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Step 6: Individual mood button styling using theme variables */
+.first-mood-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  
+  /* Use CSS variables from default theme */
+  background-color: var(--primary);
+  color: var(--foreground);
+  border: 2px solid var(--secondary);
+  
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  position: relative;
+  overflow: hidden;
+  
+  /* Add subtle shadow */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Step 7: Mood button hover effects */
+.first-mood-button:hover {
+  background-color: var(--accent);
+  color: var(--primary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Step 8: Disabled state for loading */
+.first-mood-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Step 9: Mood color indicator circle */
+.mood-color-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Step 10: Mood name text */
+.mood-name {
+  font-size: 1rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+/* Step 11: Loading state container */
+.first-mood-loading {
+  margin-top: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Step 12: Spinning loader */
+.first-mood-spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid var(--accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Step 13: Loading text */
+.first-mood-loading-text {
+  color: var(--foreground);
+  font-size: 1.1rem;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Step 14: Keyframe animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.6; 
+  }
+}
+
+/* Step 15: Staggered animation for mood buttons */
+.first-mood-button:nth-child(1) { animation-delay: 0ms; }
+.first-mood-button:nth-child(2) { animation-delay: 100ms; }
+.first-mood-button:nth-child(3) { animation-delay: 200ms; }
+.first-mood-button:nth-child(4) { animation-delay: 300ms; }
+.first-mood-button:nth-child(5) { animation-delay: 400ms; }
+.first-mood-button:nth-child(6) { animation-delay: 500ms; }
+.first-mood-button:nth-child(7) { animation-delay: 600ms; }
+.first-mood-button:nth-child(8) { animation-delay: 700ms; }
+
+/* Step 16: Responsive design for mobile devices */
+@media (max-width: 768px) {
+  .first-mood-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .first-mood-buttons {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    gap: 0.75rem;
+  }
+
+  .first-mood-button {
+    justify-content: center;
+    padding: 0.875rem 1.25rem;
+    min-height: 56px;
+  }
+
+  .first-mood-container {
+    padding: 1.5rem;
+  }
+}
+
+/* Step 17: Tablet responsive design */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .first-mood-buttons {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+  }
+  
+  .first-mood-title {
+    font-size: 2.25rem;
+  }
+}
+
+/* Step 18: Large screen enhancements */
+@media (min-width: 1200px) {
+  .first-mood-title {
+    font-size: 3rem;
+  }
+  
+  .first-mood-buttons {
+    max-width: 900px;
+  }
+}

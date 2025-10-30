@@ -1,0 +1,728 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  /* CSS Variables for Tailwind v4 - RGB VALUES with color picker support */
+  :root {
+    /* Default Theme - Now using the beautiful themes page styling */
+    --background: rgb(20, 20, 20); /* Deep black base */
+    --foreground: rgb(229, 231, 235); /* Light gray text */
+    --primary: rgb(0, 0, 0); /* Pure black for cards */
+    --secondary: rgb(3, 27, 73); /* Rich dark blue */
+    --accent: rgb(86, 83, 255); /* Warm gold accent */
+  }
+
+  /* Default Theme Body - Beautiful animated background from themes page */
+  body {
+    background: linear-gradient(
+      135deg,
+      #000000 0%,
+      #1a1a3a 25%,
+      #2d1b69 50%,
+      #4169e1 75%,
+      #1e3a8a 100%
+    );
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    @apply text-[var(--foreground)];
+  }
+
+  /* Animated floating background effects for default theme */
+  body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(
+        2px 2px at 20% 30%,
+        rgba(255, 255, 255, 0.15),
+        transparent
+      ),
+      radial-gradient(
+        1px 1px at 40% 70%,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      ),
+      radial-gradient(
+        1px 1px at 90% 40%,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      ),
+      radial-gradient(2px 2px at 60% 10%, rgba(255, 255, 255, 0.1), transparent);
+    background-size:
+      300px 300px,
+      200px 200px,
+      150px 150px,
+      250px 250px;
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(1deg);
+    }
+  }
+
+  .vangogh {
+    /* Van Gogh Theme - Richer, deeper gothic purples */
+    --background: rgb(45, 27, 61); /* Richer deep purple */
+    --foreground: rgb(246, 247, 249); /* Very light blue-white */
+    --primary: rgba(61, 35, 82); /* Rich dark purple */
+    --secondary: rgb(140, 90, 205); /* Vibrant purple-blue */
+    --accent: rgb(255, 217, 0); /* Gold */
+    --componentbg: rgba(72, 31, 105, 0.596);
+  }
+
+  /* Override background for main containers in Van Gogh theme */
+  .vangogh body {
+    background: linear-gradient(
+      135deg,
+      rgba(45, 27, 61, 0.95) 0%,
+      rgba(61, 35, 82, 0.9) 50%,
+      rgba(75, 45, 95, 0.85) 100%
+    ) !important;
+    backdrop-filter: blur(20px);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Add container styling for Van Gogh theme */
+  .vangogh body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .cat {
+    /* Cat Theme - Cozy pastel colors */
+    --background: rgb(248, 187, 217); /* Baby pink fallback */
+    --foreground: rgb(88, 69, 99); /* Soft dark mauve for text readability */
+    --primary: rgb(212, 165, 216); /* Light purple for primary elements */
+    --secondary: rgb(225, 190, 231); /* Soft lavender for secondary elements */
+    --accent: rgb(248, 187, 217); /* Baby pink for accents and highlights */
+    --componentbg: rgba(
+      234,
+      203,
+      246,
+      0.6
+    ); /* Very light lavender for component backgrounds */
+  }
+
+  /* Override background for main containers in Cat theme */
+  .cat body {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 0, 128, 0.3) 0%,
+      /* Baby pink base */ rgba(225, 190, 231, 0.4) 25%,
+      /* Soft lavender */ rgba(212, 165, 216, 0.3) 50%,
+      /* Light purple */ rgba(234, 203, 246, 0.4) 75%,
+      /* Pale lavender */ rgba(0, 255, 225, 0.3) 100% /* Back to baby pink */
+    ) !important;
+    background-size: cover !important;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Add floating paw prints for cat theme */
+  .cat body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+            /* Paw print pattern using radial gradients */
+      radial-gradient(
+        circle 3px at 50px 100px,
+        rgba(212, 165, 216, 0.4) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 45px 95px,
+        rgba(212, 165, 216, 0.4) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 55px 95px,
+        rgba(212, 165, 216, 0.4) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 52px 90px,
+        rgba(212, 165, 216, 0.4) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 48px 90px,
+        rgba(212, 165, 216, 0.4) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 3px at 200px 50px,
+        rgba(248, 187, 217, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 195px 45px,
+        rgba(248, 187, 217, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 205px 45px,
+        rgba(248, 187, 217, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 202px 40px,
+        rgba(248, 187, 217, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 198px 40px,
+        rgba(248, 187, 217, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 3px at 350px 150px,
+        rgba(225, 190, 231, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 345px 145px,
+        rgba(225, 190, 231, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 355px 145px,
+        rgba(225, 190, 231, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 352px 140px,
+        rgba(225, 190, 231, 0.3) 50%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle 2px at 348px 140px,
+        rgba(225, 190, 231, 0.3) 50%,
+        transparent 50%
+      );
+    background-repeat: repeat;
+    background-size: 400px 200px;
+    animation: floatPaws 15s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+  }
+
+  /* Gentle floating animation for paw prints */
+  @keyframes floatPaws {
+    0% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(2deg);
+    }
+    100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+  }
+
+  /* Ensure content appears above the paw prints */
+  .cat body > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .happy {
+    --background: rgba(241, 214, 248, 0.7); /* Solid fallback for components */
+    --foreground: rgb(41, 41, 80);
+    --primary: rgb(255, 255, 255);
+    --secondary: rgb(213, 192, 239);
+    --accent: rgb(45, 45, 90);
+    --componentbg: rgb(192, 226, 239);
+  }
+
+  .sad {
+    --background: rgb(139, 149, 209); /* Solid fallback for components */
+    --foreground: rgb(230, 230, 250); /* Light lavender text from #E6E6FA */
+    --primary: rgb(106, 90, 205); /* Bright purple from gradient */
+    --secondary: rgb(72, 61, 139); /* Dark purple from gradient */
+    --accent: rgb(221, 160, 221);
+    --componentbg: rgba(105, 90, 205, 0.349);
+    /* Plum from mood-text #DDA0DD */
+  }
+
+  /* Override background for main containers in happy theme */
+  .happy body {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(213, 192, 239, 0.8) 0%,
+        rgba(189, 174, 211, 0.8) 25%,
+        rgba(184, 212, 237, 0.8) 50%,
+        rgba(241, 214, 248, 0.8) 75%,
+        rgba(135, 204, 234, 0.8) 100%
+      ),
+      url("/images/moods/happy/background.jpg") !important;
+    background-size: cover, cover !important;
+    min-height: 100vh;
+  }
+
+  /* Override background for main containers in sad theme */
+  .sad body {
+    background:
+      linear-gradient(
+        135deg,
+        rgba(74, 74, 122, 0.9) 0%,
+        rgba(90, 90, 138, 0.9) 30%,
+        rgba(106, 90, 205, 0.9) 60%,
+        rgba(72, 61, 139, 0.9) 80%,
+        rgba(47, 47, 95, 0.9) 100%
+      ),
+      url("/images/moods/sad/background.jpg") !important;
+    background-size: cover, cover !important;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Add the beautiful starry night effect from the original */
+  .sad body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+      radial-gradient(2px 2px at 40% 70%, #fff, transparent),
+      radial-gradient(1px 1px at 90% 40%, #fff, transparent),
+      radial-gradient(1px 1px at 50% 50%, #fff, transparent),
+      radial-gradient(2px 2px at 10% 10%, #fff, transparent);
+    background-size:
+      200px 200px,
+      300px 300px,
+      150px 150px,
+      250px 250px,
+      180px 180px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Ensure content appears above the stars */
+  .sad body > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  body {
+    @apply bg-[var(--background)] text-[var(--foreground)];
+  }
+}
+
+/* THEMED COMPONENT CLASSES - The hybrid approach */
+@layer components {
+  /* Navigation Elements */
+  .nav-link {
+    color: var(--foreground);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    font-weight: 500;
+  }
+  .nav-link:hover {
+    color: var(--accent);
+  }
+
+  .nav-title {
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Button Components */
+  .theme-button {
+    background-color: var(--secondary);
+    color: var(--foreground);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 800;
+    border: 2px solid var(--secondary);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .theme-button:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .theme-button-primary {
+    background-color: var(--primary);
+    color: var(--foreground);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    border: 2px solid var(--accent);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .theme-button-primary:hover {
+    background-color: var(--accent);
+    color: var(--background);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Card Components */
+  .theme-card {
+    background-color: var(----componentbg);
+    border: 1px solid var(--secondary);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    transition: all 0.3s ease;
+  }
+  .theme-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    border-color: var(--accent);
+  }
+
+  .theme-card-highlight {
+    background-color: var(--accent);
+    color: var(--background);
+    border: 1px solid var(--accent);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .theme-card-highlight:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Text Components */
+  .theme-text-muted {
+    color: var(--secondary);
+    font-weight: 400;
+  }
+
+  .theme-text-contrast {
+    color: var(--primary-foreground);
+    font-weight: 800;
+  }
+
+  .theme-text-accent {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .theme-text-highlight {
+    color: var(--accent);
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Form Elements */
+  .theme-input {
+    background-color: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--secondary);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  .theme-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent), 0.1);
+  }
+  .theme-input::placeholder {
+    color: var(--secondary);
+  }
+
+  /* Navigation Bar */
+  .theme-navbar {
+    background-color: var(--primary);
+    border-bottom: 2px solid var(--secondary);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Container Elements */
+  .theme-container {
+    background-color: var(--background);
+    border: 1px solid var(--secondary);
+    border-radius: 0.5rem;
+  }
+
+  .theme-border {
+    border-color: var(--secondary);
+  }
+
+  .theme-border-accent {
+    border-color: var(--accent);
+  }
+
+  /* Interactive Elements */
+  .theme-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: all 0.2s ease;
+  }
+  .theme-link:hover {
+    text-decoration-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  /* Add to your @layer components in globals.css */
+
+  /* Button Layout Components */
+  .btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn-group-centered {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Base Button Sizes */
+  .btn-small {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-medium {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* Themed Button Variants */
+  .theme-btn {
+    background-color: var(--secondary);
+    color: var(--foreground);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  .theme-btn:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .theme-btn-outline {
+    background-color: transparent;
+    color: var(--foreground);
+    border: 1px solid var(--secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  .theme-btn-outline:hover {
+    background-color: var(--secondary);
+    color: var(--foreground);
+  }
+}
+
+/* Keep minimal utilities for edge cases */
+@layer utilities {
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .bg-secondary {
+    background-color: var(--secondary);
+  }
+  .bg-accent {
+    background-color: var(--accent);
+  }
+  .text-primary {
+    color: var(--primary);
+  }
+  .text-secondary {
+    color: var(--secondary);
+  }
+  .text-accent {
+    color: var(--accent);
+  }
+  .border-primary {
+    border-color: var(--primary);
+  }
+  .border-secondary {
+    border-color: var(--secondary);
+  }
+  .border-accent {
+    border-color: var(--accent);
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* :root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+} */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,0 +1,106 @@
+/* src/components/ChatUserDisplay.css */
+
+.chat-user-display {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.chat-display-user {
+  /* Customize DisplayUser for chat context */
+}
+
+.chat-display-user .user-avatar-container {
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+}
+
+.chat-display-user .user-avatar-emoji {
+  font-size: 14px;
+}
+
+.chat-display-user .user-name {
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Fallback display for users without ID */
+.fallback-user-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fallback-avatar {
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fallback-username {
+  font-weight: 600;
+  color: inherit;
+}
+
+/* Note Tooltip */
+.chat-note-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  max-width: 200px;
+  margin-bottom: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.chat-note-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+.note-loading {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.note-content {
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 180px;
+}
+
+/* Hover effects */
+.chat-user-display:hover {
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chat-note-tooltip {
+    max-width: 150px;
+    font-size: 11px;
+  }
+  
+  .note-content {
+    max-width: 130px;
+  }
+}

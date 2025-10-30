@@ -1,0 +1,80 @@
+/* Live Stream Page Container */
+.livestream-page-container {
+  min-height: 100vh;
+  /* Remove background - let body handle it from globals.css */
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.livestream-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0 0 0.5rem 0;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  color: var(--secondary);
+  margin: 0;
+}
+
+.error-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.error-message h2 {
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.error-message p {
+  font-size: 1rem;
+  color: var(--foreground);
+  margin: 0 0 0.5rem 0;
+}
+
+.error-message p:last-child {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .livestream-content {
+    padding: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .page-header p {
+    font-size: 1rem;
+  }
+  
+  .error-message {
+    padding: 2rem 1rem;
+    margin: 1rem;
+  }
+}

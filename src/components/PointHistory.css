@@ -1,0 +1,263 @@
+/* Point History Component Styling */
+
+/* Main container for the entire point history section */
+.point-history-container {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 25px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Header section with title and subtitle */
+.point-history-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.point-history-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #60a5fa 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.point-history-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Table wrapper for responsiveness */
+.point-history-table-wrapper {
+  overflow-x: auto;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Main table styling */
+.point-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+/* Table header styling */
+.point-history-table thead {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.point-history-table th {
+  padding: 1.2rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* Column width control */
+.col-action {
+  width: 50%;
+}
+
+.col-points {
+  width: 25%;
+  text-align: center;
+}
+
+.col-time {
+  width: 25%;
+  text-align: right;
+}
+
+/* Table body rows */
+.history-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.history-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+/* Table cell styling */
+.point-history-table td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+/* Action/Reason column styling */
+.action-text {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Points badge styling */
+.points-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 60px;
+}
+
+/* Positive points (earned) */
+.points-badge.positive {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Negative points (spent/lost) */
+.points-badge.negative {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Time column styling */
+.time-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* Loading state styling */
+.point-history-loading {
+  text-align: center;
+  padding: 3rem 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #a78bfa;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error state styling */
+.point-history-error {
+  text-align: center;
+  padding: 2rem 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.retry-button {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Empty state styling */
+.point-history-empty {
+  text-align: center;
+  padding: 3rem 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.point-history-empty p:first-child {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .point-history-container {
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 20px;
+  }
+  
+  .point-history-title {
+    font-size: 1.5rem;
+  }
+  
+  .point-history-table {
+    font-size: 0.85rem;
+  }
+  
+  .point-history-table th,
+  .point-history-table td {
+    padding: 0.8rem 0.6rem;
+  }
+  
+  .col-action {
+    width: 45%;
+  }
+  
+  .col-points {
+    width: 30%;
+  }
+  
+  .col-time {
+    width: 25%;
+  }
+  
+  .points-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: 50px;
+  }
+  
+  .time-text {
+    font-size: 0.75rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .point-history-table th {
+    font-size: 0.75rem;
+    padding: 0.6rem 0.4rem;
+  }
+  
+  .point-history-table td {
+    padding: 0.6rem 0.4rem;
+  }
+  
+  .action-text {
+    font-size: 0.8rem;
+  }
+}

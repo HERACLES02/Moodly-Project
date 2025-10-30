@@ -1,0 +1,251 @@
+/* Global CSS for SearchBar (Tailwind v4-safe; no @tailwind layers) */
+
+.searchbar-wrapper {
+  max-width: 48rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* container */
+.searchbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* was: width: 14rem; */
+  width: min(100%, 32rem);     /* responsive default width */
+  padding: 0.5rem 0.75rem;
+
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.20);
+
+  transition: all 0.28s ease;
+  flex-wrap: nowrap;           /* keep everything on one line */
+}
+
+/* auto-expand when focused (even if JS didn't toggle) */
+.searchbar:focus-within {
+  width: 100%;
+}
+
+.searchbar.open {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* ===== Dropdown (mode selector) ===== */
+.searchbar-selector-wrap {
+  position: relative;
+  z-index: 50;
+}
+
+.searchbar-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.3rem 0.5rem;      /* slightly tighter to free space */
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  flex: 0 0 auto;              /* don't grow */
+  white-space: nowrap;
+}
+
+.searchbar-selector:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.searchbar-selector-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.searchbar-selector-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+}
+
+.searchbar-selector-chevron {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Dropdown menu */
+.searchbar-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 8.5rem;
+
+  background: rgba(17, 17, 17, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  padding: 0.25rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+  z-index: 9999;
+}
+
+.searchbar-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: #e5e7eb;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s ease;
+}
+
+.searchbar-menu-item:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.searchbar-menu-item-active {
+  background: rgba(34,197,94,0.18);
+  color: #22c55e;
+}
+
+/* ===== Icon / Input / Buttons / Hint ===== */
+.searchbar-icon {
+  width: 20px;
+  height: 20px;
+  color: #e5e7eb; /* slate-200 */
+  opacity: 0.8;
+  flex: 0 0 auto;              /* don't grow */
+}
+
+.searchbar-input {
+  appearance: none;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+
+  width: 100%;
+  font-size: 0.95rem;
+  line-height: 1.4;
+
+  flex: 1 1 auto;              /* <-- grow to take remaining space */
+  min-width: 10rem;            /* ensure it's always typeable */
+}
+
+.searchbar-input::placeholder {
+  color: #cbd5e1; /* slate-300 */
+  opacity: 0.8;
+}
+
+/* clear button (Esc pill) */
+.searchbar-clear {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+
+  color: #e5e7eb;
+  background: rgba(148, 163, 184, 0.15);
+  transition: all 0.2s ease;
+
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.searchbar-clear:hover {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+/* submit button */
+.searchbar-submit {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  color: #0b0b0b;
+  background: #ffffff;
+  opacity: 0.95;
+  transition: all 0.2s ease;
+
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.searchbar-submit:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* hint text */
+.searchbar-hint {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #cbd5e1; /* slate-300 */
+  opacity: 0.8;
+  text-align: left;
+}
+
+/* small screens: allow full width */
+@media (max-width: 640px) {
+  .searchbar {
+    width: 100%;
+  }
+}
+
+/* light mode helpers */
+@media (prefers-color-scheme: light) {
+  .searchbar {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  .searchbar.open,
+  .searchbar:focus-within {
+    background: rgba(255, 255, 255, 0.92);
+  }
+  .searchbar-icon,
+  .searchbar-input,
+  .searchbar-clear,
+  .searchbar-hint {
+    color: #0b0b0b;
+  }
+
+  .searchbar-selector {
+    color: #0b0b0b;
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(0,0,0,0.08);
+  }
+  .searchbar-menu {
+    background: rgba(255,255,255,0.96);
+    color: #0b0b0b;
+  }
+  .searchbar-menu-item {
+    color: #0b0b0b;
+  }
+}

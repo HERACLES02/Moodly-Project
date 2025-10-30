@@ -1,0 +1,410 @@
+.admin-container {
+    padding: 30px;
+    background: linear-gradient(135deg, #f8f5fb 0%, #eadfee 100%);
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #eadfee 0%, #f0e6f7 100%);
+    border-radius: 15px;
+    border: 2px solid #ddd;
+}
+
+.admin-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #000;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.user-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    border: 2px solid #ddd;
+    font-weight: 500;
+    color: #333;
+}
+
+.user-count span:first-child {
+    font-size: 16px;
+}
+
+.user-count span:last-child {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.loading-message {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    padding: 50px;
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    border: 2px solid #ddd;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #eadfee 0%, #f0e6f7 100%);
+}
+
+.header-cell {
+    padding: 15px 20px;
+    font-weight: bold;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    border-bottom: 2px solid #ddd;
+}
+
+.table-body .table-row {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.table-body .table-row:hover {
+    background-color: #f9f9f9;
+}
+
+.table-body .table-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 15px 20px;
+    vertical-align: middle;
+    color: #333;
+}
+
+.username-cell {
+    font-weight: 500;
+    color: #000;
+}
+
+.status-cell {
+    text-align: center;
+    gap: 5rem;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-badge.banned {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.actions-cell {
+    padding: 10px 20px;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.username-input {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: white;
+    transition: border-color 0.2s ease;
+}
+
+.username-input:focus {
+    outline: none;
+    border-color: #8a67c7;
+    box-shadow: 0 0 0 3px rgba(138, 103, 199, 0.1);
+}
+
+.action-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.update-button {
+    background-color: #8a67c7;
+    color: white;
+}
+
+.update-button:hover {
+    background-color: #7558b8;
+    transform: translateY(-1px);
+}
+
+.ban-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.ban-button:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.unban-button {
+    background-color: #28a745;
+    color: white;
+}
+
+.unban-button:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.action-button:active {
+    transform: translateY(0);
+}
+
+/* Banned Words Section */
+.banned-words-section {
+    background: white;
+    border-radius: 15px;
+    border: 2px solid #ddd;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eadfee;
+}
+
+.banned-words-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.add-word-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.word-input {
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: white;
+    transition: border-color 0.2s ease;
+    flex: 1;
+    min-width: 200px;
+}
+
+.word-input:focus {
+    outline: none;
+    border-color: #8a67c7;
+    box-shadow: 0 0 0 3px rgba(138, 103, 199, 0.1);
+}
+
+.add-button {
+    background-color: #8a67c7;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.add-button:hover:not(:disabled) {
+    background-color: #7558b8;
+    transform: translateY(-1px);
+}
+
+.add-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.banned-words-list {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.list-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+}
+
+.no-words {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ddd;
+}
+
+.words-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.word-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+.word-item:hover {
+    background-color: #e9ecef;
+    border-color: #ddd;
+}
+
+.word-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    flex: 1;
+    margin-right: 10px;
+}
+
+.remove-word-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.remove-word-button:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: scale(1.1);
+}
+
+.remove-word-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 15px;
+    }
+    
+    .admin-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .action-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .username-input {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .add-word-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .word-input {
+        min-width: unset;
+        width: 100%;
+    }
+    
+    .words-grid {
+        grid-template-columns: 1fr;
+    }
+}

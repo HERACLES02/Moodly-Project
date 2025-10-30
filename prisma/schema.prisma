@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String   
+  createdAt DateTime @default(now())
+}
+  
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  anonymousName String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isAdmin       Boolean   @default(false)  
+  isBanned      Boolean   @default(false) 
+  accounts      Account[]
+  sessions      Session[]
+  mood          String    @default("")
+  note          String    @default("")
+  currentTheme  String    @default("default")
+  interactions  UserInteraction[]
+  playlists     Playlist[]
+  points        Int      @default(0)
+  lastLoginAt    DateTime?
+  loginStreak   Int      @default(0)
+  pointHistory  PointHistory[]
+  weeklyActvities WeeklyActivity[]
+  unlockedThemes String @default("")
+  
+  // NEW AVATAR FIELDS - ADD THESE TO YOUR EXISTING USER MODEL
+  currentAvatarId String?      // ID of currently selected avatar (null = default emoji)
+  unlockedAvatars UserAvatar[] // Relation to unlocked avatars
+  
+  // Relation to current avatar
+  currentAvatar   Avatar?      @relation("UserCurrentAvatar", fields: [currentAvatarId], references: [id])
+}
+
+model Mood {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String
+  createdAt DateTime @default(now())
+}
+
+model RandomWord {
+  id   Int    @id @default(autoincrement())
+  word String @unique
+}
+
+model FilteredWord {
+  id   Int    @id @default(autoincrement())
+  word String @unique
+}
+
+model UserInteraction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  itemId    String
+  itemName  String
+  mood      String
+
+  @@index([userId])
+  @@index([userId, type])
+}
+
+enum PlaylistType {
+  SONG
+  MOVIE
+}
+
+model Playlist {
+  id          String          @id @default(cuid())
+  name        String
+  type        PlaylistType
+  isDefault   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       PlaylistItem[]
+
+  @@index([userId])
+}
+
+model PlaylistItem {
+  id          String   @id @default(cuid())
+  playlistId  String
+  playlist    Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  
+  itemId      String
+  itemName    String
+  addedAt     DateTime @default(now())
+
+  @@index([playlistId])
+}
+
+model PointHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model WeeklyActivity {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart     DateTime
+  moviesWatched Int      @default(0)
+  songsListened Int      @default(0)
+  bonusClaimed  Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId, weekStart])
+}
+
+// NEW AVATAR MODELS - ADD THESE ENTIRE MODELS TO YOUR SCHEMA
+
+// Avatar model - stores all available avatars
+model Avatar {
+  id          String   @id @default(cuid())
+  name        String   @unique  // "Cool Cat", "Van Gogh Style", etc.
+  imagePath   String   @unique  // "/images/avatars/cool-cat.png"
+  pointsCost  Int                // How many points to unlock
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  unlockedBy     UserAvatar[]  // Many users can unlock this avatar
+  currentForUsers User[]       @relation("UserCurrentAvatar")  // Users who have this as current avatar
+}
+
+// Junction table - tracks which users have unlocked which avatars  
+model UserAvatar {
+  id        String   @id @default(cuid())
+  userId    String
+  avatarId  String
+  unlockedAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatar    Avatar   @relation(fields: [avatarId], references: [id], onDelete: Cascade)
+  
+  // Prevent duplicate unlocks
+  @@unique([userId, avatarId])
+  @@index([userId])
+}

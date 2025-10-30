@@ -1,0 +1,64 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    background: linear-gradient(135deg, #eadfee 0%, #f0e6f7 100%);
+    font-family: Arial, sans-serif;
+    position: relative;  /* ADD THIS LINE */
+    z-index: 1000;       /* ADD THIS LINE */
+}
+
+.navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.moodlyImage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px; /* Fixed width container */
+    height: 50px; /* Fixed height container */
+    overflow: hidden; /* Hide the extra transparent parts */
+}
+.logo-gif {
+    width: 350; /* Make image wider than container */
+    height: auto;
+    object-fit: cover; /* This crops the image */
+    object-position: center; /* Centers the logo part */
+
+}
+.logo-gif:hover{
+    cursor: pointer;
+}
+
+.UserSection {
+    display: flex;
+    align-items: center;
+
+}
+
+
+
+.separator {
+    display: inline-block;
+    width: 2px;
+    height: 30px;
+    background-color: #999;
+    margin: 0 5px;
+}
+
+.UserSection > div:last-child {
+    font-family: Arial;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight:bold;
+    font-size: 16px;
+    color: #000;
+}
+

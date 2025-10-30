@@ -1,0 +1,221 @@
+/* CLEANED AND OPTIMIZED MOVIE WATCH PAGE CSS */
+
+/* Main Container */
+.watch-page-container {
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  padding: 2rem 0 0 0; /* Added top padding to push content below navbar */
+  position: relative;
+  overflow-x: hidden;
+  color: var(--foreground);
+}
+
+/* Video Container - FIXED POSITIONING */
+.video-container {
+  margin: 2rem 1rem 2rem 4rem; /* Added top margin to lower the video */
+  width: calc(100% - 8rem);
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.5s ease;
+  z-index: 1; /* Keep video below navbar */
+}
+
+.video-player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Movie Title Section */
+.movie-title-section {
+  padding: 1rem 4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.movie-title-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.movie-title-below {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.movie-year-below {
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--secondary);
+  opacity: 0.8;
+}
+
+/* Movie Info Section */
+.movie-info-section {
+  padding: 0 4rem;
+  margin-top: 2rem;
+}
+
+.movie-rating-info {
+  margin-bottom: 1.5rem;
+}
+
+.rating-display {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: inline-block;
+  background-color: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--secondary);
+}
+
+.movie-overview {
+  margin-bottom: 2rem;
+}
+
+.movie-overview h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+
+.movie-overview p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  color: var(--foreground);
+}
+
+.movie-genres {
+  margin-top: 1.5rem;
+}
+
+.movie-genres h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+}
+
+.genre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.genre-tag {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--secondary);
+}
+
+.genre-tag:hover {
+  background-color: var(--accent);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .watch-page-container {
+    padding: 1rem 0 0 0;
+  }
+  
+  .movie-title-section {
+    padding: 1rem 2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .movie-title-below {
+    font-size: 1.6rem;
+  }
+  
+  .movie-year-below {
+    font-size: 1.4rem;
+  }
+  
+  .video-container {
+    margin: 1.5rem 2rem 1.5rem 2rem;
+    width: calc(100% - 4rem);
+    padding-bottom: 56.25%;
+  }
+  
+  .movie-info-section {
+    padding: 0 2rem;
+  }
+  
+  .movie-overview h2 {
+    font-size: 1.2rem;
+  }
+  
+  .movie-overview p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-title-section {
+    padding: 0 1rem;
+  }
+  
+  .movie-title-below {
+    font-size: 1.4rem;
+  }
+  
+  .video-container {
+    margin: 1.5rem 1rem; /* Increased top margin for small mobile too */
+    width: calc(100% - 2rem);
+  }
+  
+  .movie-info-section {
+    padding: 0 1rem;
+  }
+  
+  .genre-tags {
+    gap: 0.5rem;
+  }
+  
+  .genre-tag {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+  }
+}
+
+/* REMOVED UNUSED CSS:
+- .theme-selector-container and .theme-selector-card (not used in your component)
+- The mobile padding-top: 5% error that was causing layout issues
+- Duplicate responsive rules
+*/
