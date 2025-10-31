@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import './MoodMusic.css'
-import Fuse from 'fuse.js'
+import MiniSearch from 'minisearch'
 
 interface Track {
   id: string
@@ -27,76 +27,62 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fuse index + embedding cache
-  const fuseRef = useRef<Fuse<Track> | null>(null)
+  // --- Search infra ---
+  const miniRef = useRef<MiniSearch<Track> | null>(null)
   const trackEmbCache = useRef<Map<string, Float32Array>>(new Map())
-  const moodVecRef = useRef<Float32Array | null>(null)
-  const moodForVecRef = useRef<string | null>(null)
-
-  // Control repeated runs
   const fetchingRef = useRef(false)
 
-  // ---- USE loader (singleton per tab) ----
-  const useModelPromiseRef = useRef<Promise<any> | null>(null)
-  const loadUSE = async () => {
-    if (!useModelPromiseRef.current) {
-      useModelPromiseRef.current = (async () => {
-        await import('@tensorflow/tfjs')
-        const use = await import('@tensorflow-models/universal-sentence-encoder')
-        return use.load()
+  // --- Xenova MiniLM loader (singleton) ---
+  const modelRef = useRef<any | null>(null)
+  const loadingModelRef = useRef<Promise<any> | null>(null)
+  const loadMiniLM = async () => {
+    if (modelRef.current) return modelRef.current
+    if (!loadingModelRef.current) {
+      loadingModelRef.current = (async () => {
+        const { pipeline } = await import('@xenova/transformers')
+        const pipe = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+        modelRef.current = pipe
+        return pipe
       })()
     }
-    return useModelPromiseRef.current
+    return loadingModelRef.current
   }
 
-  // Cosine & text builder for ranking
+  // --- Mood intent helpers (semantic mood bias) ---
+  const moodVecRef = useRef<Float32Array | null>(null)
+  const moodForVecRef = useRef<string | null>(null)
+  const moodIntentTextFor = (m: string) => {
+    switch ((m || '').toLowerCase()) {
+      case 'sad': return 'sad melancholy heartbreak sorrow low valence emotional reflective vocals'
+      case 'happy': return 'happy upbeat energetic positive cheerful vocals'
+      case 'anxious': return 'calming soothing reassuring grounded vocals'
+      case 'calm': return 'calm peaceful relaxed serene vocals'
+      case 'energetic': return 'energetic high energy hype intense vocals'
+      case 'excited': return 'excited celebratory party anthems vocals'
+      case 'tired': return 'gentle soft relaxing unwind low energy vocals'
+      case 'grateful': return 'grateful thankful warm heartfelt vocals'
+      default: return 'balanced contemporary popular vocals'
+    }
+  }
+  const getMoodVec = async (pipe: any, m: string) => {
+    const key = (m || '').toLowerCase()
+    if (!moodVecRef.current || moodForVecRef.current !== key) {
+      const out = await pipe(moodIntentTextFor(key), { pooling: 'mean', normalize: true })
+      const vec = (out?.data ?? out?.[0]) as number[] | Float32Array
+      moodVecRef.current = Float32Array.from(vec as number[])
+      moodForVecRef.current = key
+    }
+    return moodVecRef.current!
+  }
+
+  const cosine = (a: Float32Array, b: Float32Array) => {
+    let dot = 0, na = 0, nb = 0
+    for (let i = 0; i < a.length; i++) { const x = a[i], y = b[i]; dot += x * y; na += x * x; nb += y * y }
+    const d = Math.sqrt(na * nb)
+    return d ? dot / d : 0
+  }
   const toText = (t: Track) => `${t.name || ''} | ${t.artist || ''} | ${t.album || ''}`
 
-  const moodIntentTextFor = (m: string) => {
-  switch ((m || '').toLowerCase()) {
-    case 'sad':
-      // keep the sad vibe, but nudge toward hopeful (you can tune this)
-      return 'sad melancholy low valence emotional reflective heartbreak but hopeful uplifting vocals'
-    case 'happy':
-      return 'happy upbeat energetic feel good positive cheerful vocals'
-    case 'anxious':
-      return 'calming reassuring soothing safe grounding vocals'
-    case 'calm':
-      return 'calm peaceful relaxed mellow serene vocals'
-    case 'energetic':
-      return 'energetic high energy hype workout pump up vocals'
-    case 'excited':
-      return 'excited celebratory upbeat party anthems vocals'
-    case 'tired':
-      return 'low energy gentle soft relaxing unwind vocals'
-    case 'grateful':
-      return 'grateful thankful warm heartfelt uplifting vocals'
-    default:
-      return 'balanced contemporary popular vocals'
-  }
-}
-  const getMoodVec = async (model: any, m: string) => {
-  const key = (m || '').toLowerCase()
-  if (!moodVecRef.current || moodForVecRef.current !== key) {
-    const text = moodIntentTextFor(key)
-    const t = await model.embed([text])
-    const arr = await t.array() as number[][]
-    moodVecRef.current = Float32Array.from(arr[0])
-    moodForVecRef.current = key
-  }
-  return moodVecRef.current!
-}
-
-  const cosineSim = (a: Float32Array, b: Float32Array) => {
-  let dot = 0, na = 0, nb = 0
-  for (let i = 0; i < a.length; i++) { const x=a[i], y=b[i]; dot+=x*y; na+=x*x; nb+=y*y }
-  const d = Math.sqrt(na * nb)
-  return d ? dot / d : 0
-}
-
-  
-
-  // ---- Fetch tracks whenever mood OR query changes (query changes bump candidate pool server-side) ----
   useEffect(() => {
     if (!mood) return
     fetchMusic()
@@ -107,7 +93,6 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
     setLoading(true)
     setError(null)
     fetchingRef.current = true
-
     try {
       const normalizedMood = mood.toLowerCase()
       const url = `/api/recommendations/songs?mood=${normalizedMood}${query ? `&q=${encodeURIComponent(query)}` : ''}`
@@ -116,26 +101,22 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
 
       const data = await response.json()
       const list: Track[] = data.tracks || []
-
       setTracks(list)
-      setVisibleTracks(list.slice(0, 4)) // show 4 by default
+      setVisibleTracks(list.slice(0, 4))
 
-      // Build/refresh Fuse index
-      const options: Fuse.IFuseOptions<Track> = {
-        keys: [
-          { name: 'name', weight: 0.2 },
-          { name: 'artist', weight: 0.3 },
-          { name: 'album', weight: 0.2 },
-        ],
-        threshold: 0.5,
-        distance: 100,
-        ignoreLocation: true,
-        findAllMatches: true,
-        minMatchCharLength: 2,
-      }
-      fuseRef.current = new Fuse<Track>(list, options)
+      // Build MiniSearch index
+      miniRef.current = new MiniSearch<Track>({
+        fields: ['name', 'artist', 'album'],
+        storeFields: ['id','name','artist','album','albumArt','preview_url','external_url'],
+        searchOptions: {
+          boost: { name: 3, artist: 2, album: 1 },
+          fuzzy: 0.2,
+          prefix: true,
+        },
+      })
+      miniRef.current.addAll(list)
 
-      // If a query exists, run search ONCE now that tracks & fuse are ready
+      // If there's a query, run a single search now
       if (query) {
         await runSearch(query)
       }
@@ -148,90 +129,64 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
     }
   }
 
-
-
-  // ---- Search pipeline (Fuse shortlist → USE re-rank) ----
   const runSearch = async (q: string) => {
     const qq = (q || '').trim()
-    if (!qq) {
-      setVisibleTracks(tracks.slice(0, 4))
-      return
-    }
-    if (!fuseRef.current || tracks.length === 0) {
-      // Not ready yet; fetchMusic will call us when ready.
-      return
-    }
+    if (qq.length < 2) { setVisibleTracks(tracks.slice(0, 4)); return }
+    if (!miniRef.current || tracks.length === 0) return
 
-    // 1) Fuse shortlist
-    const raw = fuseRef.current.search(qq)
-    let shortlist: Track[] = raw.slice(0, 30).map(r => r.item)
-
-    // Fallback: if Fuse found nothing, let USE re-rank a bigger pool
+    // 1) MiniSearch shortlist (BM25)
+    const raw = miniRef.current.search(qq, { limit: 50 })
+    let shortlist: Track[] = raw.map(r => r as unknown as Track)
     if (shortlist.length === 0) {
-      shortlist = tracks.slice(0, Math.min(tracks.length, 50))
+      shortlist = tracks.slice(0, Math.min(tracks.length, 60))
     }
 
-    // 2) USE re-rank
-    const model = await loadUSE()
+    // 2) Semantic re-rank with MiniLM
+    const pipe = await loadMiniLM()
+    const qOut = await pipe(qq, { pooling: 'mean', normalize: true })
+    const qEmb = Float32Array.from((qOut?.data ?? qOut?.[0]) as number[])
 
-    const qTensor = await model.embed([qq])
-    const qArray = await qTensor.array() as number[][]
-    const qEmb = Float32Array.from(qArray[0])
-    const moodEmb = await getMoodVec(model, mood)
+    const moodEmb = await getMoodVec(pipe, mood)
 
-    // Embed items not yet cached
-    const texts: string[] = []
-    const toEmbedIdx: number[] = []
-    shortlist.forEach((t, idx) => {
+    // embed shortlisted items not cached
+    const toEmbed: { id: string; text: string }[] = []
+    shortlist.forEach(t => {
       if (!trackEmbCache.current.has(t.id)) {
-        texts.push(toText(t))
-        toEmbedIdx.push(idx)
+        toEmbed.push({ id: t.id, text: toText(t) })
       }
     })
-
-    if (texts.length > 0) {
-      const batchTensor = await model.embed(texts)
-      const batch = await batchTensor.array() as number[][]
-      batch.forEach((vec, i) => {
-        const sIdx = toEmbedIdx[i]
-        const tid = shortlist[sIdx].id
-        trackEmbCache.current.set(tid, Float32Array.from(vec))
-      })
+    for (const it of toEmbed) {
+      const out = await pipe(it.text, { pooling: 'mean', normalize: true })
+      const emb = Float32Array.from((out?.data ?? out?.[0]) as number[])
+      trackEmbCache.current.set(it.id, emb)
     }
 
-    const scored = shortlist.map(t => {
-    const v = trackEmbCache.current.get(t.id)!
-    const sQ = cosineSim(qEmb, v)      // semantic match to query
-    const sM = cosineSim(moodEmb, v)   // semantic match to mood
-
-    // If user typed sad-ish terms while mood is sad, lean strongly to mood
+    // Weighted blend (query + mood). Lean more to mood for sad + sad-ish queries.
     const sadish = /heartbreak|breakup|melancholy|sad|lonely|blue|sorrow|grief/i.test(qq)
-
-    // Weight for query (alpha). Default 0.6 (query-leaning).
-    // If (mood === 'sad' && sadish), reduce alpha so mood dominates.
     let alpha = 0.6
     if ((mood || '').toLowerCase() === 'sad' && sadish) alpha = 0.3
 
-    const score = alpha * sQ + (1 - alpha) * sM
-    return { t, score }
-  }).sort((a, b) => b.score - a.score)
+    const scored = shortlist.map(t => {
+      const v = trackEmbCache.current.get(t.id)!
+      const sQ = cosine(qEmb, v)
+      const sM = cosine(moodEmb, v)
+      return { t, score: alpha * sQ + (1 - alpha) * sM }
+    }).sort((a, b) => b.score - a.score)
 
-  setVisibleTracks(scored.slice(0, 4).map(s => s.t)) // show top 4 after search
+    setVisibleTracks(scored.slice(0, 4).map(s => s.t))
   }
 
-  // Run search when query changes (single run; if fetching, fetchMusic will call runSearch)
   useEffect(() => {
     if (fetchingRef.current) return
     if (!query) {
       setVisibleTracks(tracks.slice(0, 4))
       return
     }
-    if (!fuseRef.current || tracks.length === 0) return
+    if (!miniRef.current || tracks.length === 0) return
     runSearch(query)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
-  // ---- Interaction tracking ----
   const trackInteraction = async (track: Track) => {
     try {
       await fetch('/api/interactions', {
@@ -251,12 +206,10 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
   }
 
   const handleTrackClick = async (track: Track) => {
-    console.log(`Song clicked: "${track.name}" by ${track.artist} for mood: ${mood}`)
     await trackInteraction(track)
     onSongClick(track.id)
   }
 
-  // ---- UI ----
   if (loading)
     return (
       <div className="mood-music-container">
@@ -278,11 +231,7 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
       <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
       <div className="mood-music-grid">
         {visibleTracks.map((track) => (
-          <div
-            key={track.id}
-            className="mood-music-card"
-            onClick={() => handleTrackClick(track)}
-          >
+          <div key={track.id} className="mood-music-card" onClick={() => handleTrackClick(track)}>
             <div className="mood-music-album-wrapper">
               <Image
                 src={track.albumArt || '/images/music-placeholder.jpg'}
