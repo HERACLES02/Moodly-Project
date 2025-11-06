@@ -16,6 +16,8 @@ export default function Dashboard() {
   const [currentMood, setCurrentMood] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [searchMode, setSearchMode] = useState<"movie" | "song">("movie")
+  const [submittedMode, setSubmittedMode] = useState<"movie" | "song">("movie");
+  const [submittedQuery, setSubmittedQuery] = useState<string>("");
   const { user, updateUserMood } = useUser()
   const router = useRouter()
   const { setTheme } = useTheme()
@@ -97,10 +99,15 @@ export default function Dashboard() {
                   <SearchBar
                     placeholder="Type to search…"
                     onModeChange={(m) => setSearchMode(m)}
-                    onSubmit={(val, m) => {
-                      setSearchMode(m)
-                      setSearchQuery(val.trim())
-                      console.log('submitted:', { query: val, mode: m });
+                      onSubmit={(val, m) => {
+                        const trimmed = val.trim();
+                        // keep UI state in sync
+                        setSearchMode(m);
+                        setSearchQuery(trimmed);
+                        // store the exact submitted pair used by children
+                        setSubmittedMode(m);
+                        setSubmittedQuery(trimmed);
+                        console.log('submitted:', { query: trimmed, mode: m })
                     }}
                   />
                 </section>
@@ -108,12 +115,12 @@ export default function Dashboard() {
                 <MoodMovies
                   mood={normalizedMood!}
                   onMovieClick={handleMovieClick}
-                  query={searchMode === "movie" ? searchQuery : ""}
+                  query={searchMode === "movie" ? submittedQuery  : ""}
                 />
                 <MoodMusic
                   mood={normalizedMood!}
                   onSongClick={handleSongClick}
-                  query={searchMode === "song" ? searchQuery : ""}
+                  query={searchMode === "song" ? submittedQuery  : ""}
                 />
 
                 <div className="flex w-[100%] justify-center items-center gap-1">

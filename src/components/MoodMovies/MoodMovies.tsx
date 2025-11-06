@@ -1,9 +1,10 @@
 'use client'
+
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import './MoodMovies.css'
 import { Spinner } from '../ui/spinner'
-import Fuse from 'fuse.js'
+import MiniSearch from 'minisearch'
 
 interface Movie {
   id: number
@@ -13,6 +14,8 @@ interface Movie {
   releaseDate: string
   rating: number
 }
+
+type MovieDoc = Movie & { [key: string]: unknown }
 
 interface MoodMoviesProps {
   mood: string
@@ -27,90 +30,149 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
   const [error, setError] = useState<string | null>(null)
 
   // Search infra
-  const fuseRef = useRef<Fuse<Movie> | null>(null)
+  const miniRef = useRef<MiniSearch<MovieDoc> | null>(null)
   const movieEmbCache = useRef<Map<number, Float32Array>>(new Map())
+  const movieByIdRef = useRef<Map<number, Movie>>(new Map())
   const fetchingRef = useRef(false)
 
-  // Lazy USE loader (singleton per tab)
-  const useModelPromiseRef = useRef<Promise<any> | null>(null)
-  const loadUSE = async () => {
-    if (!useModelPromiseRef.current) {
-      useModelPromiseRef.current = (async () => {
-        await import('@tensorflow/tfjs')
-        const use = await import('@tensorflow-models/universal-sentence-encoder')
-        return use.load()
+  // Lazy MiniLM loader (singleton per tab)
+  const transformerRef = useRef<any | null>(null)
+  const transformerPromiseRef = useRef<Promise<any> | null>(null)
+  const loadMiniLM = async () => {
+    if (transformerRef.current) return transformerRef.current
+    if (!transformerPromiseRef.current) {
+      transformerPromiseRef.current = (async () => {
+        const { pipeline } = await import('@xenova/transformers')
+        const pipe = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2')
+        transformerRef.current = pipe
+        return pipe
       })()
     }
-    return useModelPromiseRef.current
+    return transformerPromiseRef.current
   }
 
-  // Convert a movie to text for embedding
+  const embeddingOptions = { pooling: 'mean', normalize: true } as const
+
+  const embedText = async (pipe: any, text: string) => {
+    const output = await pipe(text, embeddingOptions)
+    return toEmbedding(output)
+  }
+
+  const toEmbedding = (output: any): Float32Array => {
+    if (!output) return new Float32Array()
+    const data = output.data ?? output
+    if (data instanceof Float32Array) return data
+    if (ArrayBuffer.isView(data)) return Float32Array.from(data as ArrayLike<number>)
+    if (Array.isArray(data)) {
+      const first = data[0]
+      if (Array.isArray(first) || ArrayBuffer.isView(first)) {
+        const arr = ArrayBuffer.isView(first) ? Array.from(first as Float32Array) : (first as number[])
+        return Float32Array.from(arr)
+      }
+      return Float32Array.from(data as number[])
+    }
+    return new Float32Array()
+  }
+
   const toText = (m: Movie) => `${m.title || ''} | ${(m.overview || '').slice(0, 500)} | ${m.releaseDate || ''}`
 
-  // cosine sim
   const cosineSim = (a: Float32Array, b: Float32Array) => {
     let dot = 0, na = 0, nb = 0
-    for (let i = 0; i < a.length; i++) { const x = a[i], y = b[i]; dot += x * y; na += x * x; nb += y * y }
+    const len = Math.min(a.length, b.length)
+    for (let i = 0; i < len; i++) {
+      const x = a[i]
+      const y = b[i]
+      dot += x * y
+      na += x * x
+      nb += y * y
+    }
     const d = Math.sqrt(na * nb)
     return d ? dot / d : 0
   }
 
   // -------- Mood intent vector (for semantic mood bias) --------
-  const moodVecRef = useRef<Float32Array | null>(null)
-  const moodForVecRef = useRef<string | null>(null)
+  // We'll store separate mood vectors depending on "variant" (default vs search)
+  const moodVecRef = useRef<Record<string, Float32Array | null>>({})
+  const moodForVecRef = useRef<Record<string, string | null>>({})
 
-  const moodIntentTextFor = (m: string) => {
-    switch ((m || '').toLowerCase()) {
-      case 'sad':
-        // pure sad vibe; no uplifting tokens here
-        return 'sad melancholy heartbreak sorrow low valence emotional reflective film cinema'
-      case 'happy':
-        return 'happy upbeat positive feel good fun lighthearted film cinema'
-      case 'anxious':
-        return 'calming reassuring soothing safe grounded comforting film cinema'
-      case 'calm':
-        return 'calm peaceful relaxed serene gentle film cinema'
-      case 'energetic':
-        return 'energetic intense high energy action exciting film cinema'
-      case 'excited':
-        return 'excited celebratory adventurous thrilling film cinema'
-      case 'tired':
-        return 'gentle slow relaxing low energy cozy film cinema'
-      case 'grateful':
-        return 'warm heartfelt thankful inspiring tender film cinema'
-      default:
-        return 'balanced contemporary popular film cinema'
+  // variant: 'default' or 'search'
+  const moodIntentTextFor = (m: string, variant: 'default' | 'search') => {
+    const key = (m || '').toLowerCase()
+    // default (initial) intents: for sad we want uplifting default picks
+    if (variant === 'default') {
+      switch (key) {
+        case 'sad':
+          return 'uplifting inspiring hopeful motivating overcoming adversity redemption feel good inspiring film cinema'
+        case 'happy':
+          return 'happy upbeat positive feel good fun lighthearted musical film cinema'
+        case 'anxious':
+          return 'calming reassuring soothing safe grounded comforting film cinema'
+        case 'calm':
+          return 'calm peaceful relaxed serene gentle film cinema'
+        case 'energetic':
+          return 'energetic intense high energy action exciting film cinema'
+        case 'excited':
+          return 'excited celebratory adventurous thrilling film cinema'
+        case 'tired':
+          return 'gentle slow relaxing low energy cozy film cinema'
+        case 'grateful':
+          return 'warm heartfelt thankful inspiring tender film cinema'
+        default:
+          return 'balanced contemporary popular film cinema'
+      }
+    } else {
+      // search-time intents: reflect the declared mood more directly (sad -> sad)
+      switch (key) {
+        case 'sad':
+          return 'sad melancholy heartbreak sorrow low valence emotional reflective film cinema'
+        case 'happy':
+          return 'happy upbeat positive feel good fun lighthearted musical film cinema'
+        case 'anxious':
+          return 'calming reassuring soothing safe grounded comforting film cinema'
+        case 'calm':
+          return 'calm peaceful relaxed serene gentle film cinema'
+        case 'energetic':
+          return 'energetic intense high energy action exciting film cinema'
+        case 'excited':
+          return 'excited celebratory adventurous thrilling film cinema'
+        case 'tired':
+          return 'gentle slow relaxing low energy cozy film cinema'
+        case 'grateful':
+          return 'warm heartfelt thankful inspiring tender film cinema'
+        default:
+          return 'balanced contemporary popular film cinema'
+      }
     }
   }
 
-  const getMoodVec = async (model: any, m: string) => {
-    const key = (m || '').toLowerCase()
-    if (!moodVecRef.current || moodForVecRef.current !== key) {
-      const text = moodIntentTextFor(key)
-      const t = await model.embed([text])
-      const arr = await t.array() as number[][]
-      moodVecRef.current = Float32Array.from(arr[0])
-      moodForVecRef.current = key
+  const getMoodVec = async (pipe: any, m: string, variant: 'default' | 'search') => {
+    const key = `${m}::${variant}`
+    if (!moodVecRef.current[key] || moodForVecRef.current[key] !== key) {
+      const text = moodIntentTextFor(m, variant)
+      moodVecRef.current[key] = await embedText(pipe, text)
+      moodForVecRef.current[key] = key
     }
-    return moodVecRef.current!
+    return moodVecRef.current[key]!
   }
 
   // -------- Fetch movies when mood OR query changes (query may increase server candidate pool) --------
   useEffect(() => {
     if (!mood) return
-    fetchMovies()
+
+    // If there's no query -> default view (we want uplifting default picks for some moods)
+    // If there is a query -> search variant
+    fetchMovies(!!query ? 'search' : 'default')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mood, query])
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (variant: 'default' | 'search') => {
     setLoading(true)
     setError(null)
     fetchingRef.current = true
 
     try {
       const normalizedMood = mood.toLowerCase()
-      // If your movies API doesn't accept q yet, it's fine; see API tweak in section 2 below.
-      const url = `/api/recommendations/movies?mood=${normalizedMood}${query ? `&q=${encodeURIComponent(query)}` : ''}`
+      const url = `/api/recommendations/movies?mood=${normalizedMood}&variant=${variant}${query ? `&q=${encodeURIComponent(query)}` : ''}`
       const response = await fetch(url)
       if (!response.ok) throw new Error(`Failed to fetch movies: ${response.status}`)
 
@@ -119,25 +181,22 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
 
       setMovies(list)
       setVisibleMovies(list.slice(0, 4)) // show 4 by default
+      movieEmbCache.current.clear()
+      movieByIdRef.current = new Map(list.map((mv) => [mv.id, mv]))
 
-      // Build/refresh Fuse index
-      const options: Fuse.IFuseOptions<Movie> = {
-        keys: [
-          { name: 'title', weight: 0.7 },
-          { name: 'overview', weight: 0.3 },
-        ],
-        threshold: 0.45,
-        distance: 200,
-        ignoreLocation: true,
-        findAllMatches: true,
-        minMatchCharLength: 2,
-      }
-      fuseRef.current = new Fuse<Movie>(list, options)
-
-      // If there is a query, run search ONCE now that tracks & fuse are ready
-      if (query) {
-        await runSearch(query)
-      }
+      // Build/refresh MiniSearch index
+      miniRef.current = new MiniSearch<MovieDoc>({
+        idField: 'id',
+        fields: ['title', 'overview', 'releaseDate'],
+        storeFields: ['id', 'title', 'poster', 'overview', 'releaseDate', 'rating'],
+        searchOptions: {
+          boost: { title: 3, overview: 1.5 },
+          prefix: true,
+          fuzzy: 0.34,
+        },
+      })
+      miniRef.current.addAll(list.map((mv) => ({ ...mv })) as MovieDoc[])
+      // don't call runSearch here; the effect will call runSearch when ready if needed
     } catch (err) {
       console.error('Error fetching movies:', err)
       setError('Failed to load movie recommendations')
@@ -147,51 +206,58 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     }
   }
 
-  // -------- Search pipeline (Fuse shortlist → USE re-rank with query+mood blending) --------
+  // -------- Search pipeline (MiniSearch shortlist → MiniLM re-rank with query+mood blending) --------
   const runSearch = async (q: string) => {
     const qq = (q || '').trim()
-    if (qq.length < 2) { setVisibleMovies(movies.slice(0, 4)); return }
-    if (!fuseRef.current || movies.length === 0) return
+    if (qq.length < 2) {
+      setVisibleMovies(movies.slice(0, 4))
+      return
+    }
+    if (!miniRef.current || movies.length === 0) return
 
-    // 1) Fuse shortlist
-    const raw = fuseRef.current.search(qq)
-    let shortlist: Movie[] = raw.slice(0, 30).map(r => r.item)
-    if (shortlist.length === 0) {
-      shortlist = movies.slice(0, Math.min(movies.length, 50))
+    // 1) MiniSearch shortlist
+    const raw = miniRef.current.search(qq, { limit: 60 })
+    let shortlist: Movie[] = raw
+      .map((r) => {
+        const id = Number(r.id)
+        return movieByIdRef.current.get(id) ?? {
+          id,
+          title: (r as MovieDoc).title as string,
+          poster: ((r as MovieDoc).poster as string) || '',
+          overview: ((r as MovieDoc).overview as string) || '',
+          releaseDate: ((r as MovieDoc).releaseDate as string) || '',
+          rating: Number((r as MovieDoc).rating ?? 0),
+        }
+      })
+
+    if (shortlist.length < 4) {
+      const extra = movies.filter(m => !shortlist.includes(m)).slice(0, 4 - shortlist.length)
+      shortlist = [...shortlist, ...extra]
     }
 
-    // 2) USE re-rank
-    const model = await loadUSE()
+    // 2) MiniLM re-rank
+    const pipe = await loadMiniLM()
 
-    const qTensor = await model.embed([qq])
-    const qArray = await qTensor.array() as number[][]
-    const qEmb = Float32Array.from(qArray[0])
-
-    const moodEmb = await getMoodVec(model, mood)
+    const qEmb = await embedText(pipe, qq)
+    // Important: For search re-ranking use the search-intent mood vector (e.g., sad -> sad)
+    const moodEmb = await getMoodVec(pipe, mood, 'search')
 
     // embed items not cached yet
-    const texts: string[] = []
-    const toEmbedIdx: number[] = []
-    shortlist.forEach((m, idx) => {
+    const toEmbed: { id: number; text: string }[] = []
+    shortlist.forEach((m) => {
       if (!movieEmbCache.current.has(m.id)) {
-        texts.push(toText(m))
-        toEmbedIdx.push(idx)
+        toEmbed.push({ id: m.id, text: toText(m) })
       }
     })
-    if (texts.length > 0) {
-      const batchTensor = await model.embed(texts)
-      const batch = await batchTensor.array() as number[][]
-      batch.forEach((vec, i) => {
-        const sIdx = toEmbedIdx[i]
-        const mid = shortlist[sIdx].id
-        movieEmbCache.current.set(mid, Float32Array.from(vec))
+    await Promise.all(
+      toEmbed.map(async ({ id, text }) => {
+        const emb = await embedText(pipe, text)
+        movieEmbCache.current.set(id, emb)
       })
-    }
+    )
 
-    // Combine semantic similarity: query + mood
-    const sadish = /heartbreak|breakup|melancholy|sad|grief|sorrow|lonely|blue/i.test(qq)
-    let alpha = 0.6 // weight for query
-    if ((mood || '').toLowerCase() === 'sad' && sadish) alpha = 0.3 // mood dominates when sad & sad-ish query
+    // Combine semantic similarity: query + mood (search-time mood)
+    const alpha = qq.length > 3 ? 0.75 : 0.5
 
     const scored = shortlist.map(mv => {
       const v = movieEmbCache.current.get(mv.id)!
@@ -205,16 +271,30 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
   }
 
   // Re-run search when query changes (single run; if fetching, fetchMovies will call runSearch)
+  // NOTE: We replaced the previous combined effect with two effects so we can:
+  //  - re-run search AFTER movies finish loading if a query exists, and
+  //  - for a query run with search-intent; for empty query we keep default visibleMovies
   useEffect(() => {
     if (fetchingRef.current) return
     if (!query) {
+      // default: show the default fetched list (likely from variant=default)
       setVisibleMovies(movies.slice(0, 4))
       return
     }
-    if (!fuseRef.current || movies.length === 0) return
+    if (!miniRef.current || movies.length === 0) return
+
+    // run the search using search-intent (sad -> sad)
     runSearch(query)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  }, [query, movies, loading])
+
+  // Run search after fetchMovies finishes populating movies, only when a query exists
+  useEffect(() => {
+    if (!loading && query && movies.length > 0 && miniRef.current) {
+      runSearch(query)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [movies, loading])
 
   // -------- Interaction tracking (unchanged) --------
   const trackInteraction = async (movie: Movie) => {
@@ -229,7 +309,7 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
           mood: mood
         })
       })
-      console.log('Movie click tracked in Database')
+      // console.log('Movie click tracked in Database')
     } catch (err) {
       console.error('Error tracking interaction:', err)
     }

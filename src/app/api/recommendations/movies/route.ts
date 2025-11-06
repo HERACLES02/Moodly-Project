@@ -149,10 +149,10 @@ export async function GET(request: Request) {
       url.searchParams.set('without_genres', withoutGenres)
     }
     url.searchParams.set('sort_by', 'popularity.desc')
-    url.searchParams.set('vote_average.gte', '6')
+    url.searchParams.set('vote_average.gte', '6.5')
     url.searchParams.set('vote_count.gte', '100')
     url.searchParams.set('include_adult', 'false')
-    url.searchParams.set('language', 'en-US')
+
     url.searchParams.set('page', String(randomPage))
 
     const response = await fetch(url.toString())
