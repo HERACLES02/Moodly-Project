@@ -1,240 +1,95 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MOOD MUSIC - Uses shared carousel styles from MoodMovies.css
+   Only song-specific overrides here
+   ═══════════════════════════════════════════════════════════════════ */
+
 .mood-music-container {
-  margin: 2rem 0;
-  padding: 1.0rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
+  margin-bottom: 24px;
 }
 
-.dashboard-happy .mood-music-container {
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.7) 0%, 
-    rgba(255, 255, 255, 0.6) 100%
-  ), url('/images/moods/happy/background.jpg');
-  background-size: cover;
-  background-position: center;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 20px rgba(200, 180, 255, 0.15);
-}
-
-.dashboard-sad .mood-music-container {
-  background: linear-gradient(135deg, 
-    rgba(139, 149, 209, 0.2) 0%, 
-    rgba(75, 0, 130, 0.3) 100%
-  ), url('/images/moods/sad/background.jpg');
-  background-size: cover;
-  background-position: center;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(75, 0, 130, 0.3);
-}
-
-.dashboard-default .mood-music-container {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.mood-music-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.dashboard-happy .mood-music-title {
-  color: #2D2D5A;
-}
-
-.dashboard-sad .mood-music-title {
-  color: #DDA0DD;
-}
-
-.dashboard-default .mood-music-title {
-  color: #815FD0;
-}
-
-.mood-music-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.5rem;
-  max-width: 800px;
-}
-
-@media (min-width: 768px) {
-  .mood-music-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.mood-music-card {
+/* Square cards for album art */
+.mood-music-container .carousel-item {
+  flex-shrink: 0;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.mood-music-card:hover {
-  transform: translateY(-5px);
+.mood-music-container .carousel-item:hover {
+  transform: translateY(-8px) scale(1.02);
 }
 
-.mood-music-album-wrapper {
+.mood-music-container .item-card.square {
   position: relative;
-  width: 100%;
-  padding-bottom: 100%;
+  /* Mobile: Square cards */
+  width: 130px;
+  height: 130px;
+  border-radius: 14px;
   overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background: #f0f0f0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  background: var(--muted);
+}
+.mood-music-container .item-card.circle {
+  position: relative;
+  /* Mobile: Square cards */
+  width: 130px;
+  height: 130px;
+  border-radius: 100%;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  background: var(--secondary);
 }
 
-.mood-music-album-art {
+/* Play overlay for songs */
+.item-play-overlay {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-.mood-music-card:hover .mood-music-album-art {
-  transform: scale(1.05);
-  filter: brightness(0.7);
-}
-
-.mood-music-play-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.dashboard-happy .mood-music-play-overlay {
-  background: rgba(45, 45, 90, 0.2);
-}
-
-.dashboard-sad .mood-music-play-overlay {
-  background: rgba(221, 160, 221, 0.2);
-}
-
-.dashboard-default .mood-music-play-overlay {
-  background: rgba(129, 95, 208, 0.2);
-}
-
-.mood-music-card:hover .mood-music-play-overlay {
+.carousel-item:hover .item-play-overlay {
   opacity: 1;
 }
 
-.mood-music-play-button {
-  width: 50px;
-  height: 50px;
+.play-icon {
+  width: 44px;
+  height: 44px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
 }
 
-.dashboard-happy .mood-music-play-button {
-  color: #2D2D5A;
+.dashboard-happy .play-icon {
+  color: #2d2d5a;
 }
 
-.dashboard-sad .mood-music-play-button {
-  color: #9370DB;
+.dashboard-sad .play-icon {
+  color: #6a5acd;
 }
 
-.dashboard-default .mood-music-play-button {
-  color: #815FD0;
+.dashboard-default .play-icon {
+  color: #815fd0;
 }
 
-.mood-music-card:hover .mood-music-play-button {
+.carousel-item:hover .play-icon {
   transform: scale(1.1);
 }
 
-.mood-music-info {
-  margin-top: 0.75rem;
-  padding: 0 0.25rem;
-}
-
-.mood-music-track-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dashboard-happy .mood-music-track-name {
-  color: #2D2D5A;
-}
-
-.dashboard-sad .mood-music-track-name {
-  color: #E6E6FA;
-}
-
-.dashboard-default .mood-music-track-name {
-  color: #333;
-}
-
-.mood-music-artist {
-  font-size: 0.8rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dashboard-happy .mood-music-artist {
-  color: #4A4A7A;
-}
-
-.dashboard-sad .mood-music-artist {
-  color: #DDA0DD;
-}
-
-.dashboard-default .mood-music-artist {
-  color: #666;
-}
-
-.mood-music-loading,
-.mood-music-error {
-  text-align: center;
-  padding: 2rem;
-  font-style: italic;
-}
-
-.dashboard-happy .mood-music-loading,
-.dashboard-happy .mood-music-error {
-  color: #4A4A7A;
-}
-
-.dashboard-sad .mood-music-loading,
-.dashboard-sad .mood-music-error {
-  color: #E6E6FA;
-}
-
-.dashboard-default .mood-music-loading,
-.dashboard-default .mood-music-error {
-  color: #666;
-}
-
-.mood-music-error {
-  color: #e74c3c !important;
+/* Adjust carousel track height for square items */
+.mood-music-container .carousel-loading {
+  height: 120px;
 }

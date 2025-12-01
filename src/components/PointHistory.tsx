@@ -1,22 +1,22 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import './PointHistory.css'
+import { useState, useEffect } from "react"
+import "./PointHistory.css"
 
 // Define what each point history entry looks like
 interface PointHistoryEntry {
   id: string
-  points: number        // Can be positive or negative
-  reason: string        // "Favorited a movie", "Redeemed theme: Van Gogh", etc.
-  createdAt: string     // ISO date string
+  points: number // Can be positive or negative
+  reason: string // "Favorited a movie", "Redeemed theme: Van Gogh", etc.
+  createdAt: string // ISO date string
 }
 
 // Component props - no props needed since it shows current user's history
 interface PointHistoryProps {
-  className?: string    // Optional additional CSS classes
+  className?: string // Optional additional CSS classes
 }
 
-export default function PointHistory({ className = '' }: PointHistoryProps) {
+export default function PointHistory({ className = "" }: PointHistoryProps) {
   // Component state - manages all data internally
   const [history, setHistory] = useState<PointHistoryEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,19 +31,19 @@ export default function PointHistory({ className = '' }: PointHistoryProps) {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Call our new API endpoint
-      const response = await fetch('/api/points/history')
+      const response = await fetch("/api/points/history")
       const data = await response.json()
 
       if (data.success) {
         setHistory(data.history || [])
       } else {
-        setError(data.error || 'Failed to load point history')
+        setError(data.error || "Failed to load point history")
       }
     } catch (error) {
-      console.error('Error fetching point history:', error)
-      setError('Failed to load point history')
+      console.error("Error fetching point history:", error)
+      setError("Failed to load point history")
     } finally {
       setLoading(false)
     }
@@ -55,12 +55,12 @@ export default function PointHistory({ className = '' }: PointHistoryProps) {
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    
+
     if (diffDays === 0) {
       // Same day - show time
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     } else if (diffDays === 1) {
-      return 'Yesterday'
+      return "Yesterday"
     } else if (diffDays < 7) {
       return `${diffDays} days ago`
     } else {
@@ -98,14 +98,11 @@ export default function PointHistory({ className = '' }: PointHistoryProps) {
     return (
       <div className={`point-history-container error ${className}`}>
         <div className="point-history-header">
-          <h3 className="point-history-title">Point History</h3>
+          <h3 className="">Point Histoy</h3>
         </div>
         <div className="point-history-error">
           <p>❌ {error}</p>
-          <button 
-            onClick={fetchPointHistory}
-            className="retry-button"
-          >
+          <button onClick={fetchPointHistory} className="retry-button">
             Try Again
           </button>
         </div>
@@ -132,10 +129,10 @@ export default function PointHistory({ className = '' }: PointHistoryProps) {
   return (
     <div className={`point-history-container ${className}`}>
       <div className="point-history-header">
-        <h3 className="point-history-title">Point History</h3>
+        <h3 className="theme-title">Point History</h3>
         <p className="point-history-subtitle">Your recent point activity</p>
       </div>
-      
+
       <div className="point-history-table-wrapper">
         <table className="point-history-table">
           <thead>
@@ -152,12 +149,16 @@ export default function PointHistory({ className = '' }: PointHistoryProps) {
                   <span className="action-text">{entry.reason}</span>
                 </td>
                 <td className="col-points">
-                  <span className={`points-badge ${entry.points > 0 ? 'positive' : 'negative'}`}>
+                  <span
+                    className={`points-badge ${entry.points > 0 ? "positive" : "negative"}`}
+                  >
                     {formatPoints(entry.points)}
                   </span>
                 </td>
                 <td className="col-time">
-                  <span className="time-text">{formatDate(entry.createdAt)}</span>
+                  <span className="time-text">
+                    {formatDate(entry.createdAt)}
+                  </span>
                 </td>
               </tr>
             ))}

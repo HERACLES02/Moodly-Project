@@ -160,8 +160,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error state styling */
@@ -209,38 +213,38 @@
     margin: 1rem 0;
     border-radius: 20px;
   }
-  
+
   .point-history-title {
     font-size: 1.5rem;
   }
-  
+
   .point-history-table {
     font-size: 0.85rem;
   }
-  
+
   .point-history-table th,
   .point-history-table td {
     padding: 0.8rem 0.6rem;
   }
-  
+
   .col-action {
     width: 45%;
   }
-  
+
   .col-points {
     width: 30%;
   }
-  
+
   .col-time {
     width: 25%;
   }
-  
+
   .points-badge {
     padding: 0.3rem 0.6rem;
     font-size: 0.8rem;
     min-width: 50px;
   }
-  
+
   .time-text {
     font-size: 0.75rem;
   }
@@ -252,11 +256,11 @@
     font-size: 0.75rem;
     padding: 0.6rem 0.4rem;
   }
-  
+
   .point-history-table td {
     padding: 0.6rem 0.4rem;
   }
-  
+
   .action-text {
     font-size: 0.8rem;
   }

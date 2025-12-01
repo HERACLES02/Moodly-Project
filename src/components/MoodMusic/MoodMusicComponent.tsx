@@ -1,9 +1,11 @@
-'use client'
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import './MoodMusic.css'
+"use client"
+import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
+import "./MoodMusic.css"
+import { Spinner } from "../ui/spinner"
+import { Play } from "lucide-react"
 
-interface Track {
+export interface Track {
   id: string
   name: string
   artist: string
@@ -15,116 +17,96 @@ interface Track {
 
 interface MoodMusicProps {
   mood: string
-  onSongClick: (songId: String) => void
+  tracks: Track[]
+  onSongClick?: (songId: String) => void
+  loading: boolean
 }
 
-export default function MoodMusic({ mood, onSongClick }: MoodMusicProps) {
-  const [tracks, setTracks] = useState<Track[]>([])
-  const [loading, setLoading] = useState(true)
+export default function MoodMusic({
+  tracks,
+  mood,
+  onSongClick,
+  loading,
+}: MoodMusicProps) {
+  // const [tracks, setTracks] = useState<Track[]>([])
+
   const [error, setError] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!mood) return
-    fetchMusic()
-  }, [mood])
-
-  const fetchMusic = async () => {
-    setLoading(true)
-    setError(null)
-
+  const trackInteraction = async (track: Track) => {
     try {
-      const normalizedMood = mood.toLowerCase()
-      const response = await fetch(`/api/recommendations/songs?mood=${normalizedMood}`)
-
-      if (!response.ok) throw new Error(`Failed to fetch music: ${response.status}`)
-
-      const data = await response.json()
-      setTracks(data.tracks || [])
+      await fetch("/api/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "song",
+          itemId: track.id,
+          itemName: track.name,
+          mood: mood,
+        }),
+      })
     } catch (err) {
-      console.error('Error fetching music:', err)
-      setError('Failed to load music recommendations')
-    } finally {
-      setLoading(false)
+      console.error("Error tracking interaction:", err)
     }
   }
 
-    const trackInteraction = async (track: Track) => {
-      try {
-        await fetch('/api/interactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'song',
-            itemId: track.id,
-            itemName: track.name,
-            mood: mood
-          })
-        })
-      console.log("Movie click tracked in Database")
-
-      } catch (err) {
-        console.error('Error tracking interaction:', err)
-      }
-    }
-
   const handleTrackClick = async (track: Track) => {
-    console.log(`Song clicked: "${track.name}" by ${track.artist} for mood: ${mood}`)
-    console.log('Track details:', {
-      id: track.id,
-      name: track.name,
-      artist: track.artist,
-      album: track.album,
-      mood,
-      spotifyUrl: track.external_url
-    })
     await trackInteraction(track)
     onSongClick(track.id)
   }
 
-  if (loading)
+  if (error) {
     return (
       <div className="mood-music-container">
-        <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
-        <div className="mood-music-loading">Loading music...</div>
+        <div className="carousel-box">
+          <div className="carousel-error">{error}</div>
+          <span className="carousel-label">Songs</span>
+        </div>
       </div>
     )
-
-  if (error)
-    return (
-      <div className="mood-music-container">
-        <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
-        <div className="mood-music-error">{error}</div>
-      </div>
-    )
+  }
 
   return (
     <div className="mood-music-container">
-      <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
-      <div className="mood-music-grid">
-        {tracks.map((track) => (
-          <div key={track.id} className="mood-music-card" onClick={() => handleTrackClick(track)}>
-            <div className="mood-music-album-wrapper">
-              <Image
-                src={track.albumArt || '/images/music-placeholder.jpg'}
-                alt={`${track.album} cover`}
-                width={200}
-                height={200}
-                className="mood-music-album-art"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = '/images/music-placeholder.jpg'
-                }}
-              />
-              <div className="mood-music-play-overlay">
-                <div className="mood-music-play-button">▶</div>
+      <div className="carousel-box theme-card">
+        {/* Scrollable Track */}
+        <div className="carousel-track" ref={scrollRef}>
+          {tracks.map((track) => (
+            <div
+              key={track.id}
+              className="carousel-item"
+              onClick={() => handleTrackClick(track)}
+            >
+              <div className="item-card circle">
+                {!loading ? (
+                  <Image
+                    src={track.albumArt || "/images/music-placeholder.jpg"}
+                    alt={`${track.album} cover`}
+                    width={210} // Match largest size
+                    height={210} // Square
+                    className="item-image"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = "/images/music-placeholder.jpg"
+                    }}
+                  />
+                ) : (
+                  <div className="w-full" />
+                )}
+
+                <div className="item-play-overlay">
+                  <Play color="white" />
+                </div>
               </div>
             </div>
-            <div className="mood-music-info">
-              <p className="mood-music-track-name">{track.name}</p>
-              <p className="mood-music-artist">{track.artist}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* End Fade - Diagonal Triangle */}
+        <div className="carousel-fade-end"></div>
+
+        {/* Label */}
+        <span className="carousel-label theme-text-highlight">Songs</span>
       </div>
     </div>
   )

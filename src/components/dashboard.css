@@ -1,0 +1,428 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MAGAZINE LAYOUT - Dashboard Styles
+   Uses CSS variables from globals.css for theming
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Main Layout Container */
+.magazine-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   HEADER - Search Bar
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-header {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.magazine-search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.magazine-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent), 0.1);
+}
+
+.magazine-search-icon {
+  color: var(--secondary);
+  flex-shrink: 0;
+}
+
+.magazine-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.magazine-search-input::placeholder {
+  color: var(--secondary);
+  filter: saturate(1.2);
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   HERO SECTION - 12 Column Grid
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.magazine-hero {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Left Column - Toggle Area */
+.magazine-hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.magazine-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+.magazine-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.magazine-title {
+  font-size: 3.5rem;
+
+  line-height: 1.1;
+  transition: all 0.5s ease;
+  margin: 0;
+}
+
+.magazine-title.active {
+  font-weight: 500;
+
+  color: var(--foreground);
+}
+
+.magazine-title.inactive {
+  font-weight: 300;
+
+  color: var(--muted);
+  opacity: 0.3;
+}
+
+.magazine-indicators {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.indicator {
+  width: 2rem;
+  height: 0.25rem;
+  border-radius: 2px;
+  background: var(--secondary);
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: var(--accent);
+  opacity: 1;
+}
+
+.magazine-description {
+  font-size: 0.9rem;
+  color: var(--secondary);
+  line-height: 1.6;
+  margin-top: 2rem;
+  max-width: 280px;
+}
+
+/* Right Column - Featured Card */
+.magazine-hero-right {
+  display: flex;
+  align-items: stretch;
+}
+
+.magazine-featured {
+  flex: 1;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  transition: all 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.magazine-featured.movies {
+  min-height: 280px;
+}
+
+.magazine-featured.songs {
+  min-height: 200px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   CONTENT ROWS
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Override existing MoodMovies/MoodMusic container styles for magazine layout */
+.magazine-rows .mood-movies-container,
+.magazine-rows .mood-music-container {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+.magazine-rows .mood-movies-title,
+.magazine-rows .mood-music-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--secondary);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.magazine-rows .mood-movies-grid,
+.magazine-rows .mood-music-grid {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  max-width: 100%;
+}
+
+.magazine-rows .mood-movie-card,
+.magazine-rows .mood-music-card {
+  flex-shrink: 0;
+  width: 140px;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  transition: all 0.3s ease;
+}
+
+.magazine-rows .mood-movie-card:hover,
+.magazine-rows .mood-music-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   SOCIAL SECTION
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-social {
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--secondary);
+}
+
+.social-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background: var(--primary);
+  border: 1px solid var(--secondary);
+  border-radius: 1rem;
+}
+
+.social-label {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.social-button {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  width: max-content;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   COMING SOON STATE
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-coming-soon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 2rem;
+}
+
+.coming-soon-title {
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-text {
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.coming-soon-highlight {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   RESPONSIVE DESIGN
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .magazine-hero {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .magazine-hero-left {
+    order: 1;
+  }
+
+  .magazine-hero-right {
+    order: 2;
+  }
+
+  .magazine-title {
+    font-size: 2.5rem;
+  }
+
+  .magazine-description {
+    max-width: 100%;
+  }
+
+  .magazine-featured {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .magazine-layout {
+    padding: 0 1rem 1.5rem;
+  }
+
+  .magazine-header {
+    padding: 1.5rem 0;
+  }
+
+  .magazine-search {
+    max-width: 100%;
+  }
+
+  .magazine-title {
+    font-size: 2rem;
+  }
+
+  .social-card {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .magazine-rows .mood-movie-card,
+  .magazine-rows .mood-music-card {
+    width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .magazine-title {
+    font-size: 1.75rem;
+  }
+
+  .magazine-featured {
+    min-height: 140px;
+    padding: 1rem;
+  }
+
+  .magazine-rows .mood-movie-card,
+  .magazine-rows .mood-music-card {
+    width: 100px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   SCROLLBAR STYLING
+   ───────────────────────────────────────────────────────────────────── */
+.magazine-rows .mood-movies-grid::-webkit-scrollbar,
+.magazine-rows .mood-music-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.magazine-rows .mood-movies-grid::-webkit-scrollbar-track,
+.magazine-rows .mood-music-grid::-webkit-scrollbar-track {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.magazine-rows .mood-movies-grid::-webkit-scrollbar-thumb,
+.magazine-rows .mood-music-grid::-webkit-scrollbar-thumb {
+  background: var(--secondary);
+  border-radius: 3px;
+}
+
+.magazine-rows .mood-movies-grid::-webkit-scrollbar-thumb:hover,
+.magazine-rows .mood-music-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   THEME-SPECIFIC OVERRIDES
+   These work with your existing theme classes from globals.css
+   ───────────────────────────────────────────────────────────────────── */
+
+/* Happy Theme Enhancements */
+.happy .magazine-featured {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.happy .magazine-title.active {
+  color: var(--accent);
+}
+
+/* Sad Theme Enhancements */
+.sad .magazine-featured {
+  background: rgba(139, 149, 209, 0.15);
+  backdrop-filter: blur(16px);
+}
+
+.sad .magazine-title.active {
+  color: var(--foreground);
+}
+
+/* Van Gogh Theme Enhancements */
+.vangogh .magazine-featured {
+  background: var(--componentbg);
+  backdrop-filter: blur(20px);
+}
+
+/* Cat Theme Enhancements */
+.cat .magazine-featured {
+  background: var(--componentbg);
+}
+
+.cat .magazine-title.active {
+  color: var(--foreground);
+}
