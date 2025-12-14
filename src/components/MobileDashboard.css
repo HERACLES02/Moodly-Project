@@ -1,0 +1,391 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE DASHBOARD STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mobile-dashboard {
+  min-height: 100vh;
+  padding-bottom: 80px; /* Space for bottom nav */
+  position: relative;
+  /* Keep the existing background from globals.css */
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   TOP NAVBAR - Smaller and more compact
+   ───────────────────────────────────────────────────────────────────── */
+.mobile-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--primary);
+  border-bottom: 1px solid var(--secondary);
+  backdrop-filter: blur(20px);
+}
+
+.mobile-logo {
+  position: relative;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px; /* Fixed width container */
+  height: 30px; /* Fixed height container */
+  overflow: hidden; /* Hide the extra transparent parts */
+}
+
+.mobile-logo-img {
+  width: 350; /* Make image wider than container */
+  height: auto;
+  object-fit: cover; /* This crops the image */
+  object-position: center; /* Centers the logo part */
+}
+
+/* Points display similar to template */
+.mobile-points {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+}
+
+.mobile-points-value {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.mobile-points-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   HERO SECTION - Fixed height, cropped at 45% of screen
+   ───────────────────────────────────────────────────────────────────── */
+.mobile-hero {
+  position: relative;
+  height: 45vh; /* Fixed at 45% of viewport height */
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.mobile-hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.mobile-hero-image {
+  object-position: center 20%;
+}
+
+/* ADJUSTABLE TINT - Change the opacity values to adjust tint strength */
+.mobile-hero-overlay {
+  position: absolute;
+  inset: 0;
+  /* Default: 30% tint with background color */
+  background: linear-gradient(
+    to right,
+    var(--background) 0%,
+    rgba(0, 0, 0, 0.7) 30%,
+    rgba(0, 0, 0, 0.3) 70%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* Theme-specific overlays using background images from globals.css */
+.happy .mobile-hero-overlay {
+  background:
+    linear-gradient(
+      to right,
+      rgba(213, 192, 239, 0.7) 0%,
+      rgba(213, 192, 239, 0.5) 30%,
+      rgba(213, 192, 239, 0.3) 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(213, 192, 239, 0.3) 0%,
+      rgba(189, 174, 211, 0.3) 25%,
+      rgba(184, 212, 237, 0.3) 50%,
+      rgba(241, 214, 248, 0.3) 75%,
+      rgba(135, 204, 234, 0.3) 100%
+    );
+}
+
+.sad .mobile-hero-overlay {
+  background:
+    linear-gradient(
+      to right,
+      rgba(74, 74, 122, 0.8) 0%,
+      rgba(90, 90, 138, 0.6) 30%,
+      rgba(106, 90, 205, 0.3) 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(74, 74, 122, 0.3) 0%,
+      rgba(90, 90, 138, 0.3) 30%,
+      rgba(106, 90, 205, 0.3) 60%,
+      rgba(72, 61, 139, 0.3) 80%,
+      rgba(47, 47, 95, 0.3) 100%
+    );
+}
+
+.vangogh .mobile-hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(45, 27, 61, 0.8) 0%,
+    rgba(61, 35, 82, 0.6) 30%,
+    rgba(75, 45, 95, 0.3) 70%,
+    transparent 100%
+  );
+}
+
+.cat .mobile-hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(248, 187, 217, 0.7) 0%,
+    rgba(225, 190, 231, 0.5) 30%,
+    rgba(212, 165, 216, 0.3) 70%,
+    transparent 100%
+  );
+}
+
+.mobile-hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem;
+}
+
+.mobile-hero-text {
+  margin-top: auto;
+}
+
+.mobile-hero-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.mobile-hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--foreground);
+  margin: 0.5rem 0;
+  cursor: pointer;
+  user-select: none;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-hero-subtitle {
+  font-size: 0.875rem;
+  color: var(--foreground);
+  line-height: 1.4;
+  max-width: 280px;
+  margin-top: 0.5rem;
+  opacity: 0.9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-watch-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem;
+  background: var(--accent);
+  color: var(--primary);
+  border: none;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-top: 1rem;
+}
+
+.mobile-watch-button:active {
+  transform: scale(0.95);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   RECOMMENDATION SECTIONS - Uses background from globals.css
+   ───────────────────────────────────────────────────────────────────── */
+.mobile-recommendations {
+  padding: 1.5rem 0;
+  /* Background automatically inherits from body/globals.css */
+}
+
+.mobile-rec-section {
+  margin-bottom: 2rem;
+}
+
+.mobile-rec-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+  padding: 0 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.mobile-rec-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0 1.5rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mobile-rec-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-rec-card {
+  flex-shrink: 0;
+  width: 130px;
+  cursor: pointer;
+}
+
+.mobile-rec-card-image {
+  position: relative;
+  width: 130px;
+  height: 190px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--secondary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.mobile-rec-card:active .mobile-rec-card-image {
+  transform: scale(0.95);
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   BOTTOM NAVIGATION - Centered elements
+   ───────────────────────────────────────────────────────────────────── */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem 1.5rem 1rem;
+  background: var(--primary);
+  border-top: 1px solid var(--secondary);
+  backdrop-filter: blur(20px);
+}
+
+.mobile-nav-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+  min-width: 60px;
+}
+
+.mobile-nav-button:active {
+  opacity: 1;
+  transform: scale(0.95);
+}
+
+.mobile-nav-button-primary {
+  background: var(--accent);
+  color: var(--primary);
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  margin-top: -28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+  min-width: auto;
+  flex-direction: row;
+}
+
+.mobile-nav-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   PROFILE OVERLAY
+   ───────────────────────────────────────────────────────────────────── */
+.mobile-profile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: flex-end;
+}
+
+.mobile-profile-container {
+  width: 100%;
+  background: var(--primary);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  padding: 1.5rem;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   HOW TO ADJUST TINT STRENGTH
+   ───────────────────────────────────────────────────────────────────── */
+/*
+  To adjust the tint strength on the hero background:
+  
+  1. Find the .mobile-hero-overlay class above
+  2. Change the opacity values in the gradient:
+     - First value (0.7) = tint strength at left edge
+     - Second value (0.5) = tint strength at 30% from left
+     - Third value (0.3) = tint strength at 70% from left
+     - Last value = transparent at right edge
+  
+  Examples:
+  - Stronger tint (50%): Change to 0.9, 0.7, 0.5
+  - Lighter tint (15%): Change to 0.5, 0.3, 0.15
+  - Very light tint (10%): Change to 0.3, 0.2, 0.1
+  
+  You can also adjust individual theme overlays (happy, sad, vangogh, cat)
+  by changing their rgba values in their respective classes above.
+*/

@@ -15,6 +15,9 @@ import { fetchRecommendations } from "@/lib/fetchRecommendations"
 import { Ring2 } from "ldrs/react"
 import "ldrs/react/Ring2.css"
 
+// Import the new mobile component
+import MobileDashboard from "@/components/MobileDashboard/MobileDashboard"
+
 const movieCache = new Map<string, Movie[]>()
 const songCache = new Map<string, Track[]>()
 
@@ -36,6 +39,9 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
   const [moviesState, setMoviesState] = useState<Movie[]>(movies)
   const [songState, setSongState] = useState<Track[]>(songs)
 
+  // Add mobile detection
+  const [isMobile, setIsMobile] = useState(false)
+
   useEffect(() => {
     async function refetchUserInfo(moodName: string) {
       try {
@@ -52,7 +58,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
     if (user?.mood) {
       setLoading(true)
-
       setCurrentMood(user.mood)
       refetchUserInfo(user.mood)
 
@@ -66,6 +71,16 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
   useEffect(() => {
     setIsMounted(true)
+
+    // Check if mobile on mount
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
   const handleAutoSignOut = async () => {
@@ -105,6 +120,29 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
   if (!isMounted) return null
 
+  // Render mobile layout for screens < 768px
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile doesn't need the full navbar - it has bottom nav */}
+        <div className="mobile-top-bar">
+          <div
+            className="mobile-logo"
+            onClick={() => router.push("/dashboard")}
+          >
+            <img
+              src="/images/moodly-logo.gif"
+              alt="Moodly"
+              style={{ height: "40px", width: "auto" }}
+            />
+          </div>
+        </div>
+        <MobileDashboard movies={moviesState} songs={songState} />
+      </>
+    )
+  }
+
+  // Desktop layout (your existing code)
   return (
     <div className="min-h-screen">
       {!normalizedMood ? (
@@ -114,7 +152,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
           <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
           <main className="magazine-layout">
-            {/* Top Bar */}
             <header className="magazine-header">
               <div className="magazine-search">
                 <Search className="magazine-search-icon" size={16} />
@@ -130,9 +167,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
             {showRecommendations ? (
               <div className="magazine-content">
-                {/* Hero Section - 12 column grid */}
                 <section className="magazine-hero">
-                  {/* Left Column - Typography Toggle */}
                   <div className="magazine-hero-left">
                     <div
                       className="magazine-toggle"
@@ -170,7 +205,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                     </p>
                   </div>
 
-                  {/* Right Column - Featured Card */}
                   <div className="magazine-hero-right">
                     <div className={`magazine-featured ${activeTab}`}>
                       <button
@@ -191,39 +225,23 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                   </div>
                 </section>
 
-                {/* Content Rows */}
-                {true ? (
-                  <section className="magazine-rows">
-                    {activeTab === "movies" ? (
-                      <MoodMovies
-                        movies={moviesState}
-                        mood={normalizedMood!}
-                        onMovieClick={handleMovieClick}
-                        loading={loading}
-                      />
-                    ) : (
-                      <MoodMusic
-                        tracks={songState}
-                        mood={normalizedMood!}
-                        onSongClick={handleSongClick}
-                        loading={loading}
-                      />
-                    )}
-                  </section>
-                ) : (
-                  <div className="w-screen flex items-center bg-red-600">
-                    <Ring2
-                      size="40"
-                      stroke="5"
-                      strokeLength="0.25"
-                      bgOpacity="0.1"
-                      speed="0.8"
-                      color="black"
-                    />{" "}
-                  </div>
-                )}
-
-                {/* Social Section */}
+                <section className="magazine-rows">
+                  {activeTab === "movies" ? (
+                    <MoodMovies
+                      movies={moviesState}
+                      mood={normalizedMood!}
+                      onMovieClick={handleMovieClick}
+                      loading={loading}
+                    />
+                  ) : (
+                    <MoodMusic
+                      tracks={songState}
+                      mood={normalizedMood!}
+                      onSongClick={handleSongClick}
+                      loading={loading}
+                    />
+                  )}
+                </section>
               </div>
             ) : (
               <div className="magazine-coming-soon">
