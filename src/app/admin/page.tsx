@@ -145,7 +145,7 @@ export default function AdminPage() {
  
   return (
     <>
-    <NavbarComponent/>
+    {/* <NavbarComponent/> */}
     <div className="admin-container">
       <div className="admin-header">
         <h1 className="admin-title">Admin Panel</h1>

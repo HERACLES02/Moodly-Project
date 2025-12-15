@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { UserProvider } from "@/contexts/UserContext" // ← ADD THIS IMPORT
+import NavbarComponent from "@/components/NavbarComponent"
+
+import { auth } from "@/auth"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +22,15 @@ export const metadata: Metadata = {
   description: "Mood based media hub",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth() // ✅ server-side session
+
+  const isLoggedIn = !!session?.user
+
   return (
     <html lang="en" className="vangogh" suppressHydrationWarning>
       <body
@@ -39,6 +46,8 @@ export default function RootLayout({
             defaultTheme=""
             themes={["vangogh", "cat", "default", "happy", "sad", "test"]}
           >
+            {" "}
+            {isLoggedIn && <NavbarComponent />}
             {children}
           </ThemeProvider>
         </UserProvider>{" "}

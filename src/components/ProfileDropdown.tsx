@@ -28,7 +28,7 @@ export default function ProfileDropdown({
 
   const handleLogout = async () => {
     await signOut({ redirect: false })
-
+    router.refresh()
     router.push("/login")
   }
 

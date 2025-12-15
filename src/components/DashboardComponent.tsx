@@ -149,8 +149,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
         <div></div>
       ) : (
         <div className="min-h-screen flex flex-col">
-          <NavbarComponent onSelectMoodClick={handleMoodSelected} />
-
           <main className="magazine-layout">
             <header className="magazine-header">
               <div className="magazine-search">
