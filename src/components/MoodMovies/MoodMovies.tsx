@@ -213,7 +213,6 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     })
   }
 
-  // -------- Fetch movies when mood OR query changes --------
   useEffect(() => {
     if (!mood) return
     fetchMovies(!!query ? 'search' : 'default')
