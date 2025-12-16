@@ -12,11 +12,6 @@ import { Search } from "lucide-react"
 import "./dashboard.css"
 import { setUserMood } from "@/lib/userMood"
 import { fetchRecommendations } from "@/lib/fetchRecommendations"
-import { Ring2 } from "ldrs/react"
-import "ldrs/react/Ring2.css"
-
-const movieCache = new Map<string, Movie[]>()
-const songCache = new Map<string, Track[]>()
 
 interface DashboardProps {
   movies: Movie[]
@@ -94,7 +89,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
     router.push(`/movie/watch/${movieId}`)
   }
 
-  const handleSongClick = (songId: number) => {
+  const handleSongClick = (songId: string) => {
     router.push(`/song/listen/${songId}`)
   }
 
@@ -114,7 +109,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
           <NavbarComponent onSelectMoodClick={handleMoodSelected} />
 
           <main className="magazine-layout">
-            {/* Top Bar */}
+            {/* Top Bar - ORIGINAL DESIGN */}
             <header className="magazine-header">
               <div className="magazine-search">
                 <Search className="magazine-search-icon" size={16} />
@@ -130,7 +125,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
             {showRecommendations ? (
               <div className="magazine-content">
-                {/* Hero Section - 12 column grid */}
+                {/* Hero Section - ORIGINAL 12 column grid */}
                 <section className="magazine-hero">
                   {/* Left Column - Typography Toggle */}
                   <div className="magazine-hero-left">
@@ -191,39 +186,28 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                   </div>
                 </section>
 
-                {/* Content Rows */}
-                {true ? (
-                  <section className="magazine-rows">
-                    {activeTab === "movies" ? (
-                      <MoodMovies
-                        movies={moviesState}
-                        mood={normalizedMood!}
-                        onMovieClick={handleMovieClick}
-                        loading={loading}
-                      />
-                    ) : (
-                      <MoodMusic
-                        tracks={songState}
-                        mood={normalizedMood!}
-                        onSongClick={handleSongClick}
-                        loading={loading}
-                      />
-                    )}
-                  </section>
-                ) : (
-                  <div className="w-screen flex items-center bg-red-600">
-                    <Ring2
-                      size="40"
-                      stroke="5"
-                      strokeLength="0.25"
-                      bgOpacity="0.1"
-                      speed="0.8"
-                      color="black"
-                    />{" "}
-                  </div>
-                )}
+                {/* Content Rows - AI SEARCH INTEGRATED HERE */}
+                <section className="magazine-rows">
+                  {activeTab === "movies" ? (
+                    <MoodMovies
+                      movies={moviesState}
+                      mood={normalizedMood!}
+                      onMovieClick={handleMovieClick}
+                      loading={loading}
+                      query={searchQuery}
+                    />
+                  ) : (
+                    <MoodMusic
+                      tracks={songState}
+                      mood={normalizedMood!}
+                      onSongClick={handleSongClick}
+                      loading={loading}
+                      query={searchQuery}
+                    />
+                  )}
+                </section>
 
-                {/* Social Section */}
+                {/* Social Section - ORIGINAL */}
               </div>
             ) : (
               <div className="magazine-coming-soon">

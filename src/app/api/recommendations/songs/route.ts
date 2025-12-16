@@ -1,7 +1,6 @@
-// src/app/api/recommendations/songs/route.ts
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
 
-export const runtime = 'nodejs' // ensure Buffer is available
+export const runtime = "nodejs" // ensure Buffer is available
 
 type MoodProfile = {
   /** Keywords used when NO q (default mood picks) */
@@ -13,89 +12,116 @@ type MoodProfile = {
 const MOOD_PROFILES: Record<string, MoodProfile> = {
   happy: {
     defaultKeywords: [
-      'happy upbeat positive',
-      'feel good pop',
-      'good vibes only',
-      'dance pop uplifting',
-      'sunny day anthem',
+      "happy upbeat positive",
+      "feel good pop",
+      "good vibes only",
+      "dance pop uplifting",
+      "sunny day anthem",
     ],
-    searchAnchors: ['happy', 'upbeat', 'feel good', 'dance pop', 'positive'],
+    searchAnchors: ["happy", "upbeat", "feel good", "dance pop", "positive"],
   },
   sad: {
     // default is UPLIFTING (as requested earlier)
     defaultKeywords: [
-      'motivational pop',
-      'hopeful acoustic',
-      'inspirational ballad',
-      'soulful uplifting',
-      'rise up',
+      "motivational pop",
+      "hopeful acoustic",
+      "inspirational ballad",
+      "soulful uplifting",
+      "rise up",
     ],
     // when searching, keep it truly sad/emotional
-    searchAnchors: ['sad', 'melancholy', 'heartbreak', 'emotional', 'lonely', 'blue'],
+    searchAnchors: [
+      "sad",
+      "melancholy",
+      "heartbreak",
+      "emotional",
+      "lonely",
+      "blue",
+    ],
   },
   anxious: {
     defaultKeywords: [
-      'calm lofi beats',
-      'soothing acoustic',
-      'relaxing background',
-      'chill ambient',
-      'peaceful instrumental',
+      "calm lofi beats",
+      "soothing acoustic",
+      "relaxing background",
+      "chill ambient",
+      "peaceful instrumental",
     ],
-    searchAnchors: ['calm', 'soothing', 'relax', 'chill', 'lofi', 'ambient', 'peaceful'],
+    searchAnchors: [
+      "calm",
+      "soothing",
+      "relax",
+      "chill",
+      "lofi",
+      "ambient",
+      "peaceful",
+    ],
   },
   calm: {
     defaultKeywords: [
-      'peaceful acoustic',
-      'soft relaxing instrumental',
-      'gentle piano',
-      'quiet evening',
-      'calming playlist',
+      "peaceful acoustic",
+      "soft relaxing instrumental",
+      "gentle piano",
+      "quiet evening",
+      "calming playlist",
     ],
-    searchAnchors: ['peaceful', 'soft', 'relaxing', 'gentle', 'piano', 'acoustic'],
+    searchAnchors: [
+      "peaceful",
+      "soft",
+      "relaxing",
+      "gentle",
+      "piano",
+      "acoustic",
+    ],
   },
   energetic: {
     defaultKeywords: [
-      'workout pump up',
-      'high energy edm',
-      'party anthems',
-      'hype tracks',
-      'adrenaline rush',
+      "workout pump up",
+      "high energy edm",
+      "party anthems",
+      "hype tracks",
+      "adrenaline rush",
     ],
-    searchAnchors: ['high energy', 'workout', 'edm', 'hype', 'party', 'banger'],
+    searchAnchors: ["high energy", "workout", "edm", "hype", "party", "banger"],
   },
   excited: {
     defaultKeywords: [
-      'upbeat party',
-      'festival vibes',
-      'dance pop hits',
-      'feel great anthems',
-      'celebration songs',
+      "upbeat party",
+      "festival vibes",
+      "dance pop hits",
+      "feel great anthems",
+      "celebration songs",
     ],
-    searchAnchors: ['upbeat', 'party', 'festival', 'dance', 'anthem'],
+    searchAnchors: ["upbeat", "party", "festival", "dance", "anthem"],
   },
   tired: {
     defaultKeywords: [
-      'sleepy chill',
-      'wind down acoustic',
-      'late night lofi',
-      'soft cozy tunes',
-      'gentle unwind',
+      "sleepy chill",
+      "wind down acoustic",
+      "late night lofi",
+      "soft cozy tunes",
+      "gentle unwind",
     ],
-    searchAnchors: ['sleep', 'wind down', 'lofi', 'gentle', 'cozy', 'soft'],
+    searchAnchors: ["sleep", "wind down", "lofi", "gentle", "cozy", "soft"],
   },
   grateful: {
     defaultKeywords: [
-      'heartfelt warm',
-      'thankful songs',
-      'uplifting heartfelt',
-      'soulful gratitude',
-      'warm indie folk',
+      "heartfelt warm",
+      "thankful songs",
+      "uplifting heartfelt",
+      "soulful gratitude",
+      "warm indie folk",
     ],
-    searchAnchors: ['heartfelt', 'warm', 'thankful', 'gratitude', 'uplifting', 'soulful'],
+    searchAnchors: [
+      "heartfelt",
+      "warm",
+      "thankful",
+      "gratitude",
+      "uplifting",
+      "soulful",
+    ],
   },
 }
-
-// ─────────────────────────────────────────────────────────────
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -109,24 +135,25 @@ function shuffle<T>(arr: T[]): T[] {
 async function getSpotifyToken() {
   const clientId = process.env.SPOTIFY_CLIENT_ID
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
-  if (!clientId || !clientSecret) throw new Error('Spotify credentials not configured')
+  if (!clientId || !clientSecret)
+    throw new Error("Spotify credentials not configured")
 
   const basicAuth =
-    typeof Buffer !== 'undefined'
-      ? 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+    typeof Buffer !== "undefined"
+      ? "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
       : // @ts-ignore Edge fallback
-        'Basic ' + btoa(`${clientId}:${clientSecret}`)
+        "Basic " + btoa(`${clientId}:${clientSecret}`)
 
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
+  const res = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
       Authorization: basicAuth,
     },
-    body: 'grant_type=client_credentials',
+    body: "grant_type=client_credentials",
   })
   if (!res.ok) {
-    const body = await res.text().catch(() => '')
+    const body = await res.text().catch(() => "")
     throw new Error(`Token error ${res.status}: ${body}`)
   }
   const data = await res.json()
@@ -142,9 +169,12 @@ function buildQuery(mood: string, qRaw: string | null) {
   const profile = MOOD_PROFILES[mood]
   if (!profile) return null
 
-  const q = (qRaw || '').trim()
+  const q = (qRaw || "").trim()
   if (!q) {
-    const kw = profile.defaultKeywords[Math.floor(Math.random() * profile.defaultKeywords.length)]
+    const kw =
+      profile.defaultKeywords[
+        Math.floor(Math.random() * profile.defaultKeywords.length)
+      ]
     return kw
   }
 
@@ -152,7 +182,7 @@ function buildQuery(mood: string, qRaw: string | null) {
     .map((a) => a.trim())
     .filter(Boolean)
     .map((a) => `"${a}"`) // quote multi-word anchors
-  const anchorExpr = anchors.length ? `(${anchors.join(' OR ')})` : ''
+  const anchorExpr = anchors.length ? `(${anchors.join(" OR ")})` : ""
   // Bias the search toward the mood anchors while keeping the user's words
   return anchorExpr ? `${q} ${anchorExpr}` : q
 }
@@ -160,20 +190,24 @@ function buildQuery(mood: string, qRaw: string | null) {
 /** Fetch 1 or 2 pages of Spotify search results */
 async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   const LIMIT = 50
-  const offsets = Array.from({ length: pages }, () => Math.floor(Math.random() * 100))
+  const offsets = Array.from({ length: pages }, () =>
+    Math.floor(Math.random() * 100),
+  )
 
   const results = await Promise.all(
     offsets.map(async (offset) => {
       const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=${LIMIT}&offset=${offset}`
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-      const text = await res.text().catch(() => '')
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const text = await res.text().catch(() => "")
       if (!res.ok) throw new Error(`Spotify /search ${res.status}: ${text}`)
       try {
         return JSON.parse(text)
       } catch {
         return { tracks: { items: [] } }
       }
-    })
+    }),
   )
 
   const items = results.flatMap((r: any) => r?.tracks?.items || [])
@@ -189,18 +223,16 @@ async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   return deduped
 }
 
-// ─────────────────────────────────────────────────────────────
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const mood = (searchParams.get('mood') || '').toLowerCase().trim()
-    const q = (searchParams.get('q') || '').trim()
+    const mood = (searchParams.get("mood") || "").toLowerCase().trim()
+    const q = (searchParams.get("q") || "").trim()
 
     if (!mood || !MOOD_PROFILES[mood]) {
       return NextResponse.json(
-        { error: 'Invalid or unsupported mood', detail: { mood } },
-        { status: 400 }
+        { error: "Invalid or unsupported mood", detail: { mood } },
+        { status: 400 },
       )
     }
 
@@ -210,12 +242,12 @@ export async function GET(request: Request) {
     const query = buildQuery(mood, q)
     if (!query) {
       return NextResponse.json(
-        { error: 'Failed to build search query', detail: { mood, q } },
-        { status: 400 }
+        { error: "Failed to build search query", detail: { mood, q } },
+        { status: 400 },
       )
     }
 
-    // More candidates when searching; your client can re-rank & slice to 4
+    // More candidates when searching; client can re-rank & slice to 4
     const pages = q ? 2 : 1
     const items = await searchSpotifyTracks(token, query, pages)
 
@@ -223,16 +255,23 @@ export async function GET(request: Request) {
     const mapped = items.map((t: any) => ({
       id: t.id,
       name: t.name,
-      artist: (t.artists || []).map((a: any) => a?.name).filter(Boolean).join(', '),
-      album: t.album?.name || '',
-      albumArt: t.album?.images?.[0]?.url || '/images/music-placeholder.jpg',
+      artist: (t.artists || [])
+        .map((a: any) => a?.name)
+        .filter(Boolean)
+        .join(", "),
+      album: t.album?.name || "",
+      albumArt: t.album?.images?.[0]?.url || "/images/music-placeholder.jpg",
       preview_url: t.preview_url || null,
-      external_url: t.external_urls?.spotify || '',
+      external_url: t.external_urls?.spotify || "",
     }))
 
     // Final pool size for client re-ranker
     const OUT = q ? 40 : 24
     const tracks = shuffle(mapped).slice(0, OUT)
+
+    console.log(
+      `Got ${tracks.length} tracks for mood: ${mood}, query: ${q || "none"}`,
+    )
 
     return NextResponse.json({
       mood,
@@ -242,119 +281,12 @@ export async function GET(request: Request) {
       message: `Found ${tracks.length} tracks for mood "${mood}"`,
     })
   } catch (err: any) {
-    return NextResponse.json(
-      { error: 'Failed to fetch music recommendations', detail: err?.message || String(err) },
-      { status: 500 }
-    )
-  }
-}
-import { NextResponse } from "next/server"
-
-const moodToSearchParams: Record<string, any> = {
-  happy: {
-    genres: ["pop", "dance", "happy"],
-    audioFeatures: { min_valence: 0.6, min_energy: 0.6, target_tempo: 120 },
-    searchKeywords: ["happy upbeat positive", "feel good vibes", "energetic"],
-  },
-  sad: {
-    genres: ["acoustic", "sad", "blues", "heartbreak lonely"],
-    audioFeatures: { max_valence: 0.4, max_energy: 0.5, target_tempo: 80 },
-    searchKeywords: "sad melancholy emotional",
-  },
-}
-
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
-
-async function getSpotifyToken() {
-  const clientId = process.env.SPOTIFY_CLIENT_ID
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
-
-  if (!clientId || !clientSecret) {
-    throw new Error("Spotify credentials not configured")
-  }
-
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization:
-        "Basic " +
-        Buffer.from(clientId + ":" + clientSecret).toString("base64"),
-    },
-    body: "grant_type=client_credentials",
-  })
-
-  if (!response.ok) throw new Error("Failed to get Spotify token")
-  const data = await response.json()
-  return data.access_token
-}
-
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const moodRaw = searchParams.get("mood") || ""
-    const mood = moodRaw.toLowerCase()
-
-    if (!mood || !moodToSearchParams[mood]) {
-      return NextResponse.json(
-        { error: "Invalid or unsupported mood" },
-        { status: 400 },
-      )
-    }
-
-    const moodParams = moodToSearchParams[mood]
-    const accessToken = await getSpotifyToken()
-
-    const randomKeyword =
-      moodParams.searchKeywords[
-        Math.floor(Math.random() * moodParams.searchKeywords.length)
-      ]
-
-    const ramdomOffset = Math.floor(Math.random() * 100)
-
-    const searchResponse = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(randomKeyword)}&type=track&limit=50&offset=${ramdomOffset}`,
-      { headers: { Authorization: `Bearer ${accessToken}` } },
-    )
-
-    if (!searchResponse.ok) throw new Error("Failed to search Spotify tracks")
-
-    const searchData = await searchResponse.json()
-
-    const validTracks = searchData.tracks.items.filter(
-      (t: any) => t.album.images.length > 0,
-    )
-    const shuffledTracks = shuffleArray(validTracks)
-
-    const tracks = shuffledTracks
-      .filter((t: any) => t.album.images.length > 0)
-      .slice(0, 30)
-      .map((t: any) => ({
-        id: t.id,
-        name: t.name,
-        artist: t.artists.map((a: any) => a.name).join(", "),
-        album: t.album.name,
-        albumArt: t.album.images[0]?.url || "/images/music-placeholder.jpg",
-        preview_url: t.preview_url,
-        external_url: t.external_urls.spotify,
-      }))
-
-    return NextResponse.json({
-      mood,
-      tracks,
-      message: `Found ${tracks.length} music recommendations for ${mood} mood`,
-    })
-  } catch (err) {
     console.error("Spotify API Error:", err)
     return NextResponse.json(
-      { error: "Failed to fetch music recommendations" },
+      {
+        error: "Failed to fetch music recommendations",
+        detail: err?.message || String(err),
+      },
       { status: 500 },
     )
   }

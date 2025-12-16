@@ -128,6 +128,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const mood = canonicalizeMood(searchParams.get("mood") || "")
+    const variant = searchParams.get("variant") || "default"
+    const query = searchParams.get("q") || ""
+
     const rules = MOOD_RULES[mood]
     if (!mood || !rules) {
       return NextResponse.json(
@@ -148,6 +151,8 @@ export async function GET(request: Request) {
     const withGenres = combo.join(",")
     const withoutGenres = rules.withoutGenres?.join(",")
 
+    // Fetch more results if there's a query for AI re-ranking
+    const limit = query ? 60 : 30
     const randomPage = Math.floor(Math.random() * 5) + 1
 
     const url = new URL("https://api.themoviedb.org/3/discover/movie")
@@ -160,16 +165,18 @@ export async function GET(request: Request) {
     url.searchParams.set("vote_average.gte", "6.5")
     url.searchParams.set("vote_count.gte", "100")
     url.searchParams.set("include_adult", "false")
+    url.searchParams.set("page", randomPage.toString())
 
-    url.searchParams.set("page", "1")
-
-    console.log("Checking URL" + url)
+    console.log("Fetching from TMDB:", url.toString())
     const response = await fetch(url.toString())
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
     const valid = (data.results || []).filter((m: any) => m?.poster_path)
-    const movies = shuffleArray(valid).map((movie: any) => ({
+    const shuffled = shuffleArray(valid)
+
+    // Return more movies if query exists (for AI re-ranking on client)
+    const movies = shuffled.map((movie: any) => ({
       id: movie.id,
       title: movie.title,
       poster: movie.poster_path
@@ -179,94 +186,22 @@ export async function GET(request: Request) {
       releaseDate: movie.release_date,
       rating: movie.vote_average,
     }))
-    console.log("checking movie length")
-    console.log("Got Movies: " + movies.length)
+
+    console.log(
+      `Got ${movies.length} movies for mood: ${mood}, variant: ${variant}, query: ${query}`,
+    )
 
     return NextResponse.json({
       mood,
       target: rules.target,
       movies,
       message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
-      meta: { withGenres, withoutGenres: withoutGenres || null },
-    })
-  } catch (err) {
-    console.error("TMDB API Error:", err)
-    return NextResponse.json(
-      { error: "Failed to fetch movie recommendations" },
-      { status: 500 },
-    )
-  }
-}
-import { NextResponse } from "next/server"
-
-// Mood → TMDB genre mapping
-const moodToGenres: Record<string, number[]> = {
-  happy: [35, 12, 16], // Comedy, Adventure, Animation
-  sad: [14, 10749], // Drama, Romance
-}
-
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
-
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const moodRaw = searchParams.get("mood") || ""
-    const mood = moodRaw.toLowerCase()
-
-    if (!mood || !moodToGenres[mood]) {
-      return NextResponse.json(
-        { error: "Invalid or unsupported mood" },
-        { status: 400 },
-      )
-    }
-
-    const apiKey = process.env.TMDB_API_KEY
-    if (!apiKey) {
-      console.error("TMDB API key not found")
-      return NextResponse.json(
-        { error: "API key not configured" },
-        { status: 500 },
-      )
-    }
-
-    const genres = moodToGenres[mood]
-    const genreString = genres.join(",")
-
-    const randomPage = Math.floor(Math.random() * 5) + 1
-
-    const response = await fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreString}&sort_by=popularity.desc&vote_average.gte=6&language=en-US&page=${randomPage}`,
-    )
-
-    if (!response.ok) throw new Error("Failed to fetch from TMDB")
-
-    const data = await response.json()
-
-    const validMovies = data.results.filter((movie: any) => movie.poster_path)
-    const shuffledMovies = shuffleArray(validMovies)
-
-    const movies = shuffledMovies.slice(0, 30).map((movie: any) => ({
-      id: movie.id,
-      title: movie.title,
-      poster: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "/images/movie-placeholder.jpg",
-      overview: movie.overview,
-      releaseDate: movie.release_date,
-      rating: movie.vote_average,
-    }))
-
-    return NextResponse.json({
-      mood,
-      movies,
-      message: `Found ${movies.length} movie recommendations for ${mood} mood`,
+      meta: {
+        withGenres,
+        withoutGenres: withoutGenres || null,
+        variant,
+        query: query || null,
+      },
     })
   } catch (err) {
     console.error("TMDB API Error:", err)
