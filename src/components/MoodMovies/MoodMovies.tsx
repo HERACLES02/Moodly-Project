@@ -23,9 +23,24 @@ interface MoodMoviesProps {
   query?: string
 }
 
+const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> = {
+  happy: [
+    { key: 'mellow_dreams', title: 'Mellow Dreams' },
+    { key: 'romanticism_galore', title: 'Romanticism Galore' },
+    { key: 'laugh_out_loud', title: 'Laugh Out Loud' },
+  ],
+  sad: [
+    { key: 'broken_hearts', title: 'Broken Hearts' },
+    { key: 'hard_truths', title: "Life’s Hard Truths" },
+    { key: 'healing_through_pain', title: 'Healing Through Pain' },
+  ],
+}
+
+
 export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMoviesProps) {
   const [movies, setMovies] = useState<Movie[]>([])
   const [visibleMovies, setVisibleMovies] = useState<Movie[]>([])
+  const [sectionRows, setSectionRows] = useState<{ title: string; movies: Movie[] }[]>([]) // NEW
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,8 +90,7 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     return new Float32Array()
   }
 
-  const toText = (m: Movie) =>
-    `${m.title || ''} | ${(m.overview || '').slice(0, 500)} | ${m.releaseDate || ''}`
+  const toText = (m: Movie) => `${m.title || ''} | ${(m.overview || '').slice(0, 500)} | ${m.releaseDate || ''}`
 
   const cosineSim = (a: Float32Array, b: Float32Array) => {
     let dot = 0,
@@ -104,7 +118,7 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     if (variant === 'default') {
       switch (key) {
         case 'sad':
-          return 'uplifting inspiring hopeful motivating overcoming adversity redemption feel good inspiring film cinema'
+          return 'sad melancholy melancholic heartbreak grief loss sorrow emotional cathartic tragic tearjerker somber film cinema'
         case 'happy':
           return 'happy upbeat positive feel good fun lighthearted musical film cinema'
         case 'anxious':
@@ -125,7 +139,7 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     } else {
       switch (key) {
         case 'sad':
-          return 'sad melancholy heartbreak sorrow low valence emotional reflective film cinema'
+          return 'uplifting inspiring hopeful motivating overcoming adversity redemption feel good inspiring film cinema'
         case 'happy':
           return 'happy upbeat positive feel good fun lighthearted musical film cinema'
         case 'anxious':
@@ -159,16 +173,7 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
   // -------- Simple mood-aware query expansion (no LLM) --------
   const MOOD_KEYWORDS: Record<string, string[]> = {
     happy: ['feel-good', 'lighthearted', 'funny', 'positive'],
-    sad: [
-      'sad',
-      'heartbreaking',
-      'tragic',
-      'melancholy',
-      'tearjerker',
-      'loss',
-      'grief',
-      'hardships',
-    ],
+    sad: ['sad', 'heartbreaking', 'tragic', 'melancholy', 'tearjerker', 'loss', 'grief', 'hardships'],
     anxious: ['calming', 'comforting', 'low-stress', 'gentle'],
     calm: ['relaxing', 'peaceful', 'slow-paced'],
     energetic: ['high-energy', 'action-packed', 'fast-paced'],
@@ -183,7 +188,6 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
 
     const extra: string[] = []
 
-    // basic movie-specific variants
     extra.push(`${base} movie`)
     extra.push(`${base} movies`)
     extra.push(`${base} film`)
@@ -200,7 +204,6 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
       extra.push(`${kw} ${base}`)
     }
 
-    // dedupe while preserving order
     const seen = new Set<string>()
     return [base, ...extra].filter((q) => {
       if (!q) return false
@@ -223,6 +226,36 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
 
     try {
       const normalizedMood = mood.toLowerCase()
+
+      // NEW: default rows mode (no query) for moods with configured sections
+      if (variant === 'default' && !query && DEFAULT_SECTION_CONFIG[normalizedMood]) {
+        const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
+
+        const rows = await Promise.all(
+          sections.map(async (s) => {
+            const u = `/api/recommendations/movies?mood=${normalizedMood}&section=${encodeURIComponent(s.key)}`
+            const r = await fetch(u)
+            if (!r.ok) throw new Error(`Failed to fetch movies (${s.key}): ${r.status}`)
+            const j = await r.json()
+            const list: Movie[] = j.movies || []
+            return { title: s.title, movies: list.slice(0, 4) }
+          })
+        )
+
+        setSectionRows(rows)
+
+        // clear single-row/search state
+        setMovies([])
+        setVisibleMovies([])
+        miniRef.current = null
+        movieEmbCache.current.clear()
+        movieByIdRef.current = new Map()
+
+        return
+      }
+
+      setSectionRows([])
+
       const url = `/api/recommendations/movies?mood=${normalizedMood}&variant=${variant}${
         query ? `&q=${encodeURIComponent(query)}` : ''
       }`
@@ -268,10 +301,8 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
     }
     if (!miniRef.current || movies.length === 0) return
 
-    // --- 1) Local query expansion instead of backend LLM ---
     const effectiveQueries = expandQuery(qq, mood)
 
-    // --- 2) MiniSearch shortlist ---
     const collected = new Map<number, Movie>()
 
     for (const qtext of effectiveQueries) {
@@ -308,7 +339,6 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
       shortlist = [...shortlist, ...extra]
     }
 
-    // --- 3) MiniLM re-rank (unchanged) ---
     const pipe = await loadMiniLM()
     const qEmb = await embedText(pipe, qq)
     const moodEmb = await getMoodVec(pipe, mood, 'search')
@@ -401,33 +431,63 @@ export default function MoodMovies({ mood, onMovieClick, query = '' }: MoodMovie
   return (
     <div className="mood-movies-container">
       <h2 className="mood-movies-title">🎬 Movies for your {mood} mood</h2>
-      <div className="mood-movies-grid">
-        {visibleMovies.map((movie) => (
-          <div
-            key={movie.id}
-            className="mood-movie-card"
-            onClick={() => handleMovieClick(movie)}
-          >
-            <div className="mood-movie-poster-wrapper">
-              <Image
-                src={movie.poster || '/images/movie-placeholder.jpg'}
-                alt={movie.title}
-                width={200}
-                height={300}
-                className="mood-movie-poster"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = '/images/movie-placeholder.jpg'
-                }}
-              />
-              <div className="mood-movie-overlay">
-                <p className="mood-movie-title">{movie.title}</p>
-                <p className="mood-movie-rating">⭐ {movie.rating.toFixed(1)}</p>
+
+      {!query && sectionRows.length > 0 ? (
+        <div className="space-y-6">
+          {sectionRows.map((row) => (
+            <div key={row.title}>
+              <h3 className="text-base font-semibold mb-3">{row.title}</h3>
+              <div className="mood-movies-grid">
+                {row.movies.map((movie) => (
+                  <div key={movie.id} className="mood-movie-card" onClick={() => handleMovieClick(movie)}>
+                    <div className="mood-movie-poster-wrapper">
+                      <Image
+                        src={movie.poster || '/images/movie-placeholder.jpg'}
+                        alt={movie.title}
+                        width={200}
+                        height={300}
+                        className="mood-movie-poster"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = '/images/movie-placeholder.jpg'
+                        }}
+                      />
+                      <div className="mood-movie-overlay">
+                        <p className="mood-movie-title">{movie.title}</p>
+                        <p className="mood-movie-rating">⭐ {movie.rating.toFixed(1)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mood-movies-grid">
+          {visibleMovies.map((movie) => (
+            <div key={movie.id} className="mood-movie-card" onClick={() => handleMovieClick(movie)}>
+              <div className="mood-movie-poster-wrapper">
+                <Image
+                  src={movie.poster || '/images/movie-placeholder.jpg'}
+                  alt={movie.title}
+                  width={200}
+                  height={300}
+                  className="mood-movie-poster"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = '/images/movie-placeholder.jpg'
+                  }}
+                />
+                <div className="mood-movie-overlay">
+                  <p className="mood-movie-title">{movie.title}</p>
+                  <p className="mood-movie-rating">⭐ {movie.rating.toFixed(1)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
