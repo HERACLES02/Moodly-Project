@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Star, Trophy } from "lucide-react"
 import "./PointsDisplay.css"
 import { useUser } from "@/contexts/UserContext"
+import MoodCurrencyIcon from "./icons/MoodCurrencyIcon"
 
 export default function PointsDisplay() {
   const { user } = useUser()
@@ -35,7 +36,7 @@ export default function PointsDisplay() {
 
   return (
     <div className="points-display-container">
-      <Star className="trophy-icon" />
+      <MoodCurrencyIcon size={40} />
       <span className="points-value">{user?.points}</span>
     </div>
   )

@@ -8,6 +8,7 @@ export interface StoreObject {
   createdAt: Date
   imagePath: string
   pointsCost: number
+  isRedeemed?: boolean
 }
 
 export interface Store {
@@ -43,8 +44,17 @@ export async function getStore() {
       }),
     ])
 
+    const unlockedSet = new Set(
+      user?.unlockedAvatars?.map((u) => u.avatarId) || [],
+    )
+
+    const items = avatars.map((a) => ({
+      ...a,
+      isRedeemed: unlockedSet.has(a.id),
+    }))
+
     return {
-      items: avatars,
+      items: items,
       user: user,
     }
   } catch (error) {

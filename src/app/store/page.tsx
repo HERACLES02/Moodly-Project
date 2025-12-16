@@ -8,7 +8,7 @@ const page = async () => {
 
   console.log("data", store)
   return (
-    <div className="w-screen h-screen">
+    <div className="w-100vh h-100vh">
       <StoreComponent store={store} />
     </div>
   )
