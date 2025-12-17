@@ -48,6 +48,9 @@ export default function NavbarComponent({
       }
     }
   }, [user?.mood])
+  if (!user || !user.mood) {
+    return
+  }
 
   /** Handle Note Selection */
   function handleAddNote() {

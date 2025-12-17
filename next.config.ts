@@ -16,6 +16,10 @@ const nextConfig = {
       { protocol: "https", hostname: "cataas.com" },
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "i.imgur.com" },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   webpack: (config, { isServer }) => {

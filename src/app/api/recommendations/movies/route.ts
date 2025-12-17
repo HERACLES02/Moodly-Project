@@ -168,12 +168,13 @@ export async function GET(request: Request) {
     url.searchParams.set("page", randomPage.toString())
 
     console.log("Fetching from TMDB:", url.toString())
-    const response = await fetch(url.toString()+ +
-        `&include_image_language=en,null`)
+    const response = await fetch(
+      url.toString() + +`&include_image_language=en,null`,
+    )
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
-    console.log("Movie Data", data)
+    // console.log("Movie Data", data)
 
     const validMovies = data.results.filter((movie: any) => movie.poster_path)
 
@@ -192,7 +193,6 @@ export async function GET(request: Request) {
     return NextResponse.json({
       mood,
       target: rules.target,
-      genreUsed: genre, // helpful for debugging
       movies,
       message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
       meta: {

@@ -4,6 +4,7 @@ import { signOut } from "next-auth/react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import DisplayUser from "./DisplayUser"
+import { useUser } from "@/contexts/UserContext"
 
 interface ProfileDropdownProps {
   userName: string
@@ -23,13 +24,14 @@ export default function ProfileDropdown({
   onSelectAvatar, // ADD THIS PARAMETER
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const { setUser } = useUser()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   const handleLogout = async () => {
     await signOut({ redirect: false })
-    router.refresh()
-    router.push("/login")
+    setUser(null)
+    router.push("/")
   }
 
   const handleAdmin = () => {
