@@ -1,0 +1,145 @@
+// lib/storeItems.ts
+export const STORE_EXTRAS = {
+  badges: [
+    {
+      id: "cat_pioneer",
+      name: "Cat Pioneer",
+      pointsCost: 50,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=1",
+      category: "badge",
+    },
+    {
+      id: "feline_friend",
+      name: "Feline Friend",
+      pointsCost: 100,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=2",
+      category: "badge",
+    },
+    {
+      id: "meow_master",
+      name: "Meow Master",
+      pointsCost: 150,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=3",
+      category: "badge",
+    },
+    {
+      id: "purrfect_pal",
+      name: "Purrfect Pal",
+      pointsCost: 200,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=4",
+      category: "badge",
+    },
+    {
+      id: "whisker_wizard",
+      name: "Whisker Wizard",
+      pointsCost: 250,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=5",
+      category: "badge",
+    },
+    {
+      id: "kitty_king",
+      name: "Kitty King",
+      pointsCost: 300,
+      imagePath: "https://cataas.com/cat?width=200&height=200&id=6",
+      category: "badge",
+    },
+  ],
+  stickers: [
+    {
+      id: "sticker_happy_cat",
+      name: "Happy Cat",
+      pointsCost: 30,
+      imagePath: "https://cataas.com/cat/cute?width=300&height=300&id=1",
+      category: "sticker",
+    },
+    {
+      id: "sticker_sleepy_cat",
+      name: "Sleepy Cat",
+      pointsCost: 35,
+      imagePath: "https://cataas.com/cat/cute?width=300&height=300&id=2",
+      category: "sticker",
+    },
+    {
+      id: "sticker_grumpy_cat",
+      name: "Grumpy Cat",
+      pointsCost: 40,
+      imagePath: "https://cataas.com/cat/angry?width=300&height=300&id=3",
+      category: "sticker",
+    },
+    {
+      id: "sticker_curious_cat",
+      name: "Curious Cat",
+      pointsCost: 45,
+      imagePath: "https://cataas.com/cat?width=300&height=300&id=4",
+      category: "sticker",
+    },
+    {
+      id: "sticker_playful_cat",
+      name: "Playful Cat",
+      pointsCost: 50,
+      imagePath: "https://cataas.com/cat/cute?width=300&height=300&id=5",
+      category: "sticker",
+    },
+    {
+      id: "sticker_silly_cat",
+      name: "Silly Cat",
+      pointsCost: 55,
+      imagePath: "https://cataas.com/cat/funny?width=300&height=300&id=6",
+      category: "sticker",
+    },
+    {
+      id: "sticker_zen_cat",
+      name: "Zen Cat",
+      pointsCost: 60,
+      imagePath: "https://cataas.com/cat?width=300&height=300&id=7",
+      category: "sticker",
+    },
+    {
+      id: "sticker_ninja_cat",
+      name: "Ninja Cat",
+      pointsCost: 65,
+      imagePath: "https://cataas.com/cat?width=300&height=300&id=8",
+      category: "sticker",
+    },
+  ],
+  filters: [
+    {
+      id: "filter_purr_glow",
+      name: "Purr Glow",
+      pointsCost: 150,
+      imagePath:
+        "https://cataas.com/cat?width=400&height=300&filter=sepia&id=1",
+      category: "filter",
+    },
+    {
+      id: "filter_meow_magic",
+      name: "Meow Magic",
+      pointsCost: 175,
+      imagePath: "https://cataas.com/cat?width=400&height=300&filter=blur&id=2",
+      category: "filter",
+    },
+    {
+      id: "filter_feline_frost",
+      name: "Feline Frost",
+      pointsCost: 200,
+      imagePath: "https://cataas.com/cat?width=400&height=300&filter=mono&id=3",
+      category: "filter",
+    },
+    {
+      id: "filter_kitty_kaleidoscope",
+      name: "Kitty Kaleidoscope",
+      pointsCost: 225,
+      imagePath:
+        "https://cataas.com/cat?width=400&height=300&filter=paint&id=4",
+      category: "filter",
+    },
+    {
+      id: "filter_whisker_wave",
+      name: "Whisker Wave",
+      pointsCost: 250,
+      imagePath:
+        "https://cataas.com/cat?width=400&height=300&filter=sepia&id=5",
+      category: "filter",
+    },
+  ],
+}

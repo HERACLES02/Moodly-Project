@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from "next-themes"
 import {
   createContext,
   useContext,
@@ -14,7 +15,7 @@ import {
 // This interface defines what user information looks like
 // It matches your database User model structure
 
-interface User {
+export interface User {
   id: string
   email: string
   anonymousName: string
@@ -77,6 +78,8 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 // Think of it as the "warehouse manager" that handles all user data operations
 
 export function UserProvider({ children }: { children: ReactNode }) {
+
+
   // ─────────────────────────────────────────────────────────────────
   // Internal State
   // ─────────────────────────────────────────────────────────────────
@@ -155,6 +158,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const updateUserTheme = (newTheme: string) => {
+    console.log("here in theme")
     if (user) {
       console.log("🎨 UserContext: Updating theme to", newTheme)
       setUser({ ...user, currentTheme: newTheme })

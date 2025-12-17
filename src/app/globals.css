@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -12,7 +13,7 @@
       brightness(calc(100% + var(--color-brightness-shift)))
       hue-rotate(var(--color-hue-shift));
   }
-
+  /* This transition handles the "Slow Morph" effect */
   /* CSS Variables for Tailwind v4 - RGB VALUES with color picker support */
   :root {
     /* Default Theme - Now using the beautiful themes page styling */
@@ -89,176 +90,458 @@
     }
   }
 
-  .vangogh {
-    /* Van Gogh Theme - Richer, deeper gothic purples */
-    --background: rgb(45, 27, 61); /* Richer deep purple */
-    --foreground: rgb(246, 247, 249); /* Very light blue-white */
-    --primary: rgba(61, 35, 82); /* Rich dark purple */
-    --secondary: rgb(140, 90, 205); /* Vibrant purple-blue */
-    --accent: rgb(255, 217, 0); /* Gold */
-    --componentbg: rgba(72, 31, 105, 0.596);
-    --stylebg1: rgba(139, 149, 209, 0.15);
-    --styleborder1: 1px solid rgba(255, 255, 255, 0.1);
-    --styleshadow1: 0 4px 20px rgba(200, 180, 255, 0.15);
-    --glass-bg: rgba(72, 31, 105, 0.25);
-    --glass-border: rgba(255, 217, 0, 0.3);
-    --shadow-color: rgba(140, 90, 205, 0.4);
-    --gradient-start: rgb(61, 35, 82);
-    --gradient-end: rgb(140, 90, 205);
+  .theme-morphing {
+    animation: theme-pulse 2s ease-in-out;
+  }
+  @keyframes theme-pulse {
+    0% {
+      filter: brightness(1);
+    }
+    50% {
+      filter: brightness(1.1) saturate(1.1);
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+  /* Apply this to the main layout elements */
+
+  /* Ensure cards and buttons also transition their local variables */
+  /* ============================================
+   THE SPECIAL 4-SECOND CROSS-FADE
+   ============================================ */
+
+  /* 1. Define the timing for the entire page snapshot */
+  ::view-transition-group(root) {
+    animation-duration: 4s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Override background for main containers in Van Gogh theme */
+  /* 2. The "Old" theme fading out */
+  ::view-transition-old(root) {
+    animation: 4s ease-in-out forwards fade-out;
+    /* Plus-lighter prevents the muddy gray/brown middle phase */
+    mix-blend-mode: plus-lighter;
+  }
+
+  /* 3. The "New" theme fading in */
+  ::view-transition-new(root) {
+    animation: 4s ease-in-out forwards fade-in;
+    mix-blend-mode: plus-lighter;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* 4. Ensure variables DON'T transition naturally (prevents the gray flash) */
+  :root {
+    transition: none !important;
+  }
+
+  /* 5. Keep your component transitions snappy so they don't feel laggy to use */
+  .theme-card-variant-1-no-hover,
+  .theme-button-variant-2,
+  .theme-button-variant-3-no-hover {
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  /* Atmospheric Filters */
+  .filter-noir {
+    filter: grayscale(1) contrast(1.2) brightness(0.9) !important;
+  }
+
+  .filter-vaporwave {
+    filter: hue-rotate(280deg) saturate(1.5) brightness(1.1) !important;
+  }
+
+  .filter-sepia {
+    filter: sepia(0.6) contrast(1.1) brightness(0.95) !important;
+  }
+
+  /* Ensure the transition for filters is also smooth */
+  html {
+    transition: filter 2s ease-in-out;
+  }
+
+  .vangogh {
+    /* The Palette: Deep Cobalt, Midnight Navy, and Cyprian Gold */
+    --background: rgb(13, 24, 53); /* Deep Prussian Blue */
+    --foreground: rgb(236, 244, 255); /* Pale starlight blue */
+    --primary: rgb(18, 38, 80); /* Cobalt shadow */
+    --secondary: rgb(30, 60, 120); /* Mid-tone cobalt */
+    --accent: rgb(255, 204, 0); /* Starry Gold (Vibrant) */
+
+    --componentbg: rgba(18, 38, 80, 0.7);
+    --stylebg1: rgba(255, 204, 0, 0.05);
+    --styleborder1: 1px solid rgba(255, 204, 0, 0.2);
+    --styleshadow1: 0 8px 32px rgba(0, 15, 45, 0.6);
+
+    --glass-bg: rgba(13, 24, 53, 0.4);
+    --glass-border: rgba(255, 204, 0, 0.4);
+    --shadow-color: rgba(255, 204, 0, 0.15);
+
+    --gradient-start: rgb(13, 24, 53);
+    --gradient-end: rgb(30, 60, 120);
+
+    /* Variable for the Navbar/Layout to stay consistent */
+    --nav-bg: rgba(13, 24, 53, 0.9);
+
+    --font-sans: --font-cinzel;
+    --font-serif: "Montserrat";
+  }
+
+  /* 1. Animated Canvas Background */
+  /* ============================================
+     VAN GOGH THEME - GOTHIC MASTERPIECE
+     ============================================ */
+  .vangogh {
+    /* Exclusive Gothic Palette: Deep Phthalo Purple & Gold */
+    --background: rgb(26, 12, 46); /* Deepest Velvet Purple */
+    --foreground: rgb(235, 230, 255); /* Crisp Lavender White */
+    --primary: rgb(42, 22, 74); /* Royal Gothic Purple */
+    --secondary: rgb(68, 38, 115); /* Electric Indigo */
+    --accent: rgb(255, 215, 0); /* 24K Gold Highlight */
+
+    --componentbg: rgba(42, 22, 74, 0.85);
+    --glass-bg: rgba(26, 12, 46, 0.5);
+    --glass-border: rgba(255, 215, 0, 0.35);
+    --shadow-color: rgba(0, 0, 0, 0.6);
+
+    --gradient-start: rgb(42, 22, 74);
+    --gradient-end: rgb(15, 8, 30);
+    --nav-bg: rgba(26, 12, 46, 0.95);
+  }
+
+  /* 1. The Velvet Canvas Background */
   .vangogh body {
-    background: linear-gradient(
-      135deg,
-      rgba(45, 27, 61, 0.95) 0%,
-      rgba(61, 35, 82, 0.9) 50%,
-      rgba(75, 45, 95, 0.85) 100%
-    ) !important;
-    backdrop-filter: blur(20px);
+    background:
+      radial-gradient(
+        circle at 80% 10%,
+        rgba(255, 215, 0, 0.08) 0%,
+        transparent 30%
+      ),
+      linear-gradient(135deg, #1a0c2e 0%, #2a164a 45%, #0f081e 100%) !important;
+    background-attachment: fixed !important;
     min-height: 100vh;
     position: relative;
+    overflow-x: hidden;
   }
 
-  /* Add container styling for Van Gogh theme */
+  /* 2. Swirling Brushstroke Effect */
+  .vangogh body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: -1;
+    /* Uses multiple overlapping gradients to simulate Starry Night's wind swirls */
+    background-image:
+      radial-gradient(
+        ellipse at 50% 50%,
+        transparent 40%,
+        rgba(140, 90, 205, 0.2) 50%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 30% 20%,
+        transparent 30%,
+        rgba(255, 215, 0, 0.05) 45%,
+        transparent 60%
+      );
+    background-size: 1000px 1000px;
+    filter: blur(60px);
+    animation: vangogh-swirl 40s linear infinite;
+  }
+
+  /* 3. The Exclusive Gold Starry Sky */
   .vangogh body::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+    inset: 0;
     pointer-events: none;
     z-index: -1;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, #ffd700, transparent),
+      radial-gradient(2px 2px at 50% 50%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 80% 80%, #ffd700, transparent);
+    background-size: 350px 350px;
+    opacity: 0.5;
   }
 
-  .cat {
-    /* Cat Theme - Cozy pastel colors */
-    --background: rgb(248, 187, 217); /* Baby pink fallback */
-    --foreground: rgb(88, 69, 99); /* Soft dark mauve for text readability */
-    --primary: rgb(212, 165, 216); /* Light purple for primary elements */
-    --secondary: rgb(225, 190, 231); /* Soft lavender for secondary elements */
-    --accent: rgb(248, 187, 217); /* Baby pink for accents and highlights */
-    --componentbg: rgba(234, 203, 246, 0.6);
-    --stylebg1: rgba(139, 149, 209, 0.15);
-    --styleborder1: 1px solid rgba(255, 255, 255, 0.1);
-    --styleshadow1: 0 4px 20px rgba(200, 180, 255, 0.15);
-    --glass-bg: rgba(234, 203, 246, 0.3);
-    --glass-border: rgba(248, 187, 217, 0.5);
-    --shadow-color: rgba(212, 165, 216, 0.3);
-    --gradient-start: rgb(225, 190, 231);
-    --gradient-end: rgb(248, 187, 217);
-    /* Very light lavender for component backgrounds */
+  @keyframes vangogh-swirl {
+    from {
+      transform: rotate(0deg) scale(1.5);
+    }
+    to {
+      transform: rotate(360deg) scale(1.5);
+    }
   }
 
-  /* Override background for main containers in Cat theme */
-  .cat body {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 0, 128, 0.3) 0%,
-      /* Baby pink base */ rgba(225, 190, 231, 0.4) 25%,
-      /* Soft lavender */ rgba(212, 165, 216, 0.3) 50%,
-      /* Light purple */ rgba(234, 203, 246, 0.4) 75%,
-      /* Pale lavender */ rgba(0, 255, 225, 0.3) 100% /* Back to baby pink */
-    ) !important;
-    background-size: cover !important;
-    min-height: 100vh;
+  /* 4. PAINT BRUSH CARD EFFECT */
+  /* ============================================
+   VAN GOGH THEME - GOTHIC CANVAS EDITION
+   ============================================ */
+  /* ============================================
+   VAN GOGH THEME - GOTHIC CANVAS EDITION
+   ============================================ */
+  /* ============================================
+   VAN GOGH THEME - SILVER GOTHIC EDITION
+   ============================================ */
+  .vangogh {
+    /* New Exclusive Palette: Midnight Violet & Moon-Silver */
+    --background: rgb(20, 10, 35); /* Deepest Velvet Night */
+    --foreground: rgb(240, 242, 255); /* Crisp Starlight */
+    --primary: rgb(45, 25, 75); /* Rich Gothic Violet */
+    --secondary: rgb(85, 70, 130); /* Dusty Lavender Indigo */
+
+    /* The New Accent: A Pale, Luminous Moon-Silver/Champagne */
+    --accent: rgb(210, 215, 240);
+
+    --componentbg: rgba(45, 25, 75, 0.75);
+    --glass-bg: rgba(255, 255, 255, 0.08); /* Lighter Glass Base */
+    --glass-border: rgba(210, 215, 240, 0.3);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+
+    --dark-text: rgba(85, 70, 130, 0.5);
+    --nav-bg: rgb(210, 195, 255); /* Lighter, ethereal indigo glass */
+  }
+
+  /* 1. The Lighter, Ethereal Navbar */
+  .vangogh .theme-navbar {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 1px solid rgba(210, 215, 240, 0.2);
+    backdrop-filter: blur(25px) saturate(1.5); /* High-end frosted look */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .vangogh body {
+    background:
+      radial-gradient(
+        circle at 80% 15%,
+        rgba(210, 215, 240, 0.05),
+        transparent 40%
+      ),
+      linear-gradient(135deg, #140a23 0%, #2d194b 50%, #0a0514 100%) !important;
+    background-attachment: fixed !important;
+  }
+
+  /* 2. THE CANVAS TEXTURE - Procedural Oil Texture */
+  .vangogh .theme-card,
+  .vangogh .theme-card-variant-1,
+  .vangogh .dashboard-hero {
     position: relative;
+    background: var(--componentbg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 40px var(--shadow-color);
+    overflow: hidden;
   }
 
-  /* Add floating paw prints for cat theme */
+  /* The Grain Filter - Visible "Tooth" of the canvas */
+  .vangogh .theme-card::after,
+  .vangogh .theme-card-variant-1::after,
+  .vangogh .dashboard-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.12;
+    /* Procedural SVG texture string */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  /* 3. EXCLUSIVE ACCENT ELEMENTS */
+  .vangogh .theme-button-variant-2 {
+    background: rgba(210, 215, 240, 0.1);
+    border: 1px solid var(--accent);
+    color: var(--foreground);
+    backdrop-filter: blur(10px);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    font-weight: 800;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .vangogh .theme-button-variant-2:hover {
+    background: var(--accent);
+    color: var(--background);
+    box-shadow: 0 0 25px rgba(210, 215, 240, 0.4);
+  }
+
+  .vangogh .hero-main-title.active {
+    color: var(--foreground);
+    /* Pale moon-glow instead of yellow-glow */
+    text-shadow: 0 0 30px rgba(210, 215, 240, 0.3);
+  }
+
+  /* Starry Atmosphere */
+  .vangogh body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 10%, var(--accent), transparent),
+      radial-gradient(1.5px 1.5px at 90% 90%, var(--accent), transparent),
+      radial-gradient(1px 1px at 50% 50%, #fff, transparent);
+    background-size: 250px 250px;
+    opacity: 0.3;
+  }
+  /* ============================================
+   CAT THEME - COZY CASHMERE EDITION
+   ============================================ */
+  .cat {
+    /* Exclusive Warm Palette: Dusty Rose, Cream, and Cocoa */
+    --background: rgb(252, 245, 249);
+    --foreground: rgb(90, 75, 85);
+    --primary: rgb(240, 210, 225);
+    --secondary: rgb(220, 200, 235);
+    --accent: rgb(255, 160, 180);
+
+    /* The "Missing" Variable Overrides */
+    --primary-foreground: rgb(255, 255, 255);
+    --secondary-foreground: rgb(90, 75, 85);
+    --componentbg: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.5);
+    --glass-border: rgba(240, 210, 225, 0.8);
+
+    /* Glow Colors for the "Oomph" */
+    --shadow-color: rgba(240, 210, 225, 0.5);
+    --glow-color: rgba(255, 160, 180, 0.2);
+
+    --gradient-start: rgb(240, 210, 225);
+    --gradient-end: rgb(252, 245, 249);
+    --nav-bg: rgba(255, 255, 255, 0.85);
+
+    --font-header: "Quicksand", sans-serif;
+    --font-body: "Nunito", sans-serif;
+  }
+
+  /* 1. The Airy Navbar */
+  .cat .theme-navbar {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 2px solid var(--primary);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 20px rgba(240, 210, 225, 0.3);
+  }
+
+  .cat body {
+    font-family: var(--font-body) !important;
+    background:
+      radial-gradient(
+        circle at 10% 10%,
+        rgba(240, 210, 225, 0.4),
+        transparent 40%
+      ),
+      linear-gradient(135deg, #fcf5f9 0%, #f7e8f0 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--foreground);
+  }
+  .cat .theme-button,
+  .cat .theme-btn,
+  .cat .theme-button-primary {
+    background: var(--primary) !important;
+    color: var(--foreground) !important;
+    border: 2px solid var(--glass-border) !important;
+    font-family: var(--font-header);
+    border-radius: 50px;
+  }
+
+  /* 2. THE CASHMERE TEXTURE (Procedural Fabric Grain) */
+  .cat .theme-card,
+  .cat .theme-card-variant-1,
+  .cat .dashboard-hero {
+    position: relative;
+    background: var(--componentbg);
+    border: 2px solid var(--glass-border);
+    border-radius: 24px; /* More rounded for "Cuteness" */
+    box-shadow: 0 10px 30px var(--shadow-color);
+    overflow: hidden;
+  }
+
+  /* Creating the "Soft Fabric" texture */
+  .cat .theme-card::after,
+  .cat .theme-card-variant-1::after,
+  .cat .dashboard-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.4; /* Slightly more visible than the paint texture */
+
+    /* Procedural SVG for felt/wool texture */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='felt'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23felt)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+  }
+
+  /* 3. EXCLUSIVE TYPOGRAPHY & BUTTONS */
+  .cat .hero-main-title,
+  .cat .nav-title,
+  .cat h1,
+  h2 {
+    font-family: var(--font-header) !important;
+    font-weight: 700;
+    color: var(--foreground);
+  }
+
+  .cat .theme-button-variant-2 {
+    background: var(--accent);
+    border: none;
+    color: white;
+    border-radius: 50px;
+    font-family: var(--font-header);
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 160, 180, 0.4);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .cat .theme-button-variant-2:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 160, 180, 0.6);
+    background: var(--accent);
+    filter: brightness(1.05);
+  }
+
+  /* 4. REFINED PAW PRINTS (Now more subtle and "exclusive") */
   .cat body::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-            /* Paw print pattern using radial gradients */
-      radial-gradient(
-        circle 3px at 50px 100px,
-        rgba(212, 165, 216, 0.4) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 45px 95px,
-        rgba(212, 165, 216, 0.4) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 55px 95px,
-        rgba(212, 165, 216, 0.4) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 52px 90px,
-        rgba(212, 165, 216, 0.4) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 48px 90px,
-        rgba(212, 165, 216, 0.4) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 3px at 200px 50px,
-        rgba(248, 187, 217, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 195px 45px,
-        rgba(248, 187, 217, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 205px 45px,
-        rgba(248, 187, 217, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 202px 40px,
-        rgba(248, 187, 217, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 198px 40px,
-        rgba(248, 187, 217, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 3px at 350px 150px,
-        rgba(225, 190, 231, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 345px 145px,
-        rgba(225, 190, 231, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 355px 145px,
-        rgba(225, 190, 231, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 352px 140px,
-        rgba(225, 190, 231, 0.3) 50%,
-        transparent 50%
-      ),
-      radial-gradient(
-        circle 2px at 348px 140px,
-        rgba(225, 190, 231, 0.3) 50%,
-        transparent 50%
-      );
-    background-repeat: repeat;
-    background-size: 400px 200px;
-    animation: floatPaws 15s linear infinite;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.6;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.15;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 25c-2 0-4-1-4-3s2-3 4-3 4 1 4 3-2 3-4 3zm-6-8c-1.5 0-2.5-1-2.5-2.5S12.5 12 14 12s2.5 1 2.5 2.5-1 2.5-2.5 2.5zm12 0c-1.5 0-2.5-1-2.5-2.5S24.5 12 26 12s2.5 1 2.5 2.5-1 2.5-2.5 2.5zm-8-4c-1.5 0-2.5-1-2.5-2.5S18.5 8 20 8s2.5 1 2.5 2.5-1 2.5-2.5 2.5z' fill='%23d4a5d8' fill-opacity='0.4'/%3E%3C/svg%3E");
+    background-size: 100px 100px;
+    animation: floatPaws 20s linear infinite;
+  }
+
+  @keyframes floatPaws {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 100px 100px;
+    }
   }
   .test body {
     background:
@@ -322,6 +605,8 @@
     --shadow-color: rgba(184, 212, 237, 0.4);
     --gradient-start: rgb(184, 212, 237);
     --gradient-end: rgb(241, 214, 248);
+    --nav-bg: rgb(241, 214, 248);
+    --dark-text: rgb(45, 45, 90);
   }
 
   .sad {
@@ -339,8 +624,8 @@
     --shadow-color: rgba(72, 61, 139, 0.5);
     --gradient-start: rgb(72, 61, 139);
     --gradient-end: rgb(106, 90, 205);
-
-    /* Plum from mood-text #DDA0DD */
+    --nav-bg: rgb(200, 220, 245);
+    --dark-text: rgb(72, 61, 139); /* Plum from mood-text #DDA0DD */
   }
 
   /* Override background for main containers in happy theme */
@@ -542,7 +827,7 @@
 
   /* Navigation Bar */
   .theme-navbar {
-    background-color: var(--primary);
+    background-color: var(--nav-bg);
     border-bottom: 2px solid var(--secondary);
     backdrop-filter: blur(20px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -893,7 +1178,7 @@
     border-radius: 1rem;
     height: 13rem;
     width: 15rem;
-    
+
     padding: 1rem;
     box-shadow: 0 4px 16px var(--shadow-color);
   }

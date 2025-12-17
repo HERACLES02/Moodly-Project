@@ -13,7 +13,7 @@ import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
 import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context instead of hook
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
-import { setUserMood } from "@/lib/userMood"
+import { setUserMood } from "@/lib/userActions"
 import { useTheme } from "next-themes"
 
 export default function NavbarComponent({

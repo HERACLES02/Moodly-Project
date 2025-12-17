@@ -1,10 +1,10 @@
-import { getUserMood } from "./userMood"
+import { getUserMood } from "./userActions"
 
 interface fetchProps {
   moodprop?: string
 }
 
-export async function fetchRecommendations(moodprop: fetchProps) {
+export async function fetchRecommendations(moodprop?: fetchProps) {
   const mood = moodprop || (await getUserMood())
   const baseURL = process.env.NEXT_PUBLIC_BASE_URL
   try {

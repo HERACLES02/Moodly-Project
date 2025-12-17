@@ -3,15 +3,15 @@ export default function MoodCurrencyIcon({
   className,
   size = 24,
 }: {
-  className: string
-  size: number
+  className?: string
+  size?: number
 }) {
   return (
     <svg
       className={className}
       width={size}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="10 10 80 80"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >

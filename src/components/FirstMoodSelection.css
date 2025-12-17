@@ -20,7 +20,7 @@
   color: var(--accent);
   margin-bottom: 3rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  
+
   /* Initial state - hidden and slightly below */
   transform: translateY(20px);
   opacity: 0;
@@ -40,7 +40,7 @@
   gap: 1rem;
   max-width: 800px;
   width: 100%;
-  
+
   /* Initial state - hidden and slightly below */
   opacity: 0;
   transform: translateY(30px);
@@ -59,12 +59,12 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.5rem;
-  
+
   /* Use CSS variables from default theme */
   background-color: var(--primary);
   color: var(--foreground);
   border: 2px solid var(--secondary);
-  
+
   border-radius: 0.75rem;
   font-weight: 600;
   font-size: 1rem;
@@ -73,7 +73,7 @@
   min-height: 60px;
   position: relative;
   overflow: hidden;
-  
+
   /* Add subtle shadow */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -147,23 +147,40 @@
 }
 
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 1; 
+  0%,
+  100% {
+    opacity: 1;
   }
-  50% { 
-    opacity: 0.6; 
+  50% {
+    opacity: 0.6;
   }
 }
 
 /* Step 15: Staggered animation for mood buttons */
-.first-mood-button:nth-child(1) { animation-delay: 0ms; }
-.first-mood-button:nth-child(2) { animation-delay: 100ms; }
-.first-mood-button:nth-child(3) { animation-delay: 200ms; }
-.first-mood-button:nth-child(4) { animation-delay: 300ms; }
-.first-mood-button:nth-child(5) { animation-delay: 400ms; }
-.first-mood-button:nth-child(6) { animation-delay: 500ms; }
-.first-mood-button:nth-child(7) { animation-delay: 600ms; }
-.first-mood-button:nth-child(8) { animation-delay: 700ms; }
+.first-mood-button:nth-child(1) {
+  animation-delay: 0ms;
+}
+.first-mood-button:nth-child(2) {
+  animation-delay: 100ms;
+}
+.first-mood-button:nth-child(3) {
+  animation-delay: 200ms;
+}
+.first-mood-button:nth-child(4) {
+  animation-delay: 300ms;
+}
+.first-mood-button:nth-child(5) {
+  animation-delay: 400ms;
+}
+.first-mood-button:nth-child(6) {
+  animation-delay: 500ms;
+}
+.first-mood-button:nth-child(7) {
+  animation-delay: 600ms;
+}
+.first-mood-button:nth-child(8) {
+  animation-delay: 700ms;
+}
 
 /* Step 16: Responsive design for mobile devices */
 @media (max-width: 768px) {
@@ -195,7 +212,7 @@
     grid-template-columns: repeat(2, 1fr);
     max-width: 600px;
   }
-  
+
   .first-mood-title {
     font-size: 2.25rem;
   }
@@ -206,7 +223,7 @@
   .first-mood-title {
     font-size: 3rem;
   }
-  
+
   .first-mood-buttons {
     max-width: 900px;
   }

@@ -45,7 +45,7 @@ export default function ProfileDropdown({
   }
 
   const handleRedeemPoints = () => {
-    router.push("/themes")
+    router.push("/store")
   }
 
   const menuItems = [

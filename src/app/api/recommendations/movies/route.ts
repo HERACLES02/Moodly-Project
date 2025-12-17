@@ -96,7 +96,8 @@ export async function GET(request: Request) {
         `&sort_by=popularity.desc` +
         `&vote_average.gte=6` +
         `&language=en-US` +
-        `&page=${randomPage}`,
+        `&page=${randomPage}` +
+        `&include_image_language=en,null`,
     )
 
     if (!response.ok) {
@@ -104,6 +105,7 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json()
+    console.log("Movie Data", data)
 
     const validMovies = data.results.filter((movie: any) => movie.poster_path)
 
@@ -116,6 +118,7 @@ export async function GET(request: Request) {
         overview: movie.overview,
         releaseDate: movie.release_date,
         rating: movie.vote_average,
+        backdrop_path: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
       }))
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import NavbarComponent from "@/components/NavbarComponent"
 import StoreComponent from "@/components/StoreComponent"
-import { getStore } from "@/lib/fetchStore"
+import { getStore } from "@/lib/storeActions"
 import React from "react"
 
 const page = async () => {

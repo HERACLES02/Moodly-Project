@@ -11,6 +11,7 @@ export interface Movie {
   overview: string
   releaseDate: string
   rating: number
+  backdrop_path?: string
 }
 
 interface MoodMoviesProps {

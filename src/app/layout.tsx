@@ -1,11 +1,12 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist, Geist_Mono, Cinzel, Quicksand, Nunito } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { UserProvider } from "@/contexts/UserContext" // ← ADD THIS IMPORT
 import NavbarComponent from "@/components/NavbarComponent"
 
 import { auth } from "@/auth"
+import { Toaster } from "sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +15,18 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+})
+const quicksand = Quicksand({
+  variable: "--font-quicksand",
+  subsets: ["latin"],
+})
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
 })
 
@@ -32,9 +45,9 @@ export default async function RootLayout({
   const isLoggedIn = !!session?.user
 
   return (
-    <html lang="en" className="vangogh" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} ${nunito.variable} ${quicksand.variable} antialiased`}
         suppressHydrationWarning
       >
         <div></div>
@@ -46,9 +59,10 @@ export default async function RootLayout({
             defaultTheme=""
             themes={["vangogh", "cat", "default", "happy", "sad", "test"]}
           >
-            {" "}
             {isLoggedIn && <NavbarComponent />}
+
             {children}
+            <Toaster position="bottom-right" />
           </ThemeProvider>
         </UserProvider>{" "}
         {/* ← ADD THIS */}
