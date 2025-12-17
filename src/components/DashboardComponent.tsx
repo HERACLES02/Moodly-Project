@@ -18,6 +18,7 @@ import Image from "next/image"
 // Import the new mobile component
 import MobileDashboard from "@/components/MobileDashboard/MobileDashboard"
 import { Play } from "lucide-react"
+import SearchBar from "./SearchBar"
 
 const movieCache = new Map<string, Movie[]>()
 const songCache = new Map<string, Track[]>()
@@ -32,8 +33,13 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
+
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [searchMode, setSearchMode] = useState<"movie" | "song">("movie")
+  const [submittedMode, setSubmittedMode] = useState<"movie" | "song">("movie")
+  const [submittedQuery, setSubmittedQuery] = useState<string>("")
   const [activeTab, setActiveTab] = useState<"movies" | "songs">("movies")
+
   const { user, updateUserMood } = useUser()
   const router = useRouter()
   const { setTheme } = useTheme()
@@ -191,6 +197,22 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                 <section className="magazine-hero-wrapper">
                   {/* Background Image with Gradient Overlay */}
                   <div className="magazine-hero-background">
+                    <section className="mb-6">
+                      <SearchBar
+                        placeholder="Type to search…"
+                        onModeChange={(m) => setSearchMode(m)}
+                        onSubmit={(val, m) => {
+                          const trimmed = val.trim()
+                          // keep UI state in sync
+                          setSearchMode(m)
+                          setSearchQuery(trimmed)
+                          // store the exact submitted pair used by children
+                          setSubmittedMode(m)
+                          setSubmittedQuery(trimmed)
+                          console.log("submitted:", { query: trimmed, mode: m })
+                        }}
+                      />
+                    </section>
                     {/* <Image
                       src={
                         featuredItem?.backdrop_path ||
@@ -267,17 +289,15 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                 <section className="magazine-rows w-full max-w-5xl">
                   {activeTab === "movies" ? (
                     <MoodMovies
-                      movies={moviesState}
                       mood={normalizedMood!}
                       onMovieClick={handleMovieClick}
-                      loading={loading}
+                      query={searchMode === "movie" ? submittedQuery : ""}
                     />
                   ) : (
                     <MoodMusic
-                      tracks={songState}
                       mood={normalizedMood!}
                       onSongClick={handleSongClick}
-                      loading={loading}
+                      query={searchMode === "song" ? submittedQuery : ""}
                     />
                   )}
                 </section>
