@@ -264,7 +264,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                   </div>
                 </section>
 
-                <section className="magazine-rows">
+                <section className="magazine-rows w-full max-w-5xl">
                   {activeTab === "movies" ? (
                     <MoodMovies
                       movies={moviesState}
