@@ -29,7 +29,7 @@ const WatchPage = ({ mood }: watchProps) => {
   const [livetime, setlivetime] = useState<number | null>(null)
 
   const ws = usePartySocket({
-    host: "localhost:1999",
+    host: "https://moodly-party.himel2010.partykit.dev/",
     room: `${mood}`,
     onMessage(e) {
       try {
@@ -77,9 +77,7 @@ const WatchPage = ({ mood }: watchProps) => {
           <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
             LIVE TV
           </h1>
-          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">
-            {videoState.name || "Syncing..."}
-          </p>
+          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1"></p>
         </div>
         <div className="w-[80px]" />
       </header>

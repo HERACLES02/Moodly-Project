@@ -1,21 +1,24 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useUser } from "@/contexts/UserContext"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export function usePoints() {
-  const [isAdding, setIsAdding] = useState(false);
+  const [isAdding, setIsAdding] = useState(false)
+  const { user, updateUserPoints } = useUser()
 
   const addPoints = async (
     action: "watch" | "listen" | "favorite",
     mediaId?: string,
-    mediaType?: "movie" | "song"
+    mediaType?: "movie" | "song",
   ) => {
-    if (isAdding) return;
+    if (isAdding) return
 
-    setIsAdding(true);
+    setIsAdding(true)
 
     try {
-      console.log(`Adding points for: ${action} ${mediaType || ""}`);
+      console.log(`Adding points for: ${action} ${mediaType || ""}`)
 
       const response = await fetch("/api/points/add", {
         method: "POST",
@@ -25,52 +28,54 @@ export function usePoints() {
           mediaId,
           mediaType,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success) {
-        console.log("✅ SUCCESS!");
-        console.log("📈 Points Added:", data.pointsAdded);
-        console.log("💰 Total Points Now:", data.totalPoints);
-        console.log("📝 Message:", data.message);
+        console.log("✅ SUCCESS!")
+        console.log("📈 Points Added:", data.pointsAdded)
+        console.log("💰 Total Points Now:", data.totalPoints)
+        console.log("📝 Message:", data.message)
+        updateUserPoints(data.totalPoints)
+        toast.success(`Obtained ${data.pointsAdded} points`)
 
         if (data.weeklyBonus) {
-          console.log("🎉 WEEKLY BONUS!");
-          console.log("🌟 Bonus Points:", data.weeklyBonus.points);
-          console.log("💬 Bonus Message:", data.weeklyBonus.message);
+          console.log("🎉 WEEKLY BONUS!")
+          console.log("🌟 Bonus Points:", data.weeklyBonus.points)
+          console.log("💬 Bonus Message:", data.weeklyBonus.message)
 
           window.dispatchEvent(
             new CustomEvent("weeklyBonusEarned", {
               detail: data.weeklyBonus,
-            })
-          );
+            }),
+          )
         }
 
-        console.log("------------------------");
+        console.log("------------------------")
 
-        window.dispatchEvent(new Event("pointsEarned"));
+        window.dispatchEvent(new Event("pointsEarned"))
       } else {
-        console.error("❌ Failed to add points:", data.error);
+        console.error("❌ Failed to add points:", data.error)
       }
     } catch (error) {
-      console.error("🚨 Error adding points:", error);
+      console.error("🚨 Error adding points:", error)
     } finally {
-      setIsAdding(false);
+      setIsAdding(false)
     }
-  };
+  }
 
   const deductPoints = async (
     action: "unfavorite",
     mediaId?: string,
-    mediaType?: "movie" | "song"
+    mediaType?: "movie" | "song",
   ) => {
-    if (isAdding) return;
+    if (isAdding) return
 
-    setIsAdding(true);
+    setIsAdding(true)
 
     try {
-      console.log(`Deducting points for: ${action} ${mediaType || ""}`);
+      console.log(`Deducting points for: ${action} ${mediaType || ""}`)
 
       const response = await fetch("/api/points/deduct", {
         method: "POST",
@@ -80,26 +85,26 @@ export function usePoints() {
           mediaId,
           mediaType,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success) {
-        console.log("✅ SUCCESS!");
-        console.log("📉 Points Deducted:", data.pointsDeducted);
-        console.log("💰 Total Points Now:", data.totalPoints);
-        console.log("📝 Message:", data.message);
+        console.log("✅ SUCCESS!")
+        console.log("📉 Points Deducted:", data.pointsDeducted)
+        console.log("💰 Total Points Now:", data.totalPoints)
+        console.log("📝 Message:", data.message)
 
-        window.dispatchEvent(new Event("pointsEarned"));
+        window.dispatchEvent(new Event("pointsEarned"))
       } else {
-        console.error("❌ Failed to deduct points:", data.error);
+        console.error("❌ Failed to deduct points:", data.error)
       }
     } catch (error) {
-      console.error("🚨 Error deducting points:", error);
+      console.error("🚨 Error deducting points:", error)
     } finally {
-      setIsAdding(false);
+      setIsAdding(false)
     }
-  };
+  }
 
-  return { addPoints, deductPoints, isAdding };
+  return { addPoints, deductPoints, isAdding }
 }

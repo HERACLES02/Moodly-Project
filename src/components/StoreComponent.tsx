@@ -85,21 +85,11 @@ const StoreComponent = ({ store }: StoreProps) => {
         if (type === "theme") {
           // 🚀 THE SPECIAL TRANSITION
           // Check if the browser supports the View Transition API
-          if (
-            typeof document !== "undefined" &&
-            "startViewTransition" in document
-          ) {
-            // @ts-ignore - startViewTransition is a newer API
-            document.startViewTransition(async () => {
-              // All state changes inside here will be cross-faded over 4 seconds
-              updateUserTheme(itemId)
-              setTheme(itemId)
-            })
-          } else {
-            // Fallback for browsers that don't support it (still slow via CSS)
-            updateUserTheme(itemId)
-            setTheme(itemId)
-          }
+
+          // Fallback for browsers that don't support it (still slow via CSS)
+          updateUserTheme(itemId)
+          setTheme(itemId)
+          toast.success("Theme Applied")
         } else {
           updateUserAvatar(itemId)
           toast.success("Avatar Applied")

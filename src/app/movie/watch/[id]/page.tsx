@@ -5,6 +5,7 @@ import AddToPlaylistComponent from "@/components/PlaylistComponents/AddToPlaylis
 import { usePoints } from "@/hooks/usePoints"
 
 import "./page.css"
+import { useUser } from "@/contexts/UserContext"
 
 export default function WatchMovies({
   params,
@@ -36,6 +37,7 @@ export default function WatchMovies({
       const timer = setTimeout(() => {
         console.log("🎬 Adding points for watching movie:", id)
         addPoints("watch", id, "movie")
+        
         setHasEarnedWatchPoints(true)
       }, 5000)
 

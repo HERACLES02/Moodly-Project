@@ -38,7 +38,7 @@ const SyncedRadioPlayer = ({ mood }: SyncedRadioPlayerProps) => {
   const [livetime, setLivetime] = useState<number | null>(null)
 
   const ws = usePartySocket({
-    host: "localhost:1999",
+    host: "https://moodly-party.himel2010.partykit.dev/",
     room: `${mood}-radio`,
     party: "radio",
     onMessage(e) {

@@ -59,7 +59,7 @@ export default async function RootLayout({
             defaultTheme=""
             themes={["vangogh", "cat", "default", "happy", "sad", "test"]}
           >
-            {isLoggedIn && <NavbarComponent />}
+            <NavbarComponent />
 
             {children}
             <Toaster position="bottom-right" />

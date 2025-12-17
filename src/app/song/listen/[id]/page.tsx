@@ -89,12 +89,6 @@ export default function ListenMusic({
           <div className="next-up-section">
             <AddToPlaylistComponent type="SONG" itemId={id} />
           </div>
-
-          {hasEarnedListenPoints && (
-            <div className="points-notification">
-              You earned 10 points for listening!
-            </div>
-          )}
         </div>
       </div>
     </>

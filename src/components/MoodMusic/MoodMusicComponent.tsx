@@ -303,7 +303,7 @@ export default function MoodMusic({
         <h3 className="theme-text-foreground text-sm font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
           {track.name}
         </h3>
-        <p className="theme-text-muted text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70">
+        <p className="theme-text-accent text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70">
           {track.artist}
         </p>
 
