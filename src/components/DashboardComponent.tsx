@@ -8,10 +8,19 @@ import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { signOut } from "next-auth/react"
 import { useUser } from "@/contexts/UserContext"
-import { Search } from "lucide-react"
 import "./dashboard.css"
-import { setUserMood } from "@/lib/userMood"
+import { setUserMood } from "@/lib/userActions"
 import { fetchRecommendations } from "@/lib/fetchRecommendations"
+import { Ring2 } from "ldrs/react"
+import "ldrs/react/Ring2.css"
+import Image from "next/image"
+
+// Import the new mobile component
+import MobileDashboard from "@/components/MobileDashboard/MobileDashboard"
+import { Play } from "lucide-react"
+
+const movieCache = new Map<string, Movie[]>()
+const songCache = new Map<string, Track[]>()
 
 interface DashboardProps {
   movies: Movie[]
@@ -30,6 +39,10 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
   const { setTheme } = useTheme()
   const [moviesState, setMoviesState] = useState<Movie[]>(movies)
   const [songState, setSongState] = useState<Track[]>(songs)
+  const [featuredItem, setFeaturedItem] = useState<Movie | Track | null>(null)
+
+  // Add mobile detection
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     async function refetchUserInfo(moodName: string) {
@@ -47,7 +60,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
     if (user?.mood) {
       setLoading(true)
-
       setCurrentMood(user.mood)
       refetchUserInfo(user.mood)
 
@@ -59,8 +71,30 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
     }
   }, [user?.mood])
 
+  // Set random featured item when movies/songs change or tab switches
+  useEffect(() => {
+    if (activeTab === "movies" && moviesState.length > 0) {
+      const randomMovie =
+        moviesState[Math.floor(Math.random() * moviesState.length)]
+      setFeaturedItem(randomMovie)
+    } else if (activeTab === "songs" && songState.length > 0) {
+      const randomSong = songState[Math.floor(Math.random() * songState.length)]
+      setFeaturedItem(randomSong)
+    }
+  }, [activeTab, moviesState, songState])
+
   useEffect(() => {
     setIsMounted(true)
+
+    // Check if mobile on mount
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
   const handleAutoSignOut = async () => {
@@ -93,6 +127,28 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
     router.push(`/song/listen/${songId}`)
   }
 
+  // Get high quality hero image
+  const getHeroImage = () => {
+    if (!featuredItem) return "/images/placeholder.jpg"
+
+    // Try to get backdrop first (landscape), fallback to poster
+    const rawPath =
+      activeTab === "movies"
+        ? (featuredItem as any).backdrop_path ||
+          (featuredItem as any).backdrop ||
+          (featuredItem as Movie).poster
+        : (featuredItem as Track).albumArt
+
+    // Ensure we are using the high-quality TMDB path
+    if (rawPath?.startsWith("/")) {
+      return `https://image.tmdb.org/t/p/original${rawPath}`
+    }
+
+    return rawPath?.includes("w500")
+      ? rawPath.replace("w500", "original")
+      : rawPath
+  }
+
   const supportedMoods = ["happy", "sad"]
   const normalizedMood = user?.mood?.toLowerCase()
   const showRecommendations =
@@ -100,16 +156,37 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
   if (!isMounted) return null
 
+  // Render mobile layout for screens < 768px
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile doesn't need the full navbar - it has bottom nav */}
+        <div className="mobile-top-bar">
+          <div
+            className="mobile-logo"
+            onClick={() => router.push("/dashboard")}
+          >
+            <img
+              src="/images/moodly-logo.gif"
+              alt="Moodly"
+              style={{ height: "40px", width: "auto" }}
+            />
+          </div>
+        </div>
+        <MobileDashboard movies={moviesState} songs={songState} />
+      </>
+    )
+  }
+
+  // Desktop layout with hero poster
   return (
     <div className="min-h-screen">
       {!normalizedMood ? (
         <div></div>
       ) : (
         <div className="min-h-screen flex flex-col">
-          <NavbarComponent onSelectMoodClick={handleMoodSelected} />
-
           <main className="magazine-layout">
-            {/* Top Bar - ORIGINAL DESIGN */}
+            {/* Top Bar */}
             <header className="magazine-header">
               <div className="magazine-search">
                 <Search className="magazine-search-icon" size={16} />
@@ -125,68 +202,80 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
             {showRecommendations ? (
               <div className="magazine-content">
-                {/* Hero Section - ORIGINAL 12 column grid */}
-                <section className="magazine-hero">
-                  {/* Left Column - Typography Toggle */}
-                  <div className="magazine-hero-left">
-                    <div
-                      className="magazine-toggle"
-                      onClick={() =>
-                        setActiveTab(
-                          activeTab === "movies" ? "songs" : "movies",
-                        )
+                <section className="magazine-hero-wrapper">
+                  {/* Background Image with Gradient Overlay */}
+                  <div className="magazine-hero-background">
+                    <Image
+                      src={
+                        featuredItem?.backdrop_path || featuredItem?.poster_path
                       }
-                    >
-                      <p className="magazine-label ">Curated for you</p>
-                      <h2
-                        className={`magazine-title ${activeTab === "movies" ? "active" : "inactive"}`}
+                      alt="Featured"
+                      fill
+                      className="magazine-hero-image"
+                      style={{ objectFit: "cover" }}
+                      priority
+                    />
+                    <div className="magazine-hero-overlay" />
+                  </div>
+
+                  {/* Hero Content Grid */}
+                  <div className="magazine-hero">
+                    <div className="magazine-hero-left">
+                      <div
+                        className="magazine-toggle"
+                        onClick={() =>
+                          setActiveTab(
+                            activeTab === "movies" ? "songs" : "movies",
+                          )
+                        }
                       >
-                        Movies
-                      </h2>
-                      <h2
-                        className={`magazine-title ${activeTab === "songs" ? "active" : "inactive"}`}
-                      >
-                        Songs
-                      </h2>
-                      <div className="magazine-indicators">
-                        <span
-                          className={`indicator ${activeTab === "movies" ? "active" : ""}`}
-                        ></span>
-                        <span
-                          className={`indicator ${activeTab === "songs" ? "active" : ""}`}
-                        ></span>
+                        <p className="magazine-label">Curated for you</p>
+                        <h2
+                          className={`magazine-title ${activeTab === "movies" ? "active" : "inactive"}`}
+                        >
+                          Movies
+                        </h2>
+                        <h2
+                          className={`magazine-title ${activeTab === "songs" ? "active" : "inactive"}`}
+                        >
+                          Songs
+                        </h2>
+                        <div className="magazine-indicators">
+                          <span
+                            className={`indicator ${activeTab === "movies" ? "active" : ""}`}
+                          ></span>
+                          <span
+                            className={`indicator ${activeTab === "songs" ? "active" : ""}`}
+                          ></span>
+                        </div>
                       </div>
                     </div>
 
-                    <p className="magazine-description">
-                      {activeTab === "movies"
-                        ? `Handpicked films that match your ${normalizedMood} mood today.`
-                        : `Songs selected to complement your ${normalizedMood} state of mind.`}
-                    </p>
-                  </div>
-
-                  {/* Right Column - Featured Card */}
-                  <div className="magazine-hero-right">
-                    <div className={`magazine-featured ${activeTab}`}>
-                      <button
-                        onClick={() =>
-                          router.push(
-                            activeTab === "movies"
-                              ? `/stream/${normalizedMood}`
-                              : `/radio/${normalizedMood}`,
-                          )
-                        }
-                        className="theme-button-variant-1"
-                      >
-                        {activeTab === "movies"
-                          ? "Join Live Session"
-                          : "Join Radio Station"}
-                      </button>
+                    <div className="magazine-hero-right">
+                      <div className={`magazine-featured ${activeTab}`}>
+                        <button
+                          onClick={() =>
+                            router.push(
+                              activeTab === "movies"
+                                ? `/stream/${normalizedMood}`
+                                : `/radio/${normalizedMood}`,
+                            )
+                          }
+                          className="theme-button-variant-1 flex gap-2 items-center text-center"
+                        >
+                          <Play
+                            color="var(--foreground)"
+                            fill="var(--foreground)"
+                          />
+                          {activeTab === "movies"
+                            ? "Join Live TV"
+                            : "Join Radio Station"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </section>
 
-                {/* Content Rows - AI SEARCH INTEGRATED HERE */}
                 <section className="magazine-rows">
                   {activeTab === "movies" ? (
                     <MoodMovies
@@ -194,7 +283,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                       mood={normalizedMood!}
                       onMovieClick={handleMovieClick}
                       loading={loading}
-                      query={searchQuery}
                     />
                   ) : (
                     <MoodMusic
@@ -202,12 +290,9 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                       mood={normalizedMood!}
                       onSongClick={handleSongClick}
                       loading={loading}
-                      query={searchQuery}
                     />
                   )}
                 </section>
-
-                {/* Social Section - ORIGINAL */}
               </div>
             ) : (
               <div className="magazine-coming-soon">

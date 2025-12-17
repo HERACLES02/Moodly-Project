@@ -13,6 +13,7 @@ export interface Movie {
   overview: string
   releaseDate: string
   rating: number
+  backdrop_path?: string
 }
 
 type MovieDoc = Movie & { [key: string]: unknown }

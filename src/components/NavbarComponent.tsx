@@ -11,20 +11,43 @@ import PointsDisplay from "@/components/PointsDisplay"
 import LoginBonus from "@/components/LoginBonus"
 import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
 import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context instead of hook
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
+import { setUserMood } from "@/lib/userActions"
+import { useTheme } from "next-themes"
 
-interface NavbarProps {
-  onSelectMoodClick?: (mood: string) => void
-}
-
-export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
+export default function NavbarComponent({
+  isLoggedIn,
+}: {
+  isLoggedIn?: boolean
+}) {
   const { user, updateUserAvatar, updateUserTheme, updateUserMood } = useUser()
-
+  const { theme, setTheme } = useTheme()
   const [moodSelected, setMoodSelected] = useState(false)
   const [noteSelected, setNoteSelected] = useState(false)
   const [themeSelected, setThemeSelected] = useState(false)
   const [avatarSelected, setAvatarSelected] = useState(false)
+
+  useEffect(() => {
+    async function setMood(moodName: string) {
+      try {
+        await setUserMood(moodName)
+      } catch (error) {
+        throw error
+      } finally {
+      }
+    }
+
+    if (user?.mood) {
+      setMood(user.mood)
+
+      if (user?.currentTheme != "default") {
+        setTheme(user?.currentTheme?.toLowerCase() || "")
+      } else {
+        setTheme(user.mood.toLowerCase())
+      }
+    }
+  }, [user?.mood])
 
   /** Handle Note Selection */
   function handleAddNote() {
@@ -119,9 +142,7 @@ export default function NavbarComponent({ onSelectMoodClick }: NavbarProps) {
    */
   function handleMoodSelection(mood: string) {
     console.log("Mood selected in Navbar:", mood)
-    if (onSelectMoodClick && mood) {
-      onSelectMoodClick(mood)
-    }
+
     setMoodSelected(false)
     updateUserMood(mood)
   }

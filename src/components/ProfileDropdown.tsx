@@ -28,7 +28,7 @@ export default function ProfileDropdown({
 
   const handleLogout = async () => {
     await signOut({ redirect: false })
-
+    router.refresh()
     router.push("/login")
   }
 
@@ -45,7 +45,7 @@ export default function ProfileDropdown({
   }
 
   const handleRedeemPoints = () => {
-    router.push("/themes")
+    router.push("/store")
   }
 
   const menuItems = [

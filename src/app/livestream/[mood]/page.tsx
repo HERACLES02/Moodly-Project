@@ -1,7 +1,7 @@
-import { use } from 'react'
-import NavbarComponent from '@/components/NavbarComponent'
-import SyncedMoviePlayer from '@/components/SyncedMoviePlayer'
-import './page.css'
+import { use } from "react"
+
+import SyncedMoviePlayer from "@/components/SyncedMoviePlayer"
+import "./page.css"
 
 interface PageProps {
   params: Promise<{ mood: string }>
@@ -9,15 +9,14 @@ interface PageProps {
 
 export default function LiveStreamPage({ params }: PageProps) {
   const { mood } = use(params)
-  
+
   // Validate mood
-  const validMoods = ['happy', 'sad']
+  const validMoods = ["happy", "sad"]
   const normalizedMood = mood.toLowerCase()
-  
+
   if (!validMoods.includes(normalizedMood)) {
     return (
       <div className="livestream-page-container">
-        <NavbarComponent />
         <div className="livestream-content">
           <div className="error-message">
             <h2>Invalid Mood Stream</h2>
@@ -31,7 +30,6 @@ export default function LiveStreamPage({ params }: PageProps) {
 
   return (
     <div className="livestream-page-container">
-      <NavbarComponent />
       <SyncedMoviePlayer mood={normalizedMood} />
     </div>
   )

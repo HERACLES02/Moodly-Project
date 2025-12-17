@@ -168,32 +168,31 @@ export async function GET(request: Request) {
     url.searchParams.set("page", randomPage.toString())
 
     console.log("Fetching from TMDB:", url.toString())
-    const response = await fetch(url.toString())
+    const response = await fetch(url.toString()+ +
+        `&include_image_language=en,null`)
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
-    const valid = (data.results || []).filter((m: any) => m?.poster_path)
-    const shuffled = shuffleArray(valid)
+    console.log("Movie Data", data)
 
-    // Return more movies if query exists (for AI re-ranking on client)
-    const movies = shuffled.map((movie: any) => ({
-      id: movie.id,
-      title: movie.title,
-      poster: movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "/images/movie-placeholder.jpg",
-      overview: movie.overview,
-      releaseDate: movie.release_date,
-      rating: movie.vote_average,
-    }))
+    const validMovies = data.results.filter((movie: any) => movie.poster_path)
 
-    console.log(
-      `Got ${movies.length} movies for mood: ${mood}, variant: ${variant}, query: ${query}`,
-    )
+    const movies = shuffleArray(validMovies)
+      .slice(0, 30)
+      .map((movie: any) => ({
+        id: movie.id,
+        title: movie.title,
+        poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+        overview: movie.overview,
+        releaseDate: movie.release_date,
+        rating: movie.vote_average,
+        backdrop_path: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
+      }))
 
     return NextResponse.json({
       mood,
       target: rules.target,
+      genreUsed: genre, // helpful for debugging
       movies,
       message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
       meta: {

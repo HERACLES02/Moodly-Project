@@ -65,8 +65,6 @@ export default function WatchMovies({
 
   return (
     <>
-      <NavbarComponent />
-
       <div className="watch-page-container">
         <div className="video-container p-2">
           <iframe
