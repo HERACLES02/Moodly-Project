@@ -1,70 +1,67 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Film, Music, Trophy } from "lucide-react";
-import { usePoints } from "@/hooks/usePoints";
-import { useUser } from "@/contexts/UserContext";
+import { useEffect, useState } from "react"
+import { Film, Music, Trophy } from "lucide-react"
+import { useUser } from "@/contexts/UserContext"
 
 interface WeeklyProgress {
-  moviesWatched: number;
-  songsListened: number;
-  bonusClaimed: boolean;
+  moviesWatched: number
+  songsListened: number
+  bonusClaimed: boolean
 }
 
 export default function WeeklyProgressCompact() {
   const { user } = useUser()
-  
-  const [progress, setProgress] = useState<WeeklyProgress | null>(null);
+  const [progress, setProgress] = useState<WeeklyProgress | null>(null)
 
-  useEffect( () => {
-    if (user){
+  useEffect(() => {
+    if (user) {
       setProgress(user?.weeklyActivities)
     }
-  }, [user?.weeklyAcitvities])
+  }, [user?.weeklyActivities])
 
-  
+  if (!progress) return null
 
-  
-  if (!progress) return null;
-
-  const movieProgress = Math.min(progress.moviesWatched, 3);
-  const songProgress = Math.min(progress.songsListened, 3);
-  const moviePercentage = (movieProgress / 3) * 100;
-  const songPercentage = (songProgress / 3) * 100;
+  const movieProgress = Math.min(progress.moviesWatched, 3)
+  const songProgress = Math.min(progress.songsListened, 3)
+  const moviePercentage = (movieProgress / 3) * 100
+  const songPercentage = (songProgress / 3) * 100
 
   return (
-    <div className="weekly-progress-compact">
-      <div className="progress-item">
-        <Film className="progress-icon" />
-        <div className="progress-bar-container">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill progress-fill-movie"
-              style={{ width: `${moviePercentage}%` }}
-            />
-          </div>
-          <span className="progress-text">{Math.min(progress.moviesWatched, 3)}/3</span>
+    <div className="flex items-center gap-4 bg-white/30 backdrop-blur-md p-1.5 px-4 rounded-full border border-white/20 shadow-sm">
+      {/* Movie Progress */}
+      <div className="flex items-center gap-2">
+        <Film size={14} className="text-[#1a1a1a] opacity-60" />
+        <div className="w-12 h-1.5 bg-black/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-pink-400 rounded-full transition-all duration-500"
+            style={{ width: `${moviePercentage}%` }}
+          />
         </div>
+        <span className="text-[10px] font-bold text-[#1a1a1a] opacity-80">
+          {movieProgress}/3
+        </span>
       </div>
 
-      <div className="progress-item">
-        <Music className="progress-icon" />
-        <div className="progress-bar-container">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill progress-fill-song"
-              style={{ width: `${songPercentage}%` }}
-            />
-          </div>
-          <span className="progress-text">{Math.min(progress.songsListened, 3)}/3</span>
+      {/* Song Progress */}
+      <div className="flex items-center gap-2 border-l border-black/10 pl-3">
+        <Music size={14} className="text-[#1a1a1a] opacity-60" />
+        <div className="w-12 h-1.5 bg-black/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-purple-400 rounded-full transition-all duration-500"
+            style={{ width: `${songPercentage}%` }}
+          />
         </div>
+        <span className="text-[10px] font-bold text-[#1a1a1a] opacity-80">
+          {songProgress}/3
+        </span>
       </div>
 
       {progress.bonusClaimed && (
-        <div className="bonus-indicator">
-          <Trophy className="trophy-icon" />
+        <div className="flex items-center justify-center">
+          <Trophy size={14} className="text-yellow-500 drop-shadow-sm" />
         </div>
       )}
     </div>
-  );
+  )
 }

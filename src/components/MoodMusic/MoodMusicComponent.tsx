@@ -166,7 +166,7 @@ export default function MoodMusic({
       const data = await response.json()
       const list: Track[] = data.tracks || []
       setTracks(list)
-      setVisibleTracks(list.slice(0, 4))
+      setVisibleTracks(!query ? list.slice(0, 4) : list)
 
       miniRef.current = new MiniSearch<Track>({
         fields: ["name", "artist", "album"],
@@ -199,7 +199,7 @@ export default function MoodMusic({
   const runSearch = async (q: string) => {
     const qq = (q || "").trim()
     if (qq.length < 2) {
-      setVisibleTracks(tracks.slice(0, 4))
+      setVisibleTracks(tracks)
       return
     }
     if (!miniRef.current || tracks.length === 0) return
@@ -233,7 +233,7 @@ export default function MoodMusic({
         }
       })
       .sort((a, b) => b.score - a.score)
-    setVisibleTracks(scored.slice(0, 4).map((s) => s.t))
+    setVisibleTracks(scored.map((s) => s.t))
   }
 
   useEffect(() => {

@@ -26,11 +26,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const menuRef = useRef<HTMLDivElement | null>(null)
 
   const currentMode = mode ?? internalMode
 
-  // --- Outside click: use pointerdown so it's consistent; close bar & menu
+  // --- Logic: Outside click ---
   useEffect(() => {
     const handleOutside = (event: PointerEvent) => {
       if (
@@ -45,7 +44,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     return () => document.removeEventListener("pointerdown", handleOutside)
   }, [])
 
-  // "/" to focus, "Esc" to clear/close
+  // Logic: Shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null
@@ -67,7 +66,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       }
     }
     window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
+    return () => window.addEventListener("keydown", handler)
   }, [])
 
   const setMode = (m: SearchMode) => {
@@ -76,7 +75,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
     setIsMenuOpen(false)
   }
 
-  // Ensure the menu item handler fires BEFORE the outside-click listener
   const pick =
     (m: SearchMode) => (e: React.MouseEvent | React.PointerEvent) => {
       e.preventDefault()
@@ -93,98 +91,44 @@ const SearchBar: React.FC<SearchBarProps> = ({
   }
 
   return (
-    <div ref={wrapperRef} className={`searchbar-wrapper ${className || ""}`}>
+    <div
+      ref={wrapperRef}
+      className={`relative w-full max-w-2xl transition-all duration-300 ${className}`}
+    >
       <form
         onSubmit={handleSubmit}
-        className={`searchbar ${isOpen ? "open" : ""}`}
-        role="search"
-        aria-label="Search"
+        className={`
+          flex items-center gap-2 p-1.5 rounded-full transition-all duration-300
+          border border-white/40 shadow-lg backdrop-blur-md
+          ${isOpen ? "bg-white/80 ring-2 ring-pink-200" : "bg-white/40 hover:bg-white/60"}
+        `}
       >
         {/* Mode selector */}
-        <div className="searchbar-selector-wrap">
-          <button
-            type="button"
-            className="searchbar-selector"
-            aria-haspopup="listbox"
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen((v) => !v)}
-          >
-            <span className="searchbar-selector-dot" aria-hidden="true" />
-            <span className="searchbar-selector-label">
-              {currentMode === "movie" ? "Movies" : "Songs"}
-            </span>
-            <svg
-              className="searchbar-selector-chevron"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
-            >
-              <path
-                fill="currentColor"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 10.207l3.71-2.976a.75.75 0 111.06 1.06l-4.24 3.4a.75.75 0 01-.94 0l-4.24-3.4a.75.75 0 01-.02-1.06z"
-              />
-            </svg>
-          </button>
 
-          {isMenuOpen && (
-            <div
-              ref={menuRef}
-              role="listbox"
-              className="searchbar-menu"
-              tabIndex={-1}
-            >
-              <button
-                type="button"
-                role="option"
-                aria-selected={currentMode === "movie"}
-                className={`searchbar-menu-item ${currentMode === "movie" ? "searchbar-menu-item-active" : ""}`}
-                onMouseDown={pick("movie")} // use onMouseDown so it runs before document pointerdown
-              >
-                Movies
-              </button>
-              <button
-                type="button"
-                role="option"
-                aria-selected={currentMode === "song"}
-                className={`searchbar-menu-item ${currentMode === "song" ? "searchbar-menu-item-active" : ""}`}
-                onMouseDown={pick("song")}
-              >
-                Songs
-              </button>
-            </div>
-          )}
-        </div>
-
-        <svg
-          className="searchbar-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            fill="currentColor"
-            d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 0 0 1.57-4.23A6.5 6.5 0 1 0 9.5 15.5c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.49 21.49 20 15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-          />
-        </svg>
-
+        {/* Input Field */}
         <input
           ref={inputRef}
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setIsOpen(true)}
-          placeholder={placeholder}
-          className="searchbar-input"
-          aria-label={`${currentMode === "movie" ? "Movies" : "Songs"} search`}
+          placeholder={isOpen ? "Type your mood..." : placeholder}
+          className="flex-1 bg-transparent px-2 text-[#1a1a1a] font-medium placeholder-gray-500 focus:outline-none"
         />
 
+        {/* Submit Button */}
         <button
           type="submit"
-          className="searchbar-submit"
-          aria-label="Submit search"
+          className="bg-[#2a2a2a] text-white px-6 py-2 rounded-full font-bold text-sm tracking-wide shadow-md hover:bg-black transition-all active:scale-95"
         >
-          Search
+          SEARCH
         </button>
       </form>
+
+      {/* Keyboard Shortcut Hint */}
+      {!isOpen && (
+        <div className="absolute right-4 -bottom-8 pointer-events-none"></div>
+      )}
     </div>
   )
 }

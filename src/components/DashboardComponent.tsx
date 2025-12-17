@@ -19,6 +19,7 @@ import Image from "next/image"
 import MobileDashboard from "@/components/MobileDashboard/MobileDashboard"
 import { Play } from "lucide-react"
 import SearchBar from "./SearchBar"
+import { useSearchStore } from "@/lib/store"
 
 const movieCache = new Map<string, Movie[]>()
 const songCache = new Map<string, Track[]>()
@@ -34,10 +35,17 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
   const [error, setError] = useState<string | null>(null)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
 
-  const [searchQuery, setSearchQuery] = useState<string>("")
-  const [searchMode, setSearchMode] = useState<"movie" | "song">("movie")
-  const [submittedMode, setSubmittedMode] = useState<"movie" | "song">("movie")
-  const [submittedQuery, setSubmittedQuery] = useState<string>("")
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchMode,
+    setSearchMode,
+    submittedMode,
+    setSubmittedMode,
+    submittedQuery,
+    setSubmittedQuery,
+  } = useSearchStore()
+
   const [activeTab, setActiveTab] = useState<"movies" | "songs">("movies")
 
   const { user, updateUserMood } = useUser()
@@ -102,6 +110,9 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
 
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
+  useEffect(() => {
+    setSearchMode(activeTab === "movies" ? "movie" : "song")
+  }, [activeTab, searchMode])
 
   const handleAutoSignOut = async () => {
     await signOut({ redirect: false })
@@ -197,34 +208,18 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                 <section className="magazine-hero-wrapper">
                   {/* Background Image with Gradient Overlay */}
                   <div className="magazine-hero-background">
-                    <section className="mb-6">
-                      <SearchBar
-                        placeholder="Type to search…"
-                        onModeChange={(m) => setSearchMode(m)}
-                        onSubmit={(val, m) => {
-                          const trimmed = val.trim()
-                          // keep UI state in sync
-                          setSearchMode(m)
-                          setSearchQuery(trimmed)
-                          // store the exact submitted pair used by children
-                          setSubmittedMode(m)
-                          setSubmittedQuery(trimmed)
-                          console.log("submitted:", { query: trimmed, mode: m })
-                        }}
-                      />
-                    </section>
-                    {/* <Image
+                    <Image
                       src={
-                        featuredItem?.backdrop_path ||
-                        featuredItem?.albumArt ||
-                        null
+                        user?.mood?.toLowerCase() === "sad"
+                          ? "https://image.tmdb.org/t/p/original/5jhG1lTgV0MS6tDkBMQSSitttTT.jpg"
+                          : "https://image.tmdb.org/t/p/original/8gT3UKtglLVpu0YfccwbmXZ5Eis.jpg"
                       }
                       alt="Featured"
                       fill
                       className="magazine-hero-image"
                       style={{ objectFit: "cover" }}
                       priority
-                    /> */}
+                    />
                     <div className="magazine-hero-overlay" />
                   </div>
 

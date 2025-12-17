@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import DashboardComponent from "@/components/DashboardComponent"
 import MobileDashboard from "@/components/MobileDashboard"
-import { fetchRecommendations } from "@/lib/fetchRecommendations"
+import { fetchPoster, fetchRecommendations } from "@/lib/fetchRecommendations"
 import { getUserMood } from "@/lib/userActions"
 import { redirect } from "next/navigation"
 
@@ -17,6 +17,7 @@ const page = async () => {
   if (!movies) {
     return <div>no fetch</div>
   }
+  await fetchPoster("3 Idiots")
 
   return (
     <>

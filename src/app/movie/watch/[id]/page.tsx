@@ -46,7 +46,7 @@ export default function WatchMovies({
   const fetchMovieData = async () => {
     try {
       const response = await fetch(
-        `https://moodly-blond.vercel.app/api/get-movie-data?id=${id}`,
+        `http://localhost:9513/api/get-movie-data?id=${id}`,
       )
       const movieData = await response.json()
       setMovie(movieData)
@@ -61,7 +61,7 @@ export default function WatchMovies({
     return <div>Loading...</div>
   }
 
-  const embedUrl = `https://www.vidking.net/embed/movie/${id}`
+  const embedUrl = `https://vidsrc-embed.ru/embed/movie?tmdb=${id}`
 
   return (
     <>

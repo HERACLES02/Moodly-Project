@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import NavbarComponent from '@/components/NavbarComponent'
-import './playlist.css'
-import { useUser } from '@/contexts/UserContext'
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import NavbarComponent from "@/components/NavbarComponent"
+import "./playlist.css"
+import { useUser } from "@/contexts/UserContext"
 
 interface PlaylistItem {
   id: string
@@ -16,12 +16,16 @@ interface PlaylistItem {
 interface Playlist {
   id: string
   name: string
-  type: 'SONG' | 'MOVIE'
+  type: "SONG" | "MOVIE"
   items: PlaylistItem[]
 }
 
-export default function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
-  const [playlistId, setPlaylistId] = useState<string>('')
+export default function PlaylistPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const [playlistId, setPlaylistId] = useState<string>("")
   const [playlist, setPlaylist] = useState<Playlist | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentMood, setCurrentMood] = useState<string | null>(null)
@@ -39,7 +43,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     if (user?.mood) {
       setCurrentMood(user.mood)
-      console.log('PlaylistPage: User mood from context:', user.mood)
+      console.log("PlaylistPage: User mood from context:", user.mood)
     }
   }, [user?.mood])
 
@@ -52,25 +56,22 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   const fetchPlaylistData = async () => {
     try {
       setLoading(true)
-      
-      
-      
+
       setPlaylist({
         id: playlistId,
         name: `My Playlist`,
-        type: 'SONG', 
-        items: [] 
+        type: "SONG",
+        items: [],
       })
-      
     } catch (error) {
-      console.error('Error fetching playlist:', error)
+      console.error("Error fetching playlist:", error)
     } finally {
       setLoading(false)
     }
   }
 
   const handleMoodSelected = (mood: string) => {
-    console.log('PlaylistPage received mood from navbar:', mood)
+    console.log("PlaylistPage received mood from navbar:", mood)
     if (mood) {
       setCurrentMood(mood)
     }
@@ -78,27 +79,26 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
 
   const getPlaylistPageTheme = () => {
     const normalizedMood = currentMood?.toLowerCase()
-    if (normalizedMood === 'happy') return 'playlist-happy'
-    if (normalizedMood === 'sad') return 'playlist-sad'
-    return 'playlist-default'
+    if (normalizedMood === "happy") return "playlist-happy"
+    if (normalizedMood === "sad") return "playlist-sad"
+    return "playlist-default"
   }
 
   const handleItemClick = (itemId: string, type: string) => {
-    if (type === 'SONG') {
+    if (type === "SONG") {
       router.push(`/song/listen/${itemId}`)
-    } else if (type === 'MOVIE') {
+    } else if (type === "MOVIE") {
       router.push(`/movie/watch/${itemId}`)
     }
   }
 
   const getPlaylistTypeIcon = (type: string) => {
-    return type === 'SONG' ? '🎵' : '🎬'
+    return type === "SONG" ? "🎵" : "🎬"
   }
 
   if (loading) {
     return (
       <div className={`playlist-page-container ${getPlaylistPageTheme()}`}>
-        <NavbarComponent onSelectMoodClick={handleMoodSelected} />
         <div className="loading-container">
           <p>Loading playlist...</p>
         </div>
@@ -109,10 +109,12 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   if (!playlist) {
     return (
       <div className={`playlist-page-container ${getPlaylistPageTheme()}`}>
-        <NavbarComponent onSelectMoodClick={handleMoodSelected} />
         <div className="error-container">
           <p>Playlist not found</p>
-          <button onClick={() => router.push('/userpage')} className="back-button">
+          <button
+            onClick={() => router.push("/userpage")}
+            className="back-button"
+          >
             Back to User Page
           </button>
         </div>
@@ -123,12 +125,10 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
   return (
     <div className={`playlist-page-container ${getPlaylistPageTheme()}`}>
       <NavbarComponent onSelectMoodClick={handleMoodSelected} />
-      
+
       <main className="playlist-main">
         <div className="playlist-content">
           <div className="playlist-header">
-
-            
             <div className="playlist-title-section">
               <div className="playlist-icon-large">
                 {getPlaylistTypeIcon(playlist.type)}
@@ -145,26 +145,29 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               <div className="empty-playlist">
                 <p>This playlist is empty</p>
                 <p className="empty-subtitle">
-                  Start adding {playlist.type.toLowerCase()}s by using the "+" button on songs/movies!
+                  Start adding {playlist.type.toLowerCase()}s by using the "+"
+                  button on songs/movies!
                 </p>
               </div>
             ) : (
               <div className="playlist-items-grid">
                 {playlist.items.map((item, index) => (
-                  <div 
+                  <div
                     key={item.id}
                     className="playlist-item-card"
                     onClick={() => handleItemClick(item.itemId, playlist.type)}
                   >
                     <div className="item-number">{index + 1}</div>
                     <div className="item-info">
-                      <h3 className="item-name">{item.itemName || `${playlist.type} ${index + 1}`}</h3>
+                      <h3 className="item-name">
+                        {item.itemName || `${playlist.type} ${index + 1}`}
+                      </h3>
                       <p className="item-date">
                         Added {new Date(item.addedAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="item-icon">
-                      {playlist.type === 'SONG' ? '▶️' : '🎬'}
+                      {playlist.type === "SONG" ? "▶️" : "🎬"}
                     </div>
                   </div>
                 ))}

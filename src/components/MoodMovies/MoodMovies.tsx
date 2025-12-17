@@ -164,7 +164,8 @@ export default function MoodMovies({
       const data = await response.json()
       const list: Movie[] = data.movies || []
       setMovies(list)
-      setVisibleMovies(list.slice(0, 4))
+
+      setVisibleMovies(!query ? list.slice(0, 4) : list)
 
       miniRef.current = new MiniSearch<MovieDoc>({
         fields: ["title", "overview"],
@@ -195,7 +196,7 @@ export default function MoodMovies({
   const runSearch = async (q: string) => {
     const qq = (q || "").trim()
     if (qq.length < 2) {
-      setVisibleMovies(movies.slice(0, 4))
+      setVisibleMovies(movies)
       return
     }
     if (!miniRef.current || movies.length === 0) return
@@ -228,7 +229,7 @@ export default function MoodMovies({
         }
       })
       .sort((a, b) => b.score - a.score)
-    setVisibleMovies(scored.slice(0, 4).map((s) => s.m))
+    setVisibleMovies(scored.map((s) => s.m))
   }
 
   const handleMovieClick = async (movie: Movie) => {

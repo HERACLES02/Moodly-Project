@@ -97,7 +97,6 @@ export default function UserPage() {
   if (loading) {
     return (
       <div className={`userpage-container ${getUserPageTheme()}`}>
-        <NavbarComponent onSelectMoodClick={handleMoodSelected} />
         <div className="loading-container">
           <p>Loading your playlists...</p>
         </div>
@@ -107,8 +106,6 @@ export default function UserPage() {
 
   return (
     <div className={`userpage-container ${getUserPageTheme()}`}>
-      <NavbarComponent onSelectMoodClick={handleMoodSelected} />
-
       <main className="userpage-main">
         <div className="userpage-content ">
           <div className="user-header">

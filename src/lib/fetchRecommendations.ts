@@ -55,3 +55,14 @@ export async function fetchRecommendations(mood?: string) {
     }
   }
 }
+
+export async function fetchPoster(name?: string) {
+  const movie1 = 1402 //3 idiots
+
+  const response = await fetch(
+    `http://localhost:9513/api/get-movie-data?id=${movie1}`,
+  )
+  const movieData = await response.json()
+
+  console.log("3 Idiots rresponse ", movieData)
+}

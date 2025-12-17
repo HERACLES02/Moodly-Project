@@ -61,6 +61,7 @@ interface UserContextType {
   updateUserAvatar: (avatarId: string | null) => void // Quick update for avatar
   updateUserMood: (newMood: string) => void // Quick update for mood
   updateUserNote: (newNote: string) => void // Quick update for note
+  
 }
 
 // ═══════════════════════════════════════════════════════════════════

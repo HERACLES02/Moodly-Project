@@ -45,7 +45,7 @@ export default function ListenMusic({
   const fetchSongData = async () => {
     try {
       const response = await fetch(
-        `https://moodly-blond.vercel.app/api/get-song-data?id=${id}`,
+        `http://localhost:9513/api/get-song-data?id=${id}`,
       )
       const songData = await response.json()
       setSong(songData)
@@ -64,8 +64,6 @@ export default function ListenMusic({
 
   return (
     <>
-      <NavbarComponent />
-
       <div className="listen-page-container">
         <div className="spotify-embed-container">
           <iframe

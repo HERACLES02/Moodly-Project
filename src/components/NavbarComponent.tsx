@@ -10,11 +10,13 @@ import MoodSelector from "./MoodSelector"
 import PointsDisplay from "@/components/PointsDisplay"
 import LoginBonus from "@/components/LoginBonus"
 import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
-import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context instead of hook
+import { useUser } from "@/contexts/UserContext"
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
 import { setUserMood } from "@/lib/userActions"
 import { useTheme } from "next-themes"
+import { useSearchStore } from "@/lib/store"
+import SearchBar from "./SearchBar"
 
 export default function NavbarComponent({
   isLoggedIn,
@@ -27,6 +29,8 @@ export default function NavbarComponent({
   const [noteSelected, setNoteSelected] = useState(false)
   const [themeSelected, setThemeSelected] = useState(false)
   const [avatarSelected, setAvatarSelected] = useState(false)
+  const { setSearchQuery, setSearchMode, setSubmittedMode, setSubmittedQuery } =
+    useSearchStore()
 
   useEffect(() => {
     async function setMood(moodName: string) {
@@ -34,7 +38,6 @@ export default function NavbarComponent({
         await setUserMood(moodName)
       } catch (error) {
         throw error
-      } finally {
       }
     }
 
@@ -48,13 +51,12 @@ export default function NavbarComponent({
       }
     }
   }, [user?.mood])
+
   if (!user || !user.mood) {
     return
   }
 
-  /** Handle Note Selection */
   function handleAddNote() {
-    console.log("Add Note Clicked")
     if (noteSelected) {
       setNoteSelected(false)
       setTimeout(() => setNoteSelected(true), 100)
@@ -62,106 +64,48 @@ export default function NavbarComponent({
       setNoteSelected(true)
     }
     setMoodSelected(false)
-    console.log(noteSelected)
   }
 
-  /** Handle Mood Selection Toggle */
   function handleSelectMood() {
-    console.log("Select Mood Clicked")
-    setMoodSelected((prev) => {
-      const newState = !prev
-      return newState
-    })
+    setMoodSelected((prev) => !prev)
     setNoteSelected(false)
   }
 
-  function handleCloseMood() {
-    setMoodSelected(false)
-  }
-
-  /** Handle Theme Selection Toggle */
   function handleSelectTheme() {
-    console.log("Select Theme Clicked")
-    setThemeSelected((prev) => {
-      const newState = !prev
-      console.log("ThemeSelected will be:", newState)
-      return newState
-    })
+    setThemeSelected((prev) => !prev)
     setMoodSelected(false)
     setNoteSelected(false)
     setAvatarSelected(false)
   }
 
-  function handleCloseTheme() {
-    setThemeSelected(false)
-  }
-
-  /** Handle Avatar Selection Toggle */
   function handleSelectAvatar() {
-    console.log("Select Avatar Clicked")
-    setAvatarSelected((prev) => {
-      const newState = !prev
-      console.log("AvatarSelected will be:", newState)
-      return newState
-    })
+    setAvatarSelected((prev) => !prev)
     setMoodSelected(false)
     setNoteSelected(false)
     setThemeSelected(false)
   }
 
-  function handleCloseAvatar() {
-    setAvatarSelected(false)
-  }
-
-  /**
-   * Handle Avatar Update
-   * ────────────────────────────────────────────────────────────────
-   * CHANGED: Now uses updateUserAvatar() from context
-   * This instantly updates the UI without refetching
-   */
   function handleAvatarSelection(avatarId: string) {
-    console.log("Avatar selected in Navbar:", avatarId)
     updateUserAvatar(avatarId === "default" ? null : avatarId)
     setAvatarSelected(false)
   }
 
-  /**
-   * Handle Theme Update
-   * ────────────────────────────────────────────────────────────────
-   * CHANGED: Now uses updateUserTheme() from context
-   * This instantly updates the UI without refetching
-   */
   function handleThemeSelection(theme: string) {
-    console.log("Theme selected in Navbar:", theme)
     updateUserTheme(theme)
     setThemeSelected(false)
   }
 
-  /**
-   * Handle Mood Update
-   * ────────────────────────────────────────────────────────────────
-   * CHANGED: Now uses updateUserMood() from context
-   * This instantly updates the UI without refetching
-   */
   function handleMoodSelection(mood: string) {
-    console.log("Mood selected in Navbar:", mood)
-
     setMoodSelected(false)
     updateUserMood(mood)
   }
 
-  function handleCloseNotes() {
-    setNoteSelected(false)
-  }
-
   return (
     <>
-      {/* Daily Login Bonus */}
       <LoginBonus />
 
-      {/* Navbar */}
       <nav className="theme-navbar">
-        {/* Logo */}
+        {/* Logo - Kept Original */}
         <div
           className="moodlyImage"
           onClick={() => {
@@ -175,16 +119,29 @@ export default function NavbarComponent({
           />
         </div>
 
-        {/* Weekly Progress */}
-        <div className="navbar-center">
-          <WeeklyProgressCompact />
-        </div>
+        {/* SearchBar - Styled to match dashboard */}
+        <section className="w-full max-w-3xl">
+          <SearchBar
+            placeholder="What's on your mood today?"
+            onModeChange={(m) => setSearchMode(m)}
+            onSubmit={(val, m) => {
+              const trimmed = val.trim()
+              setSearchMode(m)
+              setSearchQuery(trimmed)
+              setSubmittedMode(m)
+              setSubmittedQuery(trimmed)
+            }}
+          />
+        </section>
 
-        {/* User Section */}
-        <div className="UserSection h-full px-5 flex justify-center items-center gap-2">
-          <div>
+        {/* User Section - WeeklyProgressCompact moved here for right alignment */}
+        <div className="UserSection h-full px-5 flex justify-center items-center gap-6">
+          <WeeklyProgressCompact />
+
+          <div className="flex items-center gap-2">
             <PointsDisplay />
           </div>
+
           <div className="h-full w-full ">
             <ProfileDropdown
               userName={user?.anonymousName}
@@ -198,29 +155,22 @@ export default function NavbarComponent({
         </div>
       </nav>
 
-      {/* Notes Section */}
-      {noteSelected && <NotesSection onClose={handleCloseNotes} />}
-
-      {/* Mood Selector */}
+      {noteSelected && <NotesSection onClose={() => setNoteSelected(false)} />}
       {moodSelected && (
         <MoodSelector
-          onClose={handleCloseMood}
+          onClose={() => setMoodSelected(false)}
           onMoodSelect={handleMoodSelection}
         />
       )}
-
-      {/* Theme Selector */}
       {themeSelected && (
         <ThemeSelector
-          onClose={handleCloseTheme}
+          onClose={() => setThemeSelected(false)}
           onThemeSelect={handleThemeSelection}
         />
       )}
-
-      {/* Avatar Selector */}
       {avatarSelected && (
         <AvatarSelector
-          onClose={handleCloseAvatar}
+          onClose={() => setAvatarSelected(false)}
           onAvatarSelect={handleAvatarSelection}
         />
       )}
