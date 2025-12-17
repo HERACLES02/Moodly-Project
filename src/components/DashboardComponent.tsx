@@ -186,20 +186,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
       ) : (
         <div className="min-h-screen flex flex-col">
           <main className="magazine-layout">
-            {/* Top Bar */}
-            <header className="magazine-header">
-              <div className="magazine-search">
-                <Search className="magazine-search-icon" size={16} />
-                <input
-                  type="text"
-                  placeholder="What is on your mood today?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="magazine-search-input"
-                />
-              </div>
-            </header>
-
             {showRecommendations ? (
               <div className="magazine-content">
                 <section className="magazine-hero-wrapper">
