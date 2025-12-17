@@ -44,7 +44,7 @@ export default function MoodMovies({
   movies,
   mood,
   onMovieClick,
-  loading,
+
   query = "",
 }: MoodMoviesProps) {
   const [visibleMovies, setVisibleMovies] = useState<Movie[]>([])

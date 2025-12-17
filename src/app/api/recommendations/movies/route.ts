@@ -29,7 +29,7 @@ const MOOD_RULES: Record<
     }[]
   }
 > = {
-    happy: {
+  happy: {
     target: "balanced",
     genreCombos: [
       [35, 12],
@@ -53,8 +53,8 @@ const MOOD_RULES: Record<
         key: "romanticism_galore",
         title: "Romanticism Galore",
         genreCombos: [
-          [35, 10749],   // romcom
-          [10749, 10402] // romance + music
+          [35, 10749], // romcom
+          [10749, 10402], // romance + music
         ],
         withoutGenres: [27, 53],
       },
@@ -62,14 +62,13 @@ const MOOD_RULES: Record<
         key: "laugh_out_loud",
         title: "Laugh Out Loud",
         genreCombos: [
-          [35],     // comedy
+          [35], // comedy
           [35, 12], // comedy + adventure
         ],
         withoutGenres: [27, 53],
       },
     ],
   },
-
 
   calm: {
     target: "peaceful",
@@ -106,12 +105,7 @@ const MOOD_RULES: Record<
 
   sad: {
     target: "balanced",
-    genreCombos: [
-      [18],
-      [18, 10749],
-      [18, 10402],
-      [18, 9648],
-    ],
+    genreCombos: [[18], [18, 10749], [18, 10402], [18, 9648]],
     withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
 
     sections: [
@@ -120,35 +114,26 @@ const MOOD_RULES: Record<
         title: "Broken Hearts",
         genreCombos: [
           [18, 10749], // Drama + Romance
-          [10749, 18], 
+          [10749, 18],
         ],
         keywordCombos: [
-          [10048],        // unrequited love
-          [10703],        // one-sided love
-     // tragic love + heartbreak IDs
-  ],
+          [10048], // unrequited love
+          [10703], // one-sided love
+          // tragic love + heartbreak IDs
+        ],
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
       {
         key: "hard_truths",
         title: "Life’s Hard Truths",
-        genreCombos: [
-          [18, 80], 
-          [18, 36], 
-          [18],     
-        ],
+        genreCombos: [[18, 80], [18, 36], [18]],
 
-        
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
       {
         key: "healing_through_pain",
         title: "Healing Through Pain",
-        genreCombos: [
-          [18, 10402], 
-          [18, 9648],  
-          [18],        
-        ],
+        genreCombos: [[18, 10402], [18, 9648], [18]],
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
     ],
@@ -220,7 +205,7 @@ export async function GET(request: Request) {
         { status: 500 },
       )
 
-// NEW: support sub-genre sections
+    // NEW: support sub-genre sections
     const sectionKey = (searchParams.get("section") || "").trim()
     const section = rules.sections?.find((s) => s.key === sectionKey)
 
@@ -240,11 +225,8 @@ export async function GET(request: Request) {
 
     const withKeywords = keywordCombo ? keywordCombo.join(",") : null
 
-
-    
-
     // Fetch more results if there's a query for AI re-ranking
-    const limit = query ? 60 : 30
+    const limit = 30
     const randomPage = Math.floor(Math.random() * 5) + 1
 
     const url = new URL("https://api.themoviedb.org/3/discover/movie")
@@ -264,7 +246,9 @@ export async function GET(request: Request) {
     url.searchParams.set("page", "1")
 
     console.log("Checking URL" + url)
-    const response = await fetch(url.toString())
+    const response = await fetch(
+      url.toString() + "&include_image_language=en-US,null",
+    )
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
@@ -278,7 +262,9 @@ export async function GET(request: Request) {
       overview: movie.overview,
       releaseDate: movie.release_date,
       rating: movie.vote_average,
+      backdrop_path: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
     }))
+    console.log("Movies", movies)
     console.log("checking movie length")
     console.log("Got Movies: " + movies.length)
 

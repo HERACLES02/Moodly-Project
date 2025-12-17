@@ -191,16 +191,18 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                 <section className="magazine-hero-wrapper">
                   {/* Background Image with Gradient Overlay */}
                   <div className="magazine-hero-background">
-                    <Image
+                    {/* <Image
                       src={
-                        featuredItem?.backdrop_path || featuredItem?.poster_path
+                        featuredItem?.backdrop_path ||
+                        featuredItem?.albumArt ||
+                        null
                       }
                       alt="Featured"
                       fill
                       className="magazine-hero-image"
                       style={{ objectFit: "cover" }}
                       priority
-                    />
+                    /> */}
                     <div className="magazine-hero-overlay" />
                   </div>
 
