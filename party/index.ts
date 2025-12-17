@@ -1,5 +1,5 @@
 import type * as Party from "partykit/server"
-import { catVideoQueue, getRandomIndex } from "./catvideos"
+import { getRandomIndex, movieQueue } from "./catvideos"
 
 export interface VideoState {
   name: string
@@ -36,12 +36,12 @@ export default class Server implements Party.Server {
 
   onMessage(message: string, sender: Party.Connection) {
     if (message == "videoend") {
-      // const idx: number = getRandomIndex(catVideoQueue)
+      // const idx: number = getRandomIndex(movieQueue)
       // this.videoState = {
-      //   name: catVideoQueue[idx].name,
-      //   videoUrl: catVideoQueue[idx].url,
+      //   name: movieQueue[idx].name,
+      //   videoUrl: movieQueue[idx].url,
       //   starttime: Date.now(),
-      //   duration: catVideoQueue[idx].duration,
+      //   duration: movieQueue[idx].duration,
       // }
       // this.room.broadcast(
       //   JSON.stringify({
@@ -67,12 +67,12 @@ export default class Server implements Party.Server {
     // let's log the message
   }
   private startNewVideo() {
-    const idx: number = getRandomIndex(catVideoQueue)
+    const idx: number = getRandomIndex(movieQueue)
     this.videoState = {
-      name: catVideoQueue[idx].name,
-      videoUrl: catVideoQueue[idx].url,
+      name: movieQueue[idx].name,
+      videoUrl: movieQueue[idx].url,
       starttime: Date.now(),
-      duration: catVideoQueue[idx].duration,
+      duration: movieQueue[idx].duration,
     }
 
     if (this.videoTimer) {

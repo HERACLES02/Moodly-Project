@@ -1,7 +1,7 @@
-import { use } from 'react'
-import NavbarComponent from '@/components/NavbarComponent'
-import SyncedRadioPlayer from '@/components/SyncedRadioPlayer'
-import './page.css'
+import { use } from "react"
+import NavbarComponent from "@/components/NavbarComponent"
+import SyncedRadioPlayer from "@/components/SyncedRadioPlayer"
+import "./page.css"
 
 interface PageProps {
   params: Promise<{ mood: string }>
@@ -9,15 +9,14 @@ interface PageProps {
 
 export default function RadioPage({ params }: PageProps) {
   const { mood } = use(params)
-  
+
   // Validate mood
-  const validMoods = ['happy', 'sad']
+  const validMoods = ["happy", "sad"]
   const normalizedMood = mood.toLowerCase()
-  
+
   if (!validMoods.includes(normalizedMood)) {
     return (
       <div className="radio-page-container">
-        <NavbarComponent />
         <div className="radio-content">
           <div className="error-message">
             <h2>Invalid Radio Station</h2>
@@ -31,7 +30,6 @@ export default function RadioPage({ params }: PageProps) {
 
   return (
     <div className="radio-page-container">
-      <NavbarComponent />
       <SyncedRadioPlayer mood={normalizedMood} />
     </div>
   )

@@ -5,7 +5,8 @@ import React, { useEffect, useRef, useState } from "react"
 import ChatComponent from "./ChatComponent"
 import { VideoState } from "../../../../party"
 import CustomVideoPlayer from "@/components/CustomVideoPlayer"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
+import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 
 interface watchProps {
   mood: string
@@ -13,6 +14,7 @@ interface watchProps {
 
 const WatchPage = ({ mood }: watchProps) => {
   const { user } = useUser()
+  const router = useRouter()
   const [videoState, setVideoState] = useState<VideoState>({
     name: "",
     videoUrl: null,
@@ -26,24 +28,15 @@ const WatchPage = ({ mood }: watchProps) => {
   const [livetime, setlivetime] = useState<number | null>(null)
 
   const ws = usePartySocket({
-    // usePartySocket takes the same arguments as PartySocket.
-    host: "moodly-party.himel2010.partykit.dev", // or localhost:1999 in dev
+    host: "moodly-party.himel2010.partykit.dev",
     room: `${mood}`,
-
-    // in addition, you can provide socket lifecycle event handlers
-    // (equivalent to using ws.addEventListener in an effect hook)
-    onOpen() {
-      console.log("connected")
-    },
     onMessage(e) {
       try {
         const parsed = JSON.parse(e.data)
         if (parsed.type === "message") {
           setMessages((prev) => [...prev, parsed.data])
         } else if (parsed.type === "video-change") {
-          console.log("This is parsed data")
           const newVideoData = parsed.data
-          console.log(newVideoData)
           setVideoState((prev) => ({
             ...prev,
             name: newVideoData.name,
@@ -52,8 +45,6 @@ const WatchPage = ({ mood }: watchProps) => {
           }))
           setlivetime(newVideoData.starttime)
         } else {
-          console.log(parsed)
-
           setVideoState((prev) => ({
             ...prev,
             name: parsed.name,
@@ -63,60 +54,63 @@ const WatchPage = ({ mood }: watchProps) => {
         }
       } catch (error) {}
     },
-    onClose() {
-      console.log("closed")
-    },
-    onError(e) {
-      console.log("error")
-    },
   })
+
   useEffect(() => setMount(true), [])
-
-  useEffect(() => {
-    const updateTime = () => {
-      const video = videoRef.current
-      if (!video) return null
-      video.currentTime = (Date.now() - livetime) / 1000
-    }
-    updateTime()
-  }, [livetime])
-
-  const handleVideoEnd = () => {
-    console.log("Video finished. Sending Message to server")
-  }
 
   if (!mount) return null
 
   return (
-    <div
-      className="flex justify-between h-screen w-screen items-center "
-      suppressHydrationWarning
-    >
-      <div className="w-[60%] grid grid-rows-[1fr_4fr] h-screen ml-10">
+    <div className="flex flex-col h-screen w-screen bg-transparent overflow-hidden">
+      {/* 1. MINIMAL FLOATING HEADER */}
+      <header className="z-20 flex items-center justify-between px-10 py-6 shrink-0">
         <button
-          className="theme-button place-self-start mt-5"
-          onClick={() => redirect("/dashboard")}
+          onClick={() => router.push("/dashboard")}
+          className="theme-button-variant-2 btn-small !px-4 !rounded-full transition-transform active:scale-95"
         >
-          Back to Dashboard
+          Back
         </button>
-
-        <div className="">
-          <CustomVideoPlayer
-            videoUrl={videoState.videoUrl}
-            onVideoEnd={handleVideoEnd}
-            livetime={livetime}
-          />
+        <div className="text-center">
+          <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
+            {mood} Session
+          </h1>
+          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">
+            {videoState.name || "Syncing..."}
+          </p>
         </div>
-      </div>
-      <div className="h-full flex justify-center items-center mr-10">
-        <ChatComponent
-          ws={ws}
-          message={message}
-          messages={messages}
-          setMessage={setMessage}
-          setMessages={setMessages}
-        />
-      </div>
+        <div className="w-[80px]" />
+      </header>
+
+      {/* 2. UPDATED GRID: Forced to fill available space */}
+      <main className="flex-1 flex px-10 pb-10 gap-10 min-h-0">
+        {/* PLAYER SECTION: Full Expansion */}
+        <div className="flex-[2.5] flex flex-col min-h-0 min-w-0">
+          <div className="flex-1 w-full relative group">
+            {/* Subtle Outer Glow */}
+            <div className="absolute -inset-1 bg-[var(--accent)] opacity-5 blur-2xl rounded-2xl group-hover:opacity-10 transition-opacity" />
+            {/* The Container - Set to h-full w-full */}
+            <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black">
+              <CustomVideoPlayer
+                videoUrl={videoState.videoUrl}
+                onVideoEnd={() => {}}
+                livetime={livetime}
+              />
+            </div>
+            ...
+          </div>
+        </div>
+
+        {/* CHAT SECTION */}
+        <aside className="flex-1 max-w-sm h-full">
+          <ChatComponent
+            ws={ws}
+            message={message}
+            messages={messages}
+            setMessage={setMessage}
+            setMessages={setMessages}
+          />
+        </aside>
+      </main>
     </div>
   )
 }

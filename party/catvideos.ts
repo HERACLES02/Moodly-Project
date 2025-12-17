@@ -4,6 +4,18 @@ interface CatVideoParams {
   duration: number
 }
 
+interface MovieParams {
+  name: string
+  url: string
+  duration: number
+}
+
+interface SongParams {
+  name: string
+  url: string
+  duration: number
+}
+
 const CLOUD = "https://pub-5028b4904eef4a52961fb036dec5fe6d.r2.dev"
 
 function getCatVideos() {
@@ -216,8 +228,66 @@ function getCatVideos() {
   return catvideo
 }
 
+function getMovies() {
+  const movie: MovieParams[] = [
+    {
+      name: "3 Idiots",
+      url: "ThreeIdiots.mkv",
+      duration: 10267,
+    },
+  ]
+  for (let i = 0; i < movie.length; i++) {
+    movie[i].url = CLOUD + `/movies/${movie[i].url}`
+  }
+
+  return movie
+}
+
+function getSadSongs() {
+  const song: MovieParams[] = [
+    {
+      name: "3 am",
+      url: "3AM.mp3",
+      duration: 203,
+    },
+    {
+      name: "Tumi",
+      url: "TUMI.mp3",
+      duration: 240,
+    },
+  ]
+
+  for (let i = 0; i < song.length; i++) {
+    song[i].url = CLOUD + `/music/${song[i].url}`
+  }
+
+  return song
+}
+function getHappySongs() {
+  const song: MovieParams[] = [
+    {
+      name: "Wildest Dreams",
+      url: "Wildest_Dream.mp3",
+      duration: 235,
+    },
+    {
+      name: "Satellite",
+      url: "Satellite.mp3",
+      duration: 318,
+    },
+  ]
+  for (let i = 0; i < song.length; i++) {
+    song[i].url = CLOUD + `/music/${song[i].url}`
+  }
+
+  return song
+}
+
 export function getRandomIndex<T>(arr: T[]): number {
   return Math.floor(Math.random() * arr.length)
 }
 
 export const catVideoQueue: CatVideoParams[] = getCatVideos()
+export const movieQueue: MovieParams[] = getMovies()
+export const sadSongQueue: SongParams[] = getSadSongs()
+export const happySongQueue: SongParams[] = getHappySongs()

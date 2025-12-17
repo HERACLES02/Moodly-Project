@@ -3,7 +3,7 @@
 .custom-video-player-container {
   position: relative;
   width: 100%;
-  max-width: 1200px;
+  height: 100%;
   aspect-ratio: 16 / 9;
   background: rgba(0, 0, 0, 0.9);
   border-radius: 12px;

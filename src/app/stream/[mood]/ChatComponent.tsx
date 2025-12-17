@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button"
 import { useUser } from "@/contexts/UserContext"
 import PartySocket from "partysocket"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef } from "react"
 
 interface ChatComponentProps {
   ws: PartySocket
@@ -27,47 +26,84 @@ const ChatComponent = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!message.trim()) return
     ws.send(message)
     setMessages((prev: string[]) => [...prev, message])
-
     setMessage("")
   }
+
   return (
-    <div className="theme-container bg-transparent gap-2 flex flex-col h-[75%] justify-between border-transparent">
-      <div className="theme-card">
-        <div className="theme-text-contrast flex justify-center items-center">
-          Live Chat
-        </div>
+    <div className="h-full flex flex-col theme-card !bg-black/20 !backdrop-blur-xl border-[var(--glass-border)] !p-0 rounded-3xl overflow-hidden shadow-2xl">
+      {/* HEADER */}
+      <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <span className="theme-text-contrast text-[10px] font-black uppercase tracking-[0.2em]">
+          Live Feed
+        </span>
+        <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]" />
       </div>
 
-      <div className="theme-card h-[100%] overflow-y-auto">
-        {messages &&
+      {/* MESSAGES WITH UPDATED SCROLLBAR */}
+      <div
+        className="flex-1 overflow-y-auto p-6 space-y-6 
+        [&::-webkit-scrollbar]:w-1.5
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:bg-[var(--accent)]
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb]:opacity-20
+        hover:[&::-webkit-scrollbar-thumb]:bg-[var(--accent)]
+        scrollbar-thin scrollbar-thumb-[var(--accent)] scrollbar-track-transparent"
+      >
+        {messages.length === 0 ? (
+          <div className="h-full flex items-center justify-center opacity-20">
+            <span className="text-[10px] uppercase tracking-widest font-bold italic">
+              Silence
+            </span>
+          </div>
+        ) : (
           messages.map((m, idx) => (
-            <div key={idx} className="theme-text-contrast">
-              {m}
-              <div ref={messageRef} />
+            <div key={idx} className="animate-in fade-in slide-in-from-right-2">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-1 h-1 rounded-full bg-[var(--accent)] opacity-40" />
+                <span className="text-[9px] font-bold opacity-40 uppercase tracking-tighter">
+                  Listener
+                </span>
+              </div>
+              <p className="theme-text-contrast text-sm leading-relaxed pl-3 border-l border-white/10 group-hover:border-[var(--accent)] transition-colors">
+                {m}
+              </p>
             </div>
-          ))}
+          ))
+        )}
+        <div ref={messageRef} />
       </div>
 
-      <div className="theme-card">
-        <div className="">
-          <form
-            onSubmit={handleSubmit}
-            className="flex -p-5 justify-between gap-3 h-[100%] w-[100%]"
+      {/* INPUT */}
+      <div className="p-6 bg-white/5">
+        <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+          <input
+            className="theme-input !bg-black/20 !border-white/10 h-11 !rounded-xl !text-xs italic"
+            placeholder="Share a thought..."
+            value={message ?? ""}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="theme-button-primary !p-3 !rounded-xl transition-transform active:scale-90 flex items-center justify-center"
           >
-            <input
-              className="theme-input bg-transparent flex-wrap"
-              value={message ?? ""}
-              onChange={(e) => {
-                setMessage(e.target.value)
-              }}
-            />
-            <button type="submit" className="theme-button">
-              Send
-            </button>
-          </form>
-        </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </form>
       </div>
     </div>
   )
