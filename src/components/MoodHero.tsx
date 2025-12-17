@@ -23,69 +23,66 @@ const MoodlyLanding = () => {
 
   return (
     <div className="w-full bg-white flex flex-col items-center overflow-x-hidden font-sans relative min-h-screen">
-      {/* ========== UNIFIED BACKGROUND SYSTEM - FLOWS ACROSS ENTIRE PAGE ========== */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Layer 1: Main gradient - pink at top fading to white */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#fce7f3] via-[#fdf2f8] via-40% to-white to-70%"></div>
+      {/* ========== RESTORED BACKGROUND SYSTEM - HARDCODED INTENSE GRADIENTS ========== */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Base Layer */}
+        <div className="absolute inset-0 bg-[#f8faff]"></div>
 
-        {/* Layer 2: Richer pink concentrated at very top */}
-        <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-[#fbcfe8] to-transparent opacity-35"></div>
-
-        {/* Layer 3: The horizontal pink band for device section - positioned absolutely */}
+        {/* Top Left: Intense Mint/Cyan */}
         <div
-          className="absolute left-0 right-0 h-44 bg-[#fdf2f8]"
-          style={{ top: "calc(50% + 80px)" }}
+          className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] rounded-full blur-[100px] opacity-90"
+          style={{
+            background:
+              "radial-gradient(circle, #dcfce7 0%, #ccfbf1 50%, transparent 80%)",
+          }}
         ></div>
 
-        {/* Layer 4: Soft top edge of pink band */}
+        {/* Top Right: Intense Sky Blue */}
         <div
-          className="absolute left-0 right-0 h-24 bg-gradient-to-b from-transparent to-[#fdf2f8]"
-          style={{ top: "calc(50% + 56px)" }}
+          className="absolute top-[-5%] right-[-5%] w-[65%] h-[65%] rounded-full blur-[100px] opacity-90"
+          style={{
+            background:
+              "radial-gradient(circle, #e0f2fe 0%, #bae6fd 50%, transparent 80%)",
+          }}
         ></div>
 
-        {/* Layer 5: Soft bottom edge of pink band */}
+        {/* Center: Lavender/Purple */}
         <div
-          className="absolute left-0 right-0 h-24 bg-gradient-to-t from-transparent to-[#fdf2f8]"
-          style={{ top: "calc(50% + 200px)" }}
+          className="absolute top-[25%] left-[5%] w-[90%] h-[70%] rounded-full blur-[120px] opacity-80"
+          style={{
+            background:
+              "radial-gradient(circle, #f5f3ff 0%, #ede9fe 50%, transparent 75%)",
+          }}
         ></div>
 
-        {/* Layer 6: Darker pink accent within the band */}
+        {/* Bottom Left: Intense Pink */}
         <div
-          className="absolute left-0 right-0 h-32 bg-gradient-to-b from-transparent via-[#fce7f3] to-transparent opacity-40"
-          style={{ top: "calc(50% + 96px)" }}
+          className="absolute bottom-[-10%] left-[-5%] w-[70%] h-[70%] rounded-full blur-[110px] opacity-90"
+          style={{
+            background:
+              "radial-gradient(circle, #fce7f3 0%, #fbcfe8 50%, transparent 80%)",
+          }}
         ></div>
 
-        {/* Layer 7: Radial spotlight behind devices */}
+        {/* Bottom Right: Soft Violet */}
         <div
-          className="absolute left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-gradient-radial from-white/60 via-transparent to-transparent"
-          style={{ top: "calc(50% + 80px)" }}
+          className="absolute bottom-[-5%] right-[-10%] w-[70%] h-[70%] rounded-full blur-[110px] opacity-85"
+          style={{
+            background:
+              "radial-gradient(circle, #f3e8ff 0%, #e9d5ff 50%, transparent 80%)",
+          }}
         ></div>
 
-        {/* Layer 8: Subtle radial glow at top for hero section */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-gradient-radial from-[#fce7f3]/40 to-transparent"></div>
-
-        {/* Layer 9: Very subtle texture over everything */}
+        {/* Noise Texture */}
         <div
-          className="absolute inset-0 opacity-[0.015]"
+          className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`,
           }}
         ></div>
-
-        {/* Layer 10: Light pink vignette from sides */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#fdf2f8]/15 via-transparent to-[#fdf2f8]/15"></div>
-
-        {/* Layer 11: Bottom section subtle tint */}
-        <div className="absolute bottom-0 left-0 right-0 h-[600px] bg-gradient-to-t from-[#faf5ff]/60 to-transparent"></div>
-
-        {/* Layer 12: Radial glow around bottom CTA area */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-radial from-[#fdf2f8]/25 to-transparent"
-          style={{ bottom: "300px" }}
-        ></div>
       </div>
 
-      {/* ========== CONTENT - ALL RELATIVE Z-INDEX ========== */}
+      {/* ========== ALL CONTENT BELOW RESTORED TO ORIGINAL ========== */}
       <nav className="w-full flex justify-between items-center px-8 py-6 relative z-20 bg-[#ffe6f6] shadow shadow-[#dfb7d2] ">
         <div className="moodlyImage">
           <img
@@ -193,7 +190,6 @@ const MoodlyLanding = () => {
             <div className="w-full border-[16px] border-[#1a1a1a] rounded-t-3xl bg-[#1a1a1a] overflow-hidden shadow-2xl">
               <div className="aspect-[16/10] bg-white relative">
                 <div className="w-full h-full bg-gradient-to-b from-[#fce7f3] via-[#fdf2f8] to-white p-8 flex">
-                  {/* Left side - Text content */}
                   <div className="w-1/2 flex flex-col justify-center pr-4">
                     <h2 className="text-2xl font-black mb-2 leading-tight text-[#1a1a1a] ">
                       Your Mood Picks
@@ -208,7 +204,6 @@ const MoodlyLanding = () => {
                     </p>
                   </div>
 
-                  {/* Right side - Movie posters grid */}
                   <div className="w-1/2 grid grid-cols-3 gap-1">
                     {movies.map((movie) => (
                       <div
