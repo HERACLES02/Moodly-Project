@@ -9,10 +9,37 @@ import MoodCurrencyIcon from "./icons/MoodCurrencyIcon"
 export default function PointsDisplay() {
   const { user } = useUser()
 
+
+  // useEffect(() => {
+  //   fetchPoints();
+
+  //   window.addEventListener("pointsEarned", fetchPoints);
+    
+  //   return () => {
+  //     window.removeEventListener("pointsEarned", fetchPoints);
+  //   };
+  // }, []);
+
+  // const fetchPoints = async () => {
+  //   try {
+  //     const response = await fetch("/api/points/get");
+  //     const data = await response.json();
+      
+  //     if (data.points > points) {
+  //       console.log(' Points Updated:', data.points);
+  //     }
+      
+  //     setPoints(data.points || 0);
+  //   } catch (error) {
+  //     console.error("Failed to fetch points:", error);
+  //   }
+  // };
+
+
   return (
-    <div className="theme-card-variant-1-no-hover p-2 flex justify-center items-center shadow-none border m-auto px-4 gap-2 ">
+    <div className="points-display-container">
       <MoodCurrencyIcon size={40} />
-      <span className="text-[var(--dark-text)] font-black">{user?.points}</span>
+      <span className="points-value">{user?.points}</span>
     </div>
   )
 }

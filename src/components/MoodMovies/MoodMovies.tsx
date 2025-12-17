@@ -26,6 +26,20 @@ interface MoodMoviesProps {
   query?: string // AI search query
 }
 
+const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> = {
+  happy: [
+    { key: 'mellow_dreams', title: 'Mellow Dreams' },
+    { key: 'romanticism_galore', title: 'Romanticism Galore' },
+    { key: 'laugh_out_loud', title: 'Laugh Out Loud' },
+  ],
+  sad: [
+    { key: 'broken_hearts', title: 'Broken Hearts' },
+    { key: 'hard_truths', title: "Life’s Hard Truths" },
+    { key: 'healing_through_pain', title: 'Healing Through Pain' },
+  ],
+}
+
+
 export default function MoodMovies({
   movies,
   mood,
@@ -34,6 +48,8 @@ export default function MoodMovies({
   query = "",
 }: MoodMoviesProps) {
   const [visibleMovies, setVisibleMovies] = useState<Movie[]>([])
+  const [sectionRows, setSectionRows] = useState<{ title: string; movies: Movie[] }[]>([]) // NEW
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -107,52 +123,52 @@ export default function MoodMovies({
     return d ? dot / d : 0
   }
 
-  // Mood intent vector for semantic bias
+  // -------- Mood intent vector (for semantic mood bias) --------
   const moodVecRef = useRef<Record<string, Float32Array | null>>({})
   const moodForVecRef = useRef<Record<string, string | null>>({})
 
-  const moodIntentTextFor = (m: string, variant: "default" | "search") => {
-    const key = (m || "").toLowerCase()
-    if (variant === "default") {
+  const moodIntentTextFor = (m: string, variant: 'default' | 'search') => {
+    const key = (m || '').toLowerCase()
+
+    if (variant === 'default') {
       switch (key) {
-        case "sad":
-          return "uplifting inspiring hopeful motivating overcoming adversity redemption feel good inspiring film cinema"
-        case "happy":
-          return "happy upbeat positive feel good fun lighthearted musical film cinema"
-        case "anxious":
-          return "calming reassuring soothing safe grounded comforting film cinema"
-        case "calm":
-          return "calm peaceful relaxed serene gentle film cinema"
-        case "energetic":
-          return "energetic intense high energy action exciting film cinema"
-        case "excited":
-          return "excited celebratory adventurous thrilling film cinema"
-        case "tired":
-          return "gentle slow relaxing low energy cozy film cinema"
-        case "grateful":
-          return "warm heartfelt thankful inspiring tender film cinema"
+        case 'sad':
+          return 'sad melancholy melancholic heartbreak grief loss sorrow emotional cathartic tragic tearjerker somber film cinema'
+        case 'happy':
+          return 'happy upbeat positive feel good fun lighthearted musical film cinema'
+        case 'anxious':
+          return 'calming reassuring soothing safe grounded comforting film cinema'
+        case 'calm':
+          return 'calm peaceful relaxed serene gentle film cinema'
+        case 'energetic':
+          return 'energetic intense high energy action exciting film cinema'
+        case 'excited':
+          return 'excited celebratory adventurous thrilling film cinema'
+        case 'tired':
+          return 'gentle slow relaxing low energy cozy film cinema'
+        case 'grateful':
+          return 'warm heartfelt thankful inspiring tender film cinema'
         default:
           return "balanced contemporary popular film cinema"
       }
     } else {
-      // Search-time: interpret user's emotional query directly
       switch (key) {
-        case "sad":
-          return "sad melancholy heartbreak sorrow low valence emotional reflective film cinema"
-        case "happy":
-          return "happy upbeat positive feel good fun lighthearted musical film cinema"
-        case "anxious":
-          return "calming reassuring soothing safe grounded comforting film cinema"
-        case "calm":
-          return "calm peaceful relaxed serene gentle film cinema"
-        case "energetic":
-          return "energetic intense high energy action exciting film cinema"
-        case "excited":
-          return "excited celebratory adventurous thrilling film cinema"
-        case "tired":
-          return "gentle slow relaxing low energy cozy film cinema"
-        case "grateful":
-          return "warm heartfelt thankful inspiring tender film cinema"
+        case 'sad':
+          return 'uplifting inspiring hopeful motivating overcoming adversity redemption feel good inspiring film cinema'
+        case 'happy':
+          return 'happy upbeat positive feel good fun lighthearted musical film cinema'
+        case 'anxious':
+          return 'calming reassuring soothing safe grounded comforting film cinema'
+        case 'calm':
+          return 'calm peaceful relaxed serene gentle film cinema'
+        case 'energetic':
+          return 'energetic intense high energy action exciting film cinema'
+        case 'excited':
+          return 'excited celebratory adventurous thrilling film cinema'
+        case 'tired':
+          return 'gentle slow relaxing low energy cozy film cinema'
+        case 'grateful':
+          return 'warm heartfelt thankful inspiring tender film cinema'
         default:
           return "balanced contemporary popular film cinema"
       }
@@ -173,44 +189,128 @@ export default function MoodMovies({
     return moodVecRef.current[key]!
   }
 
-  // Initialize MiniSearch when movies change
-  useEffect(() => {
-    if (movies.length === 0) return
+  // -------- Simple mood-aware query expansion (no LLM) --------
+  const MOOD_KEYWORDS: Record<string, string[]> = {
+    happy: ['feel-good', 'lighthearted', 'funny', 'positive'],
+    sad: ['sad', 'heartbreaking', 'tragic', 'melancholy', 'tearjerker', 'loss', 'grief', 'hardships'],
+    anxious: ['calming', 'comforting', 'low-stress', 'gentle'],
+    calm: ['relaxing', 'peaceful', 'slow-paced'],
+    energetic: ['high-energy', 'action-packed', 'fast-paced'],
+    excited: ['adventurous', 'thrilling', 'fun', 'exciting'],
+    tired: ['cozy', 'low-energy', 'easy-to-watch'],
+    grateful: ['heartfelt', 'wholesome', 'family', 'human stories'],
+  }
 
-    movieByIdRef.current = new Map(movies.map((mv) => [mv.id, mv]))
+  const expandQuery = (raw: string, mood: string): string[] => {
+    const base = raw.toLowerCase().trim()
+    const m = mood.toLowerCase().trim()
 
-    miniRef.current = new MiniSearch<MovieDoc>({
-      idField: "id",
-      fields: ["title", "overview", "releaseDate"],
-      storeFields: [
-        "id",
-        "title",
-        "poster",
-        "overview",
-        "releaseDate",
-        "rating",
-      ],
-      searchOptions: {
-        boost: { title: 3, overview: 1.5 },
-        prefix: true,
-        fuzzy: 0.34,
-      },
-    })
-    miniRef.current.addAll(movies.map((mv) => ({ ...mv })) as MovieDoc[])
-  }, [movies])
+    const extra: string[] = []
 
-  // Run search when query changes
-  useEffect(() => {
-    if (!query || query.length < 2) {
-      setVisibleMovies(movies)
-      return
+    extra.push(`${base} movie`)
+    extra.push(`${base} movies`)
+    extra.push(`${base} film`)
+    extra.push(`${base} films`)
+
+    if (m) {
+      extra.push(`${base} ${m} movie`)
+      extra.push(`${m} ${base} movies`)
     }
-    if (loading || !miniRef.current || movies.length === 0) return
 
-    runSearch(query)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, movies, loading])
+    const moodKeywords = MOOD_KEYWORDS[m] || []
+    for (const kw of moodKeywords) {
+      extra.push(`${base} ${kw}`)
+      extra.push(`${kw} ${base}`)
+    }
 
+    const seen = new Set<string>()
+    return [base, ...extra].filter((q) => {
+      if (!q) return false
+      if (seen.has(q)) return false
+      seen.add(q)
+      return true
+    })
+  }
+
+  useEffect(() => {
+    if (!mood) return
+    fetchMovies(!!query ? 'search' : 'default')
+  }, [mood, query])
+
+  const fetchMovies = async (variant: 'default' | 'search') => {
+    setLoading(true)
+    setError(null)
+    fetchingRef.current = true
+
+    try {
+      const normalizedMood = mood.toLowerCase()
+
+      // NEW: default rows mode (no query) for moods with configured sections
+      if (variant === 'default' && !query && DEFAULT_SECTION_CONFIG[normalizedMood]) {
+        const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
+
+        const rows = await Promise.all(
+          sections.map(async (s) => {
+            const u = `/api/recommendations/movies?mood=${normalizedMood}&section=${encodeURIComponent(s.key)}`
+            const r = await fetch(u)
+            if (!r.ok) throw new Error(`Failed to fetch movies (${s.key}): ${r.status}`)
+            const j = await r.json()
+            const list: Movie[] = j.movies || []
+            return { title: s.title, movies: list.slice(0, 4) }
+          })
+        )
+
+        setSectionRows(rows)
+
+        // clear single-row/search state
+        setMovies([])
+        setVisibleMovies([])
+        miniRef.current = null
+        movieEmbCache.current.clear()
+        movieByIdRef.current = new Map()
+
+        return
+      }
+
+      setSectionRows([])
+
+      const url = `/api/recommendations/movies?mood=${normalizedMood}&variant=${variant}${
+        query ? `&q=${encodeURIComponent(query)}` : ''
+      }`
+
+      const response = await fetch(url)
+      if (!response.ok) throw new Error(`Failed to fetch movies: ${response.status}`)
+
+      const data = await response.json()
+      const list: Movie[] = data.movies || []
+
+      setMovies(list)
+      setVisibleMovies(list.slice(0, 4))
+      movieEmbCache.current.clear()
+      movieByIdRef.current = new Map(list.map((mv) => [mv.id, mv]))
+
+      miniRef.current = new MiniSearch<MovieDoc>({
+        idField: 'id',
+        fields: ['title', 'overview', 'releaseDate'],
+        storeFields: ['id', 'title', 'poster', 'overview', 'releaseDate', 'rating'],
+        searchOptions: {
+          boost: { title: 3, overview: 1.5 },
+          prefix: true,
+          fuzzy: 0.34,
+        },
+      })
+
+      miniRef.current.addAll(list.map((mv) => ({ ...mv })) as MovieDoc[])
+    } catch (err) {
+      console.error('Error fetching movies:', err)
+      setError('Failed to load movie recommendations')
+    } finally {
+      setLoading(false)
+      fetchingRef.current = false
+    }
+  }
+
+  // -------- Search pipeline --------
   const runSearch = async (q: string) => {
     const qq = (q || "").trim()
     if (qq.length < 2) {
@@ -219,70 +319,93 @@ export default function MoodMovies({
     }
     if (!miniRef.current || movies.length === 0) return
 
-    try {
-      // 1) MiniSearch shortlist
-      const raw = miniRef.current.search(qq, { limit: 60 })
-      let shortlist: Movie[] = raw.map((r) => {
+    const effectiveQueries = expandQuery(qq, mood)
+
+    const collected = new Map<number, Movie>()
+
+    for (const qtext of effectiveQueries) {
+      const raw = miniRef.current!.search(qtext, { limit: 40 })
+      raw.forEach((r) => {
         const id = Number(r.id)
-        return (
-          movieByIdRef.current.get(id) ?? {
-            id,
-            title: (r as MovieDoc).title as string,
-            poster: ((r as MovieDoc).poster as string) || "",
-            overview: ((r as MovieDoc).overview as string) || "",
-            releaseDate: ((r as MovieDoc).releaseDate as string) || "",
-            rating: Number((r as MovieDoc).rating ?? 0),
-          }
-        )
-      })
+        if (!collected.has(id)) {
+          const existing = movieByIdRef.current.get(id)
 
-      if (shortlist.length < 4) {
-        const extra = movies
-          .filter((m) => !shortlist.includes(m))
-          .slice(0, 4 - shortlist.length)
-        shortlist = [...shortlist, ...extra]
-      }
+          const mv: Movie =
+            existing ??
+            ({
+              id,
+              title: (r as MovieDoc).title as string,
+              poster: ((r as MovieDoc).poster as string) || '',
+              overview: ((r as MovieDoc).overview as string) || '',
+              releaseDate: ((r as MovieDoc).releaseDate as string) || '',
+              rating: Number((r as MovieDoc).rating ?? 0),
+            } as Movie)
 
-      // 2) MiniLM re-rank
-      const pipe = await loadMiniLM()
-
-      const qEmb = await embedText(pipe, qq)
-      const moodEmb = await getMoodVec(pipe, mood, "search")
-
-      // Embed items not cached yet
-      const toEmbed: { id: number; text: string }[] = []
-      shortlist.forEach((m) => {
-        if (!movieEmbCache.current.has(m.id)) {
-          toEmbed.push({ id: m.id, text: toText(m) })
+          collected.set(id, mv)
         }
       })
-      await Promise.all(
-        toEmbed.map(async ({ id, text }) => {
-          const emb = await embedText(pipe, text)
-          movieEmbCache.current.set(id, emb)
-        }),
-      )
-
-      // Combine semantic similarity: query + mood
-      const alpha = qq.length > 3 ? 0.75 : 0.5
-
-      const scored = shortlist
-        .map((mv) => {
-          const v = movieEmbCache.current.get(mv.id)!
-          const sQ = cosineSim(qEmb, v)
-          const sM = cosineSim(moodEmb, v)
-          const score = alpha * sQ + (1 - alpha) * sM
-          return { mv, score }
-        })
-        .sort((a, b) => b.score - a.score)
-
-      setVisibleMovies(scored.slice(0, 4).map((s) => s.mv))
-    } catch (err) {
-      console.error("Search error:", err)
-      setVisibleMovies(movies.slice(0, 4))
     }
+
+    let shortlist = Array.from(collected.values())
+
+    if (shortlist.length > 80) {
+      shortlist = shortlist.slice(0, 80)
+    }
+
+    if (shortlist.length < 4) {
+      const extra = movies.filter((m) => !shortlist.includes(m)).slice(0, 4 - shortlist.length)
+      shortlist = [...shortlist, ...extra]
+    }
+
+    const pipe = await loadMiniLM()
+    const qEmb = await embedText(pipe, qq)
+    const moodEmb = await getMoodVec(pipe, mood, 'search')
+
+    const toEmbed: { id: number; text: string }[] = []
+    shortlist.forEach((m) => {
+      if (!movieEmbCache.current.has(m.id)) {
+        toEmbed.push({ id: m.id, text: toText(m) })
+      }
+    })
+
+    await Promise.all(
+      toEmbed.map(async ({ id, text }) => {
+        const emb = await embedText(pipe, text)
+        movieEmbCache.current.set(id, emb)
+      })
+    )
+
+    const alpha = 0.75
+
+    const scored = shortlist
+      .map((mv) => {
+        const v = movieEmbCache.current.get(mv.id)
+        if (!v) return { mv, score: -Infinity }
+
+        const sQ = cosineSim(qEmb, v)
+        const sM = cosineSim(moodEmb, v)
+        const score = alpha * sQ + (1 - alpha) * sM
+
+        return { mv, score }
+      })
+      .sort((a, b) => b.score - a.score)
+
+    setVisibleMovies(scored.slice(0, 4).map((s) => s.mv))
   }
 
+  // -------- Re-run search when query changes --------
+  useEffect(() => {
+    if (fetchingRef.current) return
+    if (!query) {
+      setVisibleMovies(movies.slice(0, 4))
+      return
+    }
+    if (!miniRef.current || movies.length === 0) return
+
+    runSearch(query)
+  }, [query, movies, loading])
+
+  // -------- Interaction Tracking --------
   const trackInteraction = async (movie: Movie) => {
     try {
       await fetch("/api/interactions", {
@@ -318,50 +441,64 @@ export default function MoodMovies({
 
   return (
     <div className="mood-movies-container">
-      <div className="carousel-box theme-card border-transparent">
-        {/* Scrollable Track */}
-        <div className="carousel-track" ref={scrollRef}>
-          {loading ? (
-            <div className="carousel-loading">
-              <Spinner />
-            </div>
-          ) : (
-            visibleMovies.map((movie) => (
-              <div
-                key={movie.id}
-                className="carousel-item"
-                onClick={() => handleMovieClick(movie)}
-              >
-                <div className="item-card">
-                  <Image
-                    src={movie.poster || "/images/movie-placeholder.jpg"}
-                    alt={movie.title}
-                    width={200}
-                    height={170}
-                    className="item-image"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      target.src = "/images/movie-placeholder.jpg"
-                    }}
-                  />
-                  <div className="item-overlay">
-                    <span className="item-title">{movie.title}</span>
-                    <span className="item-rating">
-                      ⭐ {movie.rating.toFixed(1)}
-                    </span>
+      <h2 className="mood-movies-title">🎬 Movies for your {mood} mood</h2>
+
+      {!query && sectionRows.length > 0 ? (
+        <div className="space-y-6">
+          {sectionRows.map((row) => (
+            <div key={row.title}>
+              <h3 className="text-base font-semibold mb-3">{row.title}</h3>
+              <div className="mood-movies-grid">
+                {row.movies.map((movie) => (
+                  <div key={movie.id} className="mood-movie-card" onClick={() => handleMovieClick(movie)}>
+                    <div className="mood-movie-poster-wrapper">
+                      <Image
+                        src={movie.poster || '/images/movie-placeholder.jpg'}
+                        alt={movie.title}
+                        width={200}
+                        height={300}
+                        className="mood-movie-poster"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.src = '/images/movie-placeholder.jpg'
+                        }}
+                      />
+                      <div className="mood-movie-overlay">
+                        <p className="mood-movie-title">{movie.title}</p>
+                        <p className="mood-movie-rating">⭐ {movie.rating.toFixed(1)}</p>
+                      </div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mood-movies-grid">
+          {visibleMovies.map((movie) => (
+            <div key={movie.id} className="mood-movie-card" onClick={() => handleMovieClick(movie)}>
+              <div className="mood-movie-poster-wrapper">
+                <Image
+                  src={movie.poster || '/images/movie-placeholder.jpg'}
+                  alt={movie.title}
+                  width={200}
+                  height={300}
+                  className="mood-movie-poster"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = '/images/movie-placeholder.jpg'
+                  }}
+                />
+                <div className="mood-movie-overlay">
+                  <p className="mood-movie-title">{movie.title}</p>
+                  <p className="mood-movie-rating">⭐ {movie.rating.toFixed(1)}</p>
                 </div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
-
-        {/* End Fade - Diagonal Triangle */}
-        <div className="carousel-fade-end"></div>
-
-        {/* Label */}
-        <span className="carousel-label theme-text-highlight">Movies</span>
-      </div>
+      )}
     </div>
   )
 }

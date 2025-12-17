@@ -18,20 +18,58 @@ const MOOD_RULES: Record<
   string,
   {
     target: Target
-    genreCombos: number[][] // each request picks one combo at random
-    withoutGenres?: number[] // hard avoid via TMDB query
+    genreCombos: number[][]
+    withoutGenres?: number[]
+    sections?: {
+      key: string
+      title: string
+      genreCombos: number[][]
+      keywordCombos?: number[][]
+      withoutGenres?: number[]
+    }[]
   }
 > = {
-  happy: {
+    happy: {
     target: "balanced",
     genreCombos: [
-      [35, 12], // Comedy + Adventure
-      [35, 10749], // Comedy + Romance
-      [16, 10751], // Animation + Family
-      [35, 10402], // Comedy + Music
+      [35, 12],
+      [35, 10749],
+      [16, 10751],
+      [35, 10402],
     ],
-    withoutGenres: [27, 53], // avoid Horror/Thriller
+    withoutGenres: [27, 53],
+
+    sections: [
+      {
+        key: "mellow_dreams",
+        title: "Mellow Dreams",
+        genreCombos: [
+          [16, 10751], // cozy
+          [10402, 35], // music + comedy
+        ],
+        withoutGenres: [27, 53],
+      },
+      {
+        key: "romanticism_galore",
+        title: "Romanticism Galore",
+        genreCombos: [
+          [35, 10749],   // romcom
+          [10749, 10402] // romance + music
+        ],
+        withoutGenres: [27, 53],
+      },
+      {
+        key: "laugh_out_loud",
+        title: "Laugh Out Loud",
+        genreCombos: [
+          [35],     // comedy
+          [35, 12], // comedy + adventure
+        ],
+        withoutGenres: [27, 53],
+      },
+    ],
   },
+
 
   calm: {
     target: "peaceful",
@@ -67,14 +105,53 @@ const MOOD_RULES: Record<
   },
 
   sad: {
-    target: "motivated",
+    target: "balanced",
     genreCombos: [
-      [18, 36], // Drama + History (biopics)
-      [18, 10751], // Drama + Family (heartwarming)
-      [12, 18], // Adventure + Drama (overcoming)
-      [18, 99], // Drama + Documentary (true stories)
+      [18],
+      [18, 10749],
+      [18, 10402],
+      [18, 9648],
     ],
-    withoutGenres: [27, 10752], // avoid Horror/War
+    withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+
+    sections: [
+      {
+        key: "broken_hearts",
+        title: "Broken Hearts",
+        genreCombos: [
+          [18, 10749], // Drama + Romance
+          [10749, 18], 
+        ],
+        keywordCombos: [
+          [10048],        // unrequited love
+          [10703],        // one-sided love
+     // tragic love + heartbreak IDs
+  ],
+        withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+      },
+      {
+        key: "hard_truths",
+        title: "Life’s Hard Truths",
+        genreCombos: [
+          [18, 80], 
+          [18, 36], 
+          [18],     
+        ],
+
+        
+        withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+      },
+      {
+        key: "healing_through_pain",
+        title: "Healing Through Pain",
+        genreCombos: [
+          [18, 10402], 
+          [18, 9648],  
+          [18],        
+        ],
+        withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+      },
+    ],
   },
 
   excited: {
@@ -128,9 +205,6 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const mood = canonicalizeMood(searchParams.get("mood") || "")
-    const variant = searchParams.get("variant") || "default"
-    const query = searchParams.get("q") || ""
-
     const rules = MOOD_RULES[mood]
     if (!mood || !rules) {
       return NextResponse.json(
@@ -146,10 +220,28 @@ export async function GET(request: Request) {
         { status: 500 },
       )
 
-    const combo =
-      rules.genreCombos[Math.floor(Math.random() * rules.genreCombos.length)]
+// NEW: support sub-genre sections
+    const sectionKey = (searchParams.get("section") || "").trim()
+    const section = rules.sections?.find((s) => s.key === sectionKey)
+
+    // choose combos based on section if provided, otherwise fallback
+    const comboSource = section?.genreCombos ?? rules.genreCombos
+    const combo = comboSource[Math.floor(Math.random() * comboSource.length)]
     const withGenres = combo.join(",")
-    const withoutGenres = rules.withoutGenres?.join(",")
+
+    const without = section?.withoutGenres ?? rules.withoutGenres
+    const withoutGenres = without?.join(",")
+
+    const keywordSource = section?.keywordCombos
+    const keywordCombo =
+      keywordSource && keywordSource.length > 0
+        ? keywordSource[Math.floor(Math.random() * keywordSource.length)]
+        : null
+
+    const withKeywords = keywordCombo ? keywordCombo.join(",") : null
+
+
+    
 
     // Fetch more results if there's a query for AI re-ranking
     const limit = query ? 60 : 30
@@ -158,6 +250,9 @@ export async function GET(request: Request) {
     const url = new URL("https://api.themoviedb.org/3/discover/movie")
     url.searchParams.set("api_key", apiKey)
     url.searchParams.set("with_genres", withGenres)
+    if (withKeywords && withKeywords.length > 0) {
+      url.searchParams.set("with_keywords", withKeywords)
+    }
     if (withoutGenres && withoutGenres.length > 0) {
       url.searchParams.set("without_genres", withoutGenres)
     }
@@ -165,30 +260,27 @@ export async function GET(request: Request) {
     url.searchParams.set("vote_average.gte", "6.5")
     url.searchParams.set("vote_count.gte", "100")
     url.searchParams.set("include_adult", "false")
-    url.searchParams.set("page", randomPage.toString())
 
-    console.log("Fetching from TMDB:", url.toString())
-    const response = await fetch(
-      url.toString() + +`&include_image_language=en,null`,
-    )
+    url.searchParams.set("page", "1")
+
+    console.log("Checking URL" + url)
+    const response = await fetch(url.toString())
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
-    // console.log("Movie Data", data)
-
-    const validMovies = data.results.filter((movie: any) => movie.poster_path)
-
-    const movies = shuffleArray(validMovies)
-      .slice(0, 30)
-      .map((movie: any) => ({
-        id: movie.id,
-        title: movie.title,
-        poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-        overview: movie.overview,
-        releaseDate: movie.release_date,
-        rating: movie.vote_average,
-        backdrop_path: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
-      }))
+    const valid = (data.results || []).filter((m: any) => m?.poster_path)
+    const movies = shuffleArray(valid).map((movie: any) => ({
+      id: movie.id,
+      title: movie.title,
+      poster: movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : "/images/movie-placeholder.jpg",
+      overview: movie.overview,
+      releaseDate: movie.release_date,
+      rating: movie.vote_average,
+    }))
+    console.log("checking movie length")
+    console.log("Got Movies: " + movies.length)
 
     return NextResponse.json({
       mood,
