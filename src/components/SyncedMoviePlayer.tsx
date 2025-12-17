@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useState, useEffect, useRef } from 'react'
-import { io, Socket } from 'socket.io-client'
-import { useUser } from '@/contexts/UserContext'  // ← CHANGED: Import from context
-import { LiveChatComponent } from './LiveChatComponent'
-import { SOCKET_URL } from '@/lib/socket-config'
+import { useState, useEffect, useRef } from "react"
+import { io, Socket } from "socket.io-client"
+import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context
+import { LiveChatComponent } from "./LiveChatComponent"
+import { SOCKET_URL } from "@/lib/socket-config"
 
 interface SessionInfo {
   currentMovie: {
@@ -40,14 +40,14 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
   // CHANGED: Use context instead of useGetUser
   // ══════════════════════════════════════════════════════════════════
   const { user } = useUser()
-  
+
   const [socket, setSocket] = useState<Socket | null>(null)
   const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [showMovieChange, setShowMovieChange] = useState(false)
-  
+
   // Individual user controls
   const [autoPlay, setAutoPlay] = useState(true)
   const [userCurrentMovie, setUserCurrentMovie] = useState<any>(null)
@@ -58,40 +58,40 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
   useEffect(() => {
     const newSocket = io(SOCKET_URL)
 
-    newSocket.on('connect', () => {
-      console.log('🔌 Connected to sync server')
+    newSocket.on("connect", () => {
+      console.log("🔌 Connected to sync server")
       setIsConnected(true)
-      
-      newSocket.emit('join-sync-session', {
+
+      newSocket.emit("join-sync-session", {
         streamId: `${mood}-sync-session`,
-        username: user?.anonymousName || 'Anonymous',
-        mood: mood
+        username: user?.anonymousName || "Anonymous",
+        mood: mood,
       })
     })
 
-    newSocket.on('disconnect', () => {
-      console.log('❌ Disconnected from sync server')
+    newSocket.on("disconnect", () => {
+      console.log("❌ Disconnected from sync server")
       setIsConnected(false)
     })
 
-    newSocket.on('session-sync', (info: SessionInfo) => {
-      console.log('📺 Session sync received:', info)
+    newSocket.on("session-sync", (info: SessionInfo) => {
+      console.log("📺 Session sync received:", info)
       setSessionInfo(info)
-      
+
       if (!hasInitialLoad) {
-        console.log('🎬 Initial movie load')
+        console.log("🎬 Initial movie load")
         setUserCurrentMovie(info.currentMovie)
         setHasInitialLoad(true)
       }
-      
+
       setIsLoading(false)
     })
 
-    newSocket.on('movie-change', (info: SessionInfo) => {
-      console.log('🎬 Movie changed:', info.currentMovie.title)
+    newSocket.on("movie-change", (info: SessionInfo) => {
+      console.log("🎬 Movie changed:", info.currentMovie.title)
       setShowMovieChange(true)
       setShowNextButton(true)
-      
+
       setTimeout(() => setShowMovieChange(false), 5000)
     })
 
@@ -126,13 +126,16 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
     )
   }
 
-  const currentMovieUrl = userCurrentMovie.synchronizedUrl || userCurrentMovie.vidsrcUrl
+  const currentMovieUrl =
+    userCurrentMovie.synchronizedUrl || userCurrentMovie.vidsrcUrl
 
   return (
     <div className="synced-movie-container">
       {/* Connection Status */}
-      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+      <div
+        className={`connection-status ${isConnected ? "connected" : "disconnected"}`}
+      >
+        {isConnected ? "🟢 Connected" : "🔴 Disconnected"}
       </div>
 
       {/* Movie Info */}
@@ -155,19 +158,20 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       </div>
 
       {/* Next Movie Button */}
-      {showNextButton && sessionInfo.currentMovie.id !== userCurrentMovie.id && (
-        <div className="next-movie-banner">
-          <p>A new movie is playing!</p>
-          <button onClick={handleWatchNext} className="watch-next-button">
-            Watch "{sessionInfo.currentMovie.title}" Now
-          </button>
-        </div>
-      )}
+      {showNextButton &&
+        sessionInfo.currentMovie.id !== userCurrentMovie.id && (
+          <div className="next-movie-banner">
+            <p>A new movie is playing!</p>
+            <button onClick={handleWatchNext} className="watch-next-button">
+              Watch "{sessionInfo.currentMovie.title}" Now
+            </button>
+          </div>
+        )}
 
       {/* Movie Details */}
       <div className="movie-details-section">
-        <img 
-          src={userCurrentMovie.poster} 
+        <img
+          src={userCurrentMovie.poster}
           alt={userCurrentMovie.title}
           className="movie-poster"
         />
@@ -180,14 +184,23 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
       {/* Progress Bar */}
       <div className="progress-section">
         <div className="progress-bar">
-          <div 
+          <div
             className="progress-fill"
             style={{ width: `${sessionInfo.progress}%` }}
           ></div>
         </div>
         <div className="time-info">
-          <span>{Math.floor(sessionInfo.elapsedTime / 60)}:{String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, '0')}</span>
-          <span>{Math.floor(sessionInfo.remainingTime / 60)}:{String(Math.floor(sessionInfo.remainingTime % 60)).padStart(2, '0')}</span>
+          <span>
+            {Math.floor(sessionInfo.elapsedTime / 60)}:
+            {String(Math.floor(sessionInfo.elapsedTime % 60)).padStart(2, "0")}
+          </span>
+          <span>
+            {Math.floor(sessionInfo.remainingTime / 60)}:
+            {String(Math.floor(sessionInfo.remainingTime % 60)).padStart(
+              2,
+              "0",
+            )}
+          </span>
         </div>
       </div>
 
@@ -200,10 +213,10 @@ export default function SyncedMoviePlayer({ mood }: SyncedMoviePlayerProps) {
 
       {/* Live Chat */}
       {socket && (
-        <LiveChatComponent 
+        <LiveChatComponent
           socket={socket}
           streamId={`${mood}-sync-session`}
-          username={user?.anonymousName || 'Anonymous'}
+          username={user?.anonymousName || "Anonymous"}
         />
       )}
     </div>

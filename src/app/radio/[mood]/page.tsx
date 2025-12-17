@@ -1,5 +1,4 @@
 import { use } from "react"
-import NavbarComponent from "@/components/NavbarComponent"
 import SyncedRadioPlayer from "@/components/SyncedRadioPlayer"
 import "./page.css"
 

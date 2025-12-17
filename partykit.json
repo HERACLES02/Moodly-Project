@@ -2,5 +2,8 @@
   "$schema": "https://www.partykit.io/schema.json",
   "name": "moodly-party",
   "main": "party/index.ts",
+  "parties": {
+    "radio": "party/radio.ts"
+  },
   "compatibilityDate": "2025-10-25"
 }

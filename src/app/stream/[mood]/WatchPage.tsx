@@ -7,6 +7,7 @@ import { VideoState } from "../../../../party"
 import CustomVideoPlayer from "@/components/CustomVideoPlayer"
 import { useRouter } from "next/navigation"
 import CustomAudioPlayer from "@/components/CustomAudioPlayer"
+import { Message } from "@/components/SyncedRadioPlayer"
 
 interface watchProps {
   mood: string
@@ -22,19 +23,27 @@ const WatchPage = ({ mood }: watchProps) => {
     duration: 0,
   })
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [messages, setMessages] = useState<string[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [message, setMessage] = useState<string>("")
   const [mount, setMount] = useState<boolean>(false)
   const [livetime, setlivetime] = useState<number | null>(null)
 
   const ws = usePartySocket({
-    host: "moodly-party.himel2010.partykit.dev",
+    host: "localhost:1999",
     room: `${mood}`,
     onMessage(e) {
       try {
         const parsed = JSON.parse(e.data)
         if (parsed.type === "message") {
-          setMessages((prev) => [...prev, parsed.data])
+          const newMessages: Message[] = [
+            ...messages,
+            {
+              anonymousName: parsed?.userData?.anonymousName,
+              message: parsed.data,
+              avatar_img_path: parsed?.userData?.avatar_img_path,
+            },
+          ]
+          setMessages(newMessages)
         } else if (parsed.type === "video-change") {
           const newVideoData = parsed.data
           setVideoState((prev) => ({
@@ -63,16 +72,10 @@ const WatchPage = ({ mood }: watchProps) => {
   return (
     <div className="flex flex-col h-screen w-screen bg-transparent overflow-hidden">
       {/* 1. MINIMAL FLOATING HEADER */}
-      <header className="z-20 flex items-center justify-between px-10 py-6 shrink-0">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="theme-button-variant-2 btn-small !px-4 !rounded-full transition-transform active:scale-95"
-        >
-          Back
-        </button>
+      <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
         <div className="text-center">
           <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
-            {mood} Session
+            LIVE TV
           </h1>
           <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">
             {videoState.name || "Syncing..."}

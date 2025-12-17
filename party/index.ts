@@ -51,16 +51,18 @@ export default class Server implements Party.Server {
       //   [],
       // )
     } else {
-      console.log(`connection ${sender.id} sent message: ${message}`)
-      // as well as broadcast it to all the other connections in the room...
+      const data = JSON.parse(message)
+      console.log(data)
+
+      console.log(`connection ${sender.id} sent message: ${data.message}`)
+      // Broadcast chat messages to all except sender
       this.room.broadcast(
         JSON.stringify({
           id: `${sender.id}`,
-          data: message,
+          data: data.message,
+          userData: data,
           type: "message",
         }),
-
-        // ...except for the connection it came from
         [sender.id],
       )
     }

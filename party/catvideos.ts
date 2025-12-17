@@ -247,13 +247,13 @@ function getSadSongs() {
   const song: MovieParams[] = [
     {
       name: "3 am",
-      url: "3AM.mp3",
-      duration: 203,
+      url: "3am.mp3",
+      duration: 15,
     },
     {
       name: "Tumi",
       url: "TUMI.mp3",
-      duration: 240,
+      duration: 15,
     },
   ]
 
@@ -268,12 +268,12 @@ function getHappySongs() {
     {
       name: "Wildest Dreams",
       url: "Wildest_Dream.mp3",
-      duration: 235,
+      duration: 15,
     },
     {
       name: "Satellite",
       url: "Satellite.mp3",
-      duration: 318,
+      duration: 15,
     },
   ]
   for (let i = 0; i < song.length; i++) {

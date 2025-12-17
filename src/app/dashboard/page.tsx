@@ -18,8 +18,6 @@ const page = async () => {
     return <div>no fetch</div>
   }
 
-  // console.log("movie page", movies)
-
   return (
     <>
       {/* Desktop Dashboard - Hidden on mobile */}
@@ -31,16 +29,6 @@ const page = async () => {
       <div className="block md:hidden">
         <MobileDashboard movies={movies} songs={songs} />
       </div>
-
-      <main className="flex-1 flex px-10 pb-10 gap-10 min-h-0">
-        <div className="flex-[2.5] min-h-0">
-          <CustomAudioPlayer
-            audioUrl={`https://pub-5028b4904eef4a52961fb036dec5fe6d.r2.dev/music/LEVEL%20FIVE%20-%20TUMI.mp3`}
-            livetime={0}
-          />
-        </div>
-        ...
-      </main>
     </>
   )
 }

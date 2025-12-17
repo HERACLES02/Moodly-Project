@@ -1,13 +1,16 @@
+import { Message } from "@/components/SyncedRadioPlayer"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@/contexts/UserContext"
+import Image from "next/image"
 import PartySocket from "partysocket"
 import React, { useEffect, useRef } from "react"
 
 interface ChatComponentProps {
   ws: PartySocket
   message: string
-  messages: string[]
+  messages: Message[]
   setMessage: (s: string) => void
-  setMessages: React.Dispatch<React.SetStateAction<string[]>>
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
 }
 
 const ChatComponent = ({
@@ -27,8 +30,13 @@ const ChatComponent = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!message.trim()) return
-    ws.send(message)
-    setMessages((prev: string[]) => [...prev, message])
+    const userMessage: Message = {
+      message: message,
+      anonymousName: user?.anonymousName || "Listener",
+      avatar_img_path: user?.currentAvatar?.imagePath || "",
+    }
+    ws.send(JSON.stringify(userMessage))
+    setMessages((prev: Message[]) => [...prev, userMessage])
     setMessage("")
   }
 
@@ -65,12 +73,19 @@ const ChatComponent = ({
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-1 h-1 rounded-full bg-[var(--accent)] opacity-40" />
                 <span className="text-[9px] font-bold opacity-40 uppercase tracking-tighter">
-                  Listener
+                  {m.anonymousName}
                 </span>
               </div>
-              <p className="theme-text-contrast text-sm leading-relaxed pl-3 border-l border-white/10 group-hover:border-[var(--accent)] transition-colors">
-                {m}
-              </p>
+              <div className="theme-text-contrast text-sm leading-relaxed pl-3 border-l border-white/10 group-hover:border-[var(--accent)] transition-colors flex gap-3">
+                <div className="max-h-5 max-w-5 h-full w-full rounded-full">
+                  <Avatar className="rounded-full size-6 ">
+                    <AvatarImage src={m.avatar_img_path} />
+                    <AvatarFallback>{"👤"}</AvatarFallback>
+                  </Avatar>
+                </div>
+
+                {m.message}
+              </div>
             </div>
           ))
         )}
