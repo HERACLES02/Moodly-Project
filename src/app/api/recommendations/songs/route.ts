@@ -1,3 +1,4 @@
+// src/app/api/recommendations/songs/route.ts
 import { NextResponse } from "next/server"
 
 export const runtime = "nodejs" // ensure Buffer is available
@@ -129,40 +130,69 @@ const MOOD_SECTIONS: Record<
 > = {
   happy: [
     {
-      key: 'mellow_dreams',
-      title: 'Mellow Dreams',
-      defaultKeywords: ['chill happy indie', 'soft feel good', 'sunny acoustic', 'easygoing pop'],
+      key: "mellow_dreams",
+      title: "Mellow Dreams",
+      defaultKeywords: [
+        "chill happy indie",
+        "soft feel good",
+        "sunny acoustic",
+        "easygoing pop",
+      ],
     },
     {
-      key: 'romanticism_galore',
-      title: 'Romanticism Galore',
-      defaultKeywords: ['romantic pop', 'love songs upbeat', 'feel good romance', 'romantic indie pop'],
+      key: "romanticism_galore",
+      title: "Romanticism Galore",
+      defaultKeywords: [
+        "romantic pop",
+        "love songs upbeat",
+        "feel good romance",
+        "romantic indie pop",
+      ],
     },
     {
-      key: 'dancefloor_joy',
-      title: 'Dancefloor Joy',
-      defaultKeywords: ['dance pop upbeat', 'feel good dance hits', 'party pop', 'uplifting edm pop'],
+      key: "dancefloor_joy",
+      title: "Dancefloor Joy",
+      defaultKeywords: [
+        "dance pop upbeat",
+        "feel good dance hits",
+        "party pop",
+        "uplifting edm pop",
+      ],
     },
   ],
   sad: [
     {
-      key: 'broken_hearts',
-      title: 'Broken Hearts',
-      defaultKeywords: ['sad heartbreak songs', 'breakup ballads', 'crying playlist', 'heartache acoustic'],
+      key: "broken_hearts",
+      title: "Broken Hearts",
+      defaultKeywords: [
+        "sad heartbreak songs",
+        "breakup ballads",
+        "crying playlist",
+        "heartache acoustic",
+      ],
     },
     {
-      key: 'hard_truths',
+      key: "hard_truths",
       title: "Life’s Hard Truths",
-      defaultKeywords: ['emotional storytelling', 'raw emotional tracks', 'pain and struggle songs', 'songs about life'],
+      defaultKeywords: [
+        "emotional storytelling",
+        "raw emotional tracks",
+        "pain and struggle songs",
+        "songs about life",
+      ],
     },
     {
-      key: 'healing_through_pain',
-      title: 'Healing Through Pain',
-      defaultKeywords: ['cathartic sad songs', 'sad but comforting songs', 'emotional release playlist', 'healing breakup songs'],
+      key: "healing_through_pain",
+      title: "Healing Through Pain",
+      defaultKeywords: [
+        "cathartic sad songs",
+        "sad but comforting songs",
+        "emotional release playlist",
+        "healing breakup songs",
+      ],
     },
   ],
 }
-
 
 // ─────────────────────────────────────────────────────────────
 
@@ -208,23 +238,28 @@ async function getSpotifyToken() {
  * - If `q` present: `(userQuery) (anchor1 OR anchor2 ...)`
  * - Else: pick a random default keyword for the mood.
  */
-function buildQuery(mood: string, qRaw: string | null, sectionKey?: string | null) {
-
+function buildQuery(
+  mood: string,
+  qRaw: string | null,
+  sectionKey?: string | null,
+) {
   const profile = MOOD_PROFILES[mood]
   if (!profile) return null
 
   const q = (qRaw || "").trim()
   if (!q) {
     const sections = MOOD_SECTIONS[mood] || []
-    const section = sectionKey ? sections.find((s) => s.key === sectionKey) : null
+    const section = sectionKey
+      ? sections.find((s) => s.key === sectionKey)
+      : null
 
-    const source =
-      section?.defaultKeywords?.length ? section.defaultKeywords : profile.defaultKeywords
+    const source = section?.defaultKeywords?.length
+      ? section.defaultKeywords
+      : profile.defaultKeywords
 
     const kw = source[Math.floor(Math.random() * source.length)]
     return kw
   }
-
 
   const anchors = profile.searchAnchors
     .map((a) => a.trim())
@@ -271,13 +306,14 @@ async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   return deduped
 }
 
+// ─────────────────────────────────────────────────────────────
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const mood = (searchParams.get('mood') || '').toLowerCase().trim()
-    const q = (searchParams.get('q') || '').trim()
-    const sectionKey = (searchParams.get('section') || '').trim() || null
-
+    const mood = (searchParams.get("mood") || "").toLowerCase().trim()
+    const q = (searchParams.get("q") || "").trim()
+    const sectionKey = (searchParams.get("section") || "").trim() || null
 
     if (!mood || !MOOD_PROFILES[mood]) {
       return NextResponse.json(
@@ -298,7 +334,7 @@ export async function GET(request: Request) {
       )
     }
 
-    // More candidates when searching; client can re-rank & slice to 4
+    // More candidates when searching; your client can re-rank & slice to 4
     const pages = q ? 2 : 1
     const items = await searchSpotifyTracks(token, query, pages)
 
@@ -320,10 +356,6 @@ export async function GET(request: Request) {
     const OUT = q ? 40 : 24
     const tracks = shuffle(mapped).slice(0, OUT)
 
-    console.log(
-      `Got ${tracks.length} tracks for mood: ${mood}, query: ${q || "none"}`,
-    )
-
     return NextResponse.json({
       mood,
       q: q || null,
@@ -332,7 +364,6 @@ export async function GET(request: Request) {
       message: `Found ${tracks.length} tracks for mood "${mood}"`,
     })
   } catch (err: any) {
-    console.error("Spotify API Error:", err)
     return NextResponse.json(
       {
         error: "Failed to fetch music recommendations",

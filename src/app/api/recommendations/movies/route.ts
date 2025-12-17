@@ -225,8 +225,6 @@ export async function GET(request: Request) {
 
     const withKeywords = keywordCombo ? keywordCombo.join(",") : null
 
-    // Fetch more results if there's a query for AI re-ranking
-    const limit = 30
     const randomPage = Math.floor(Math.random() * 5) + 1
 
     const url = new URL("https://api.themoviedb.org/3/discover/movie")
@@ -246,9 +244,7 @@ export async function GET(request: Request) {
     url.searchParams.set("page", "1")
 
     console.log("Checking URL" + url)
-    const response = await fetch(
-      url.toString() + "&include_image_language=en-US,null",
-    )
+    const response = await fetch(url.toString())
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
     const data = await response.json()
@@ -262,9 +258,7 @@ export async function GET(request: Request) {
       overview: movie.overview,
       releaseDate: movie.release_date,
       rating: movie.vote_average,
-      backdrop_path: `https://image.tmdb.org/t/p/original${movie.backdrop_path}`,
     }))
-    console.log("Movies", movies)
     console.log("checking movie length")
     console.log("Got Movies: " + movies.length)
 
@@ -273,12 +267,7 @@ export async function GET(request: Request) {
       target: rules.target,
       movies,
       message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
-      meta: {
-        withGenres,
-        withoutGenres: withoutGenres || null,
-        variant,
-        query: query || null,
-      },
+      meta: { withGenres, withoutGenres: withoutGenres || null },
     })
   } catch (err) {
     console.error("TMDB API Error:", err)
