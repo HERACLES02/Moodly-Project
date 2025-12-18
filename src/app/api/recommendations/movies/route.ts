@@ -62,8 +62,31 @@ const MOOD_RULES: Record<
         key: "laugh_out_loud",
         title: "Laugh Out Loud",
         genreCombos: [
-          [35],     // comedy
-          [35, 12], // comedy + adventure
+          [35],    
+          [35, 12], 
+        ],
+        withoutGenres: [27, 53],
+      },
+      {
+        key: "sunlit_adventures",
+        title: "Sunlit Adventures",
+        genreCombos: [
+          [12, 35],  
+          [12],     
+          [12, 10751]
+        ],
+        withoutGenres: [27, 53, 80],
+      },
+      {
+        key: "feel_good_classics",
+        title: "Feel-Good Classics",
+        genreCombos: [
+          [35],        
+          [35, 10751], 
+          [18, 35],    
+        ],
+        keywordCombos: [
+
         ],
         withoutGenres: [27, 53],
       },
@@ -147,10 +170,41 @@ const MOOD_RULES: Record<
         genreCombos: [
           [18, 10402], 
           [18, 9648],  
-          [18],        
+          [18],
+                  
         ],
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
+
+      {
+        key: "shared_loneliness",
+        title: "Shared Loneliness",
+        genreCombos: [
+          [18],
+          [9648],        
+          [18, 9648],  // drama + mystery (introspective / quiet)
+          [18, 10402]  // drama + music (moody)
+        ],
+        keywordCombos: [
+
+        ],
+
+      },
+
+      {
+        key: "bittersweet_memories",
+        title: "Bittersweet Memories",
+        genreCombos: [
+          [18, 10749], 
+          [18, 10402], 
+          [18],        
+        ],
+        keywordCombos: [
+           [278730,4232,10738],
+        ],
+
+      },
+
     ],
   },
 
@@ -233,12 +287,12 @@ export async function GET(request: Request) {
     const withoutGenres = without?.join(",")
 
     const keywordSource = section?.keywordCombos
-    const keywordCombo =
+    const withKeywords =
       keywordSource && keywordSource.length > 0
-        ? keywordSource[Math.floor(Math.random() * keywordSource.length)]
+        ? keywordSource[Math.floor(Math.random() * keywordSource.length)].join('|')
         : null
 
-    const withKeywords = keywordCombo ? keywordCombo.join(",") : null
+
 
 
     
@@ -255,8 +309,8 @@ export async function GET(request: Request) {
       url.searchParams.set("without_genres", withoutGenres)
     }
     url.searchParams.set("sort_by", "popularity.desc")
-    url.searchParams.set("vote_average.gte", "6.5")
-    url.searchParams.set("vote_count.gte", "100")
+    url.searchParams.set("vote_average.gte", "6.0")
+    url.searchParams.set("vote_count.gte", "90")
     url.searchParams.set("include_adult", "false")
 
     url.searchParams.set("page", "1")

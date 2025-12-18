@@ -5,6 +5,9 @@ import { useState, useEffect } from "react"
 import NavbarComponent from "@/components/NavbarComponent"
 import MoodMovies from "@/components/MoodMovies/MoodMovies"
 import MoodMusic from "@/components/MoodMusic/MoodMusicComponent"
+import MoodMusicAlbums from "@/components/MoodMusic/MoodMusicAlbums"
+
+
 import { redirect, useRouter } from "next/navigation"
 import SearchBar from "@/components/SearchBar"
 import { useTheme } from "next-themes"
@@ -117,6 +120,7 @@ export default function Dashboard() {
                   onMovieClick={handleMovieClick}
                   query={searchMode === "movie" ? submittedQuery  : ""}
                 />
+                <MoodMusicAlbums mood={normalizedMood!} />
                 <MoodMusic
                   mood={normalizedMood!}
                   onSongClick={handleSongClick}

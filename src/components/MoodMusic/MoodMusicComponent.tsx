@@ -15,28 +15,43 @@ interface Track {
   external_url: string
 }
 
+interface AlbumRec {
+  id: string
+  name: string
+  artist: string
+  albumArt: string
+  external_url: string
+}
+
+
 interface MoodMusicProps {
   mood: string
   onSongClick: (songId: String) => void
   query?: string
 }
 
-// ✅ NEW: section config for default (no-search) rows
 const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> = {
   happy: [
     { key: 'mellow_dreams', title: 'Mellow Dreams' },
     { key: 'romanticism_galore', title: 'Romanticism Galore' },
     { key: 'dancefloor_joy', title: 'Dancefloor Joy' },
+    { key: 'sunlit_adventures', title: 'Sunlit Adventures' },
+    { key: 'feel_good_classics', title: 'Feel-Good Classics' },
+
   ],
   sad: [
     { key: 'broken_hearts', title: 'Broken Hearts' },
     { key: 'hard_truths', title: "Life’s Hard Truths" },
     { key: 'healing_through_pain', title: 'Healing Through Pain' },
+    { key: 'lonely_nights', title: 'Lonely Nights' },               
+    { key: 'bittersweet_memories', title: 'Bittersweet Memories' }, 
   ],
+
 }
 
 export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicProps) {
   const [tracks, setTracks] = useState<Track[]>([])
+  const [albums, setAlbums] = useState<AlbumRec[]>([])
   const [visibleTracks, setVisibleTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -118,6 +133,19 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
     fetchingRef.current = true
     try {
       const normalizedMood = mood.toLowerCase()
+      // NEW: always fetch 1 album row for this mood
+    try {
+      const albumRes = await fetch(`/api/recommendations/songs?mood=${normalizedMood}&kind=album`)
+      if (albumRes.ok) {
+        const albumJson = await albumRes.json()
+        setAlbums((albumJson.albums || []).slice(0, 6))
+      } else {
+        setAlbums([])
+      }
+    } catch {
+      setAlbums([])
+    }
+
 
       // ✅ NEW: default rows mode (no query) for moods with sections
       if (!query && DEFAULT_SECTION_CONFIG[normalizedMood]) {
@@ -278,7 +306,9 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
   if (error)
     return (
       <div className="mood-music-container">
+        
         <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
+        
         <div className="mood-music-error">{error}</div>
       </div>
     )
@@ -286,8 +316,7 @@ export default function MoodMusic({ mood, onSongClick, query = '' }: MoodMusicPr
   return (
     <div className="mood-music-container">
       <h2 className="mood-music-title">🎵 Music for your {mood} mood</h2>
-
-      {/* ✅ NEW: render 3 rows in default mode */}
+      
       {!query && sectionRows.length > 0 ? (
         <div className="space-y-6">
           {sectionRows.map((row) => (

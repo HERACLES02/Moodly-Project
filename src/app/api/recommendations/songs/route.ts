@@ -115,6 +115,29 @@ const MOOD_SECTIONS: Record<
       title: 'Dancefloor Joy',
       defaultKeywords: ['dance pop upbeat', 'feel good dance hits', 'party pop', 'uplifting edm pop'],
     },
+    {
+      key: 'sunlit_adventures',
+      title: 'Sunlit Adventures',
+      defaultKeywords: [
+        'summer road trip songs',
+        'sunny upbeat indie',
+        'happy travel playlist',
+        'feel good adventure pop',
+        'outdoor vibes music',
+      ],
+    },
+    {
+      key: 'feel_good_classics',
+      title: 'Feel-Good Classics',
+      defaultKeywords: [
+        'feel good classics',
+        'classic feel good songs',
+        'happy oldies',
+        'timeless upbeat hits',
+        'best feel good anthems',
+      ],
+    },
+
   ],
   sad: [
     {
@@ -131,6 +154,16 @@ const MOOD_SECTIONS: Record<
       key: 'healing_through_pain',
       title: 'Healing Through Pain',
       defaultKeywords: ['cathartic sad songs', 'sad but comforting songs', 'emotional release playlist', 'healing breakup songs'],
+    },
+    {
+      key: 'lonely_nights',
+      title: 'Lonely Nights',
+      defaultKeywords: ['lonely night songs', 'sad lofi night', 'melancholic ambient', 'quiet sad songs','late night loneliness',],
+    },
+    {
+    key: 'bittersweet_memories',
+    title: 'Bittersweet Memories',
+    defaultKeywords: ['nostalgic sad songs', 'bittersweet memories music', 'reflective indie', 'sad nostalgia playlist', 'soft acoustic memories',],
     },
   ],
 }
@@ -179,22 +212,51 @@ async function getSpotifyToken() {
  * - If `q` present: `(userQuery) (anchor1 OR anchor2 ...)`
  * - Else: pick a random default keyword for the mood.
  */
-function buildQuery(mood: string, qRaw: string | null, sectionKey?: string | null) {
+function buildQuery(mood: string, qRaw: string | null, sectionKey?: string | null, kind: 'track' | 'album' = 'track') {
 
   const profile = MOOD_PROFILES[mood]
   if (!profile) return null
 
   const q = (qRaw || '').trim()
   if (!q) {
-    const sections = MOOD_SECTIONS[mood] || []
-    const section = sectionKey ? sections.find((s) => s.key === sectionKey) : null
+          if (kind === 'album') {
+            const m = mood.toLowerCase()
 
-    const source =
-      section?.defaultKeywords?.length ? section.defaultKeywords : profile.defaultKeywords
+            if (m === 'sad') {
+              const sadAlbums = [
+                'melancholic album',
+                'sad emotional album',
+                'heartbreak album',
+                'introspective indie album',
+                'slow sad acoustic album',
+              ]
+              return sadAlbums[Math.floor(Math.random() * sadAlbums.length)]
+            }
 
-    const kw = source[Math.floor(Math.random() * source.length)]
-    return kw
-  }
+            if (m === 'happy') {
+              const happyAlbums = [
+                'feel good album',
+                'upbeat pop album',
+                'happy summer album',
+                'dance pop album',
+                'good vibes album',
+              ]
+              return happyAlbums[Math.floor(Math.random() * happyAlbums.length)]
+            }
+            const fallback = profile.defaultKeywords
+            return fallback[Math.floor(Math.random() * fallback.length)]
+          }
+
+          const sections = MOOD_SECTIONS[mood] || []
+          const section = sectionKey ? sections.find((s) => s.key === sectionKey) : null
+
+          const source =
+            section?.defaultKeywords?.length ? section.defaultKeywords : profile.defaultKeywords
+
+          const kw = source[Math.floor(Math.random() * source.length)]
+          return kw
+        }
+
 
 
   const anchors = profile.searchAnchors
@@ -238,27 +300,61 @@ async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   return deduped
 }
 
-// ─────────────────────────────────────────────────────────────
+async function searchSpotifyAlbums(token: string, q: string, pages = 1) {
+  const LIMIT = 30
+  const offsets = Array.from({ length: pages }, () => Math.floor(Math.random() * 60))
+
+  const results = await Promise.all(
+    offsets.map(async (offset) => {
+      const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=album&limit=${LIMIT}&offset=${offset}`
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      const text = await res.text().catch(() => '')
+      if (!res.ok) throw new Error(`Spotify /search(album) ${res.status}: ${text}`)
+      try {
+        return JSON.parse(text)
+      } catch {
+        return { albums: { items: [] } }
+      }
+    })
+  )
+
+  const items = results.flatMap((r: any) => r?.albums?.items || [])
+  const seen = new Set<string>()
+  const deduped = []
+  for (const a of items) {
+    if (!a?.id || seen.has(a.id)) continue
+    if (!a?.images?.length) continue
+    seen.add(a.id)
+    deduped.push(a)
+  }
+  return deduped
+}
+
+
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const mood = (searchParams.get('mood') || '').toLowerCase().trim()
-    const q = (searchParams.get('q') || '').trim()
-    const sectionKey = (searchParams.get('section') || '').trim() || null
+        const { searchParams } = new URL(request.url)
+        const mood = (searchParams.get('mood') || '').toLowerCase().trim()
+        const q = (searchParams.get('q') || '').trim()
+
+        const kindParam = (searchParams.get('kind') || 'track').toLowerCase().trim()
+        const kind: 'track' | 'album' = kindParam === 'album' ? 'album' : 'track'
+
+        const sectionKey = (searchParams.get('section') || '').trim() || null
+
+        if (!mood || !MOOD_PROFILES[mood]) {
+          return NextResponse.json(
+            { error: 'Invalid or unsupported mood', detail: { mood } },
+            { status: 400 }
+          )
+        }
+
+        const token = await getSpotifyToken()
+
+        const query = buildQuery(mood, q, sectionKey, kind)
 
 
-    if (!mood || !MOOD_PROFILES[mood]) {
-      return NextResponse.json(
-        { error: 'Invalid or unsupported mood', detail: { mood } },
-        { status: 400 }
-      )
-    }
-
-    const token = await getSpotifyToken()
-
-    // Build the query for this mood + (optional) user input
-    const query = buildQuery(mood, q, sectionKey)
 
     if (!query) {
       return NextResponse.json(
@@ -269,9 +365,32 @@ export async function GET(request: Request) {
 
     // More candidates when searching; your client can re-rank & slice to 4
     const pages = q ? 2 : 1
+
+    if (kind === 'album') {
+      const items = await searchSpotifyAlbums(token, query, pages)
+
+      const mapped = items.map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        artist: (a.artists || []).map((x: any) => x?.name).filter(Boolean).join(', '),
+        albumArt: a.images?.[0]?.url || '/images/music-placeholder.jpg',
+        external_url: a.external_urls?.spotify || '',
+      }))
+
+      const albums = shuffle(mapped).slice(0, 12)
+
+      return NextResponse.json({
+        mood,
+        q: q || null,
+        kind: 'album',
+        queryUsed: query,
+        albums,
+        message: `Found ${albums.length} albums for mood "${mood}"`,
+      })
+    }
+
     const items = await searchSpotifyTracks(token, query, pages)
 
-    // Convert → lightweight Track shape
     const mapped = items.map((t: any) => ({
       id: t.id,
       name: t.name,
@@ -282,17 +401,18 @@ export async function GET(request: Request) {
       external_url: t.external_urls?.spotify || '',
     }))
 
-    // Final pool size for client re-ranker
     const OUT = q ? 40 : 24
     const tracks = shuffle(mapped).slice(0, OUT)
 
     return NextResponse.json({
       mood,
       q: q || null,
+      kind: 'track',
       queryUsed: query,
       tracks,
       message: `Found ${tracks.length} tracks for mood "${mood}"`,
     })
+
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Failed to fetch music recommendations', detail: err?.message || String(err) },

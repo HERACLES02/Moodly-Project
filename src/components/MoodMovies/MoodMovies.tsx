@@ -28,11 +28,15 @@ const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> =
     { key: 'mellow_dreams', title: 'Mellow Dreams' },
     { key: 'romanticism_galore', title: 'Romanticism Galore' },
     { key: 'laugh_out_loud', title: 'Laugh Out Loud' },
+    { key: 'sunlit_adventures', title: 'Sunlit Adventures' },
+    { key: 'feel_good_classics', title: 'Feel-Good Classics' },
   ],
   sad: [
     { key: 'broken_hearts', title: 'Broken Hearts' },
     { key: 'hard_truths', title: "Life’s Hard Truths" },
     { key: 'healing_through_pain', title: 'Healing Through Pain' },
+    { key: 'shared_loneliness', title: 'Shared Loneliness' },
+    { key: 'bittersweet_memories', title: 'Bittersweet Memories' },
   ],
 }
 
