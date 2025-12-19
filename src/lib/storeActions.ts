@@ -3,8 +3,9 @@ import { Avatar, UserAvatar } from ".prisma/client/client"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import prisma from "@/lib/prisma"
-import { getWeekStart } from "@/app/api/getUser/route"
+
 import { User } from "@/contexts/UserContext"
+import { getWeekStart } from "./queries/user"
 
 export interface StoreObject {
   name: string

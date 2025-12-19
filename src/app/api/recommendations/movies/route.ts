@@ -262,13 +262,22 @@ export async function GET(request: Request) {
     console.log("checking movie length")
     console.log("Got Movies: " + movies.length)
 
-    return NextResponse.json({
-      mood,
-      target: rules.target,
-      movies,
-      message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
-      meta: { withGenres, withoutGenres: withoutGenres || null },
-    })
+    return NextResponse.json(
+      {
+        mood,
+        target: rules.target,
+        movies,
+        message: `Found ${movies.length} ${rules.target} movie recommendations for "${mood}"`,
+        meta: { withGenres, withoutGenres: withoutGenres || null },
+      },
+      {
+        headers: {
+          // Cache recommendations for 5 minutes
+          // Stale responses OK for up to 1 hour while revalidating
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+        },
+      },
+    )
   } catch (err) {
     console.error("TMDB API Error:", err)
     return NextResponse.json(

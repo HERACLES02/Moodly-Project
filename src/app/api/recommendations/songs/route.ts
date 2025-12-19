@@ -356,13 +356,20 @@ export async function GET(request: Request) {
     const OUT = q ? 40 : 24
     const tracks = shuffle(mapped).slice(0, OUT)
 
-    return NextResponse.json({
-      mood,
-      q: q || null,
-      queryUsed: query,
-      tracks,
-      message: `Found ${tracks.length} tracks for mood "${mood}"`,
-    })
+    return NextResponse.json(
+      {
+        mood,
+        q: q || null,
+        queryUsed: query,
+        tracks,
+        message: `Found ${tracks.length} tracks for mood "${mood}"`,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+        },
+      },
+    )
   } catch (err: any) {
     return NextResponse.json(
       {

@@ -1,54 +1,39 @@
+// src/app/api/getUser/route.ts
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
-
-export function getWeekStart(date: Date): Date {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  const monday = new Date(d.setDate(diff))
-  monday.setHours(0, 0, 0, 0)
-  return monday
-}
+import { getOptimizedUser } from "@/lib/queries/user"
 
 export async function GET() {
   const session = await auth()
 
-  if (session?.user?.email) {
-    const weekStart = getWeekStart(new Date())
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Not Logged in" }, { status: 401 })
+  }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: {
-        currentAvatar: true, // This includes the avatar relation
-        unlockedAvatars: {
-          include: {
-            avatar: {
-              select: {
-                id: true,
-                name: true,
-                imagePath: true,
-              },
-            },
-          },
-        },
-        weeklyActvities: {
-          where: {
-            weekStart,
-          },
-        },
-      },
-    })
-    const cleanedUser = {
-      ...user,
-      unlockedAvatars: user?.unlockedAvatars.map((ua) => ua.avatar),
-      weeklyActivities: user?.weeklyActvities[0],
+  try {
+    const user = await getOptimizedUser(session.user.email)
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    console.log(cleanedUser)
+    // Transform unlocked avatars to simpler format
+    // (Extract avatar from junction table)
+    const cleanedUser = {
+      ...user,
+      unlockedAvatars: user.unlockedAvatars.map((ua) => ua.avatar),
+      weeklyActivities: user.weeklyActvities[0] || null, // Return single object or null
+    }
 
-    return NextResponse.json(cleanedUser)
-  } else {
-    return NextResponse.json("Not Logged in") // Added missing return
+    return NextResponse.json(cleanedUser, {
+      headers: {
+        // Cache user data for 30 seconds
+        // Reduces API calls when user navigates between pages
+        "Cache-Control": "private, max-age=30",
+      },
+    })
+  } catch (error) {
+    console.error("Error fetching user:", error)
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 })
   }
 }
