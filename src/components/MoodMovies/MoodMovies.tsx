@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
 
-interface Movie {
+export interface Movie {
   id: number
   title: string
   poster: string
@@ -27,15 +27,18 @@ const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> =
       { key: "mellow_dreams", title: "Mellow Dreams" },
       { key: "romanticism_galore", title: "Romanticism Galore" },
       { key: "laugh_out_loud", title: "Laugh Out Loud" },
+      { key: "sunlit_adventures", title: "Sunlit Adventures" },
+      { key: "feel_good_classics", title: "Feel-Good Classics" },
     ],
     sad: [
       { key: "broken_hearts", title: "Broken Hearts" },
       { key: "hard_truths", title: "Life's Hard Truths" },
       { key: "healing_through_pain", title: "Healing Through Pain" },
+      { key: "shared_loneliness", title: "Shared Loneliness" },
+      { key: "bittersweet_memories", title: "Bittersweet Memories" },
     ],
   }
 
-// ✅ OPTIMIZATION: Debounce helper
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
@@ -52,7 +55,6 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue
 }
 
-// ✅ OPTIMIZATION: Cosine similarity (kept client-side, lightweight)
 const cosine = (a: number[], b: number[]) => {
   let dot = 0,
     na = 0,
@@ -87,7 +89,6 @@ export default function MoodMovies({
   const movieEmbCache = useRef<Map<number, number[]>>(new Map())
   const fetchingRef = useRef(false)
 
-  // ✅ OPTIMIZATION: Debounce query by 300ms
   const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
@@ -101,10 +102,20 @@ export default function MoodMovies({
     fetchingRef.current = true
     try {
       const normalizedMood = mood.toLowerCase()
+
+      // ✅ EFFICIENT: Default mode - randomly select 3 sections and fetch ONLY those 3
       if (!debouncedQuery && DEFAULT_SECTION_CONFIG[normalizedMood]) {
-        const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
+        const allSections = DEFAULT_SECTION_CONFIG[normalizedMood]
+
+        // Randomly select 3 sections from 5
+        const shuffledSections = [...allSections].sort(
+          () => Math.random() - 0.5,
+        )
+        const selectedSections = shuffledSections.slice(0, 3)
+
+        // Fetch ONLY the 3 selected sections (efficient!)
         const rows = await Promise.all(
-          sections.map(async (s) => {
+          selectedSections.map(async (s) => {
             const u = `/api/recommendations/movies?mood=${normalizedMood}&section=${encodeURIComponent(s.key)}`
             const r = await fetch(u)
             if (!r.ok) throw new Error(`Failed to fetch movies (${s.key})`)
@@ -112,6 +123,7 @@ export default function MoodMovies({
             return { title: s.title, movies: (j.movies || []).slice(0, 4) }
           }),
         )
+
         setSectionRows(rows)
         setMovies([])
         setVisibleMovies([])
@@ -120,6 +132,7 @@ export default function MoodMovies({
         return
       }
 
+      // Search mode
       setSectionRows([])
       const url = `/api/recommendations/movies?mood=${normalizedMood}${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
       const response = await fetch(url)
@@ -168,7 +181,6 @@ export default function MoodMovies({
     let shortlist: Movie[] = raw.map((r) => r as unknown as Movie)
     if (shortlist.length === 0) shortlist = movies.slice(0, 60)
 
-    // ✅ OPTIMIZATION: Use server-side embeddings
     setSearchingEmbeddings(true)
     try {
       const textsToEmbed = shortlist
@@ -190,7 +202,6 @@ export default function MoodMovies({
           const { embeddings, moodEmbedding, queryEmbedding } =
             await response.json()
 
-          // Cache new embeddings
           let idx = 0
           for (const m of shortlist) {
             if (!movieEmbCache.current.has(m.id)) {
@@ -199,7 +210,6 @@ export default function MoodMovies({
             }
           }
 
-          // Score and sort
           const alpha = 0.7
           const scored = shortlist
             .map((m) => {
@@ -215,11 +225,9 @@ export default function MoodMovies({
 
           setVisibleMovies(scored.map((s) => s.m))
         } else {
-          // Fallback to text search only
           setVisibleMovies(shortlist)
         }
       } else {
-        // All embeddings cached
         const response = await fetch("/api/embeddings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -272,8 +280,6 @@ export default function MoodMovies({
     } catch (e) {}
     onMovieClick(movie.id)
   }
-
-  // --- UI COMPONENTS (unchanged) ---
 
   const MovieCard = ({ movie }: { movie: Movie }) => (
     <div

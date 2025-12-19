@@ -1,7 +1,7 @@
 "use server"
 import { Avatar, UserAvatar } from ".prisma/client/client"
 import { auth } from "@/auth"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 
 import { User } from "@/contexts/UserContext"
@@ -21,6 +21,16 @@ export interface Store {
   user: User
 }
 
+// 🚀 CACHED FUNCTION: Store items are static and never change
+// Cache for 24 hours (86400 seconds)
+const getCachedStoreItems = unstable_cache(
+  async () => {
+    return await prisma.avatar.findMany()
+  },
+  ["store-items"], // cache key
+  { tags: ["store-items"], revalidate: 86400 }, // 24 hours
+)
+
 export async function getStore() {
   const session = await auth()
 
@@ -30,7 +40,7 @@ export async function getStore() {
 
   try {
     const [avatars, user] = await Promise.all([
-      prisma?.avatar.findMany(),
+      getCachedStoreItems(), // ✅ This is CACHED for 24 hours
       prisma.user.findUnique({
         where: { id: session.user.id },
         include: {
@@ -115,6 +125,8 @@ export async function redeemItem(
       })
     })
 
+    // ✅ Invalidate cache so user sees updated unlocked items
+    revalidateTag("store-items")
     revalidatePath("/store")
 
     return { success: true }
@@ -148,7 +160,9 @@ export async function applySelection(
       })
     }
 
-    revalidatePath("/store") // Updates the UI across the app
+    // ✅ Invalidate cache when user applies selection
+    revalidateTag("store-items")
+    revalidatePath("/store")
     return { success: true }
   } catch (error) {
     return { success: false, error: "Failed to apply selection" }

@@ -1,12 +1,10 @@
 // src/app/api/recommendations/songs/route.ts
 import { NextResponse } from "next/server"
 
-export const runtime = "nodejs" // ensure Buffer is available
+export const runtime = "nodejs"
 
 type MoodProfile = {
-  /** Keywords used when NO q (default mood picks) */
   defaultKeywords: string[]
-  /** Anchors added when q IS present, to keep search within the mood */
   searchAnchors: string[]
 }
 
@@ -22,7 +20,6 @@ const MOOD_PROFILES: Record<string, MoodProfile> = {
     searchAnchors: ["happy", "upbeat", "feel good", "dance pop", "positive"],
   },
   sad: {
-    // default is UPLIFTING (as requested earlier)
     defaultKeywords: [
       "motivational pop",
       "hopeful acoustic",
@@ -30,7 +27,6 @@ const MOOD_PROFILES: Record<string, MoodProfile> = {
       "soulful uplifting",
       "rise up",
     ],
-    // when searching, keep it truly sad/emotional
     searchAnchors: [
       "sad",
       "melancholy",
@@ -159,6 +155,28 @@ const MOOD_SECTIONS: Record<
         "uplifting edm pop",
       ],
     },
+    {
+      key: "sunlit_adventures",
+      title: "Sunlit Adventures",
+      defaultKeywords: [
+        "summer road trip songs",
+        "sunny upbeat indie",
+        "happy travel playlist",
+        "feel good adventure pop",
+        "outdoor vibes music",
+      ],
+    },
+    {
+      key: "feel_good_classics",
+      title: "Feel-Good Classics",
+      defaultKeywords: [
+        "feel good classics",
+        "classic feel good songs",
+        "happy oldies",
+        "timeless upbeat hits",
+        "best feel good anthems",
+      ],
+    },
   ],
   sad: [
     {
@@ -173,7 +191,7 @@ const MOOD_SECTIONS: Record<
     },
     {
       key: "hard_truths",
-      title: "Life’s Hard Truths",
+      title: "Life's Hard Truths",
       defaultKeywords: [
         "emotional storytelling",
         "raw emotional tracks",
@@ -191,10 +209,62 @@ const MOOD_SECTIONS: Record<
         "healing breakup songs",
       ],
     },
+    {
+      key: "lonely_nights",
+      title: "Lonely Nights",
+      defaultKeywords: [
+        "lonely night songs",
+        "sad lofi night",
+        "melancholic ambient",
+        "quiet sad songs",
+        "late night loneliness",
+      ],
+    },
+    {
+      key: "bittersweet_memories",
+      title: "Bittersweet Memories",
+      defaultKeywords: [
+        "nostalgic sad songs",
+        "bittersweet memories music",
+        "reflective indie",
+        "sad nostalgia playlist",
+        "soft acoustic memories",
+      ],
+    },
   ],
 }
 
-// ─────────────────────────────────────────────────────────────
+// Album-specific keywords for mood-based searches
+const ALBUM_KEYWORDS: Record<string, string[]> = {
+  happy: [
+    "feel good album",
+    "upbeat pop album",
+    "happy summer album",
+    "dance pop album",
+    "good vibes album",
+  ],
+  sad: [
+    "melancholic album",
+    "sad emotional album",
+    "heartbreak album",
+    "introspective indie album",
+    "slow sad acoustic album",
+  ],
+  anxious: [
+    "calming album",
+    "soothing ambient album",
+    "relaxing instrumental album",
+  ],
+  calm: [
+    "peaceful album",
+    "gentle acoustic album",
+    "serene instrumental album",
+  ],
+  energetic: ["high energy album", "workout album", "intense edm album"],
+  excited: ["party album", "festival album", "celebration album"],
+  tired: ["sleep album", "cozy evening album", "wind down album"],
+  grateful: ["heartfelt album", "warm folk album", "thankful indie album"],
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -214,8 +284,7 @@ async function getSpotifyToken() {
   const basicAuth =
     typeof Buffer !== "undefined"
       ? "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
-      : // @ts-ignore Edge fallback
-        "Basic " + btoa(`${clientId}:${clientSecret}`)
+      : "Basic " + btoa(`${clientId}:${clientSecret}`)
 
   const res = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
@@ -233,21 +302,25 @@ async function getSpotifyToken() {
   return data.access_token as string
 }
 
-/**
- * Build a search query:
- * - If `q` present: `(userQuery) (anchor1 OR anchor2 ...)`
- * - Else: pick a random default keyword for the mood.
- */
 function buildQuery(
   mood: string,
   qRaw: string | null,
   sectionKey?: string | null,
+  kind: "track" | "album" = "track",
 ) {
   const profile = MOOD_PROFILES[mood]
   if (!profile) return null
 
   const q = (qRaw || "").trim()
+
   if (!q) {
+    // Default mode (no search query)
+    if (kind === "album") {
+      const albumKeywords =
+        ALBUM_KEYWORDS[mood.toLowerCase()] || ALBUM_KEYWORDS["happy"]
+      return albumKeywords[Math.floor(Math.random() * albumKeywords.length)]
+    }
+
     const sections = MOOD_SECTIONS[mood] || []
     const section = sectionKey
       ? sections.find((s) => s.key === sectionKey)
@@ -261,16 +334,15 @@ function buildQuery(
     return kw
   }
 
+  // Search mode (with query)
   const anchors = profile.searchAnchors
     .map((a) => a.trim())
     .filter(Boolean)
-    .map((a) => `"${a}"`) // quote multi-word anchors
+    .map((a) => `"${a}"`)
   const anchorExpr = anchors.length ? `(${anchors.join(" OR ")})` : ""
-  // Bias the search toward the mood anchors while keeping the user's words
   return anchorExpr ? `${q} ${anchorExpr}` : q
 }
 
-/** Fetch 1 or 2 pages of Spotify search results */
 async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   const LIMIT = 50
   const offsets = Array.from({ length: pages }, () =>
@@ -294,7 +366,6 @@ async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   )
 
   const items = results.flatMap((r: any) => r?.tracks?.items || [])
-  // Deduplicate by id and require album art
   const seen = new Set<string>()
   const deduped = []
   for (const t of items) {
@@ -306,13 +377,50 @@ async function searchSpotifyTracks(token: string, q: string, pages = 1) {
   return deduped
 }
 
-// ─────────────────────────────────────────────────────────────
+async function searchSpotifyAlbums(token: string, q: string, pages = 1) {
+  const LIMIT = 30
+  const offsets = Array.from({ length: pages }, () =>
+    Math.floor(Math.random() * 60),
+  )
+
+  const results = await Promise.all(
+    offsets.map(async (offset) => {
+      const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=album&limit=${LIMIT}&offset=${offset}`
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const text = await res.text().catch(() => "")
+      if (!res.ok)
+        throw new Error(`Spotify /search(album) ${res.status}: ${text}`)
+      try {
+        return JSON.parse(text)
+      } catch {
+        return { albums: { items: [] } }
+      }
+    }),
+  )
+
+  const items = results.flatMap((r: any) => r?.albums?.items || [])
+  const seen = new Set<string>()
+  const deduped = []
+  for (const a of items) {
+    if (!a?.id || seen.has(a.id)) continue
+    if (!a?.images?.length) continue
+    seen.add(a.id)
+    deduped.push(a)
+  }
+  return deduped
+}
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const mood = (searchParams.get("mood") || "").toLowerCase().trim()
     const q = (searchParams.get("q") || "").trim()
+
+    const kindParam = (searchParams.get("kind") || "track").toLowerCase().trim()
+    const kind: "track" | "album" = kindParam === "album" ? "album" : "track"
+
     const sectionKey = (searchParams.get("section") || "").trim() || null
 
     if (!mood || !MOOD_PROFILES[mood]) {
@@ -324,8 +432,7 @@ export async function GET(request: Request) {
 
     const token = await getSpotifyToken()
 
-    // Build the query for this mood + (optional) user input
-    const query = buildQuery(mood, q, sectionKey)
+    const query = buildQuery(mood, q, sectionKey, kind)
 
     if (!query) {
       return NextResponse.json(
@@ -334,11 +441,45 @@ export async function GET(request: Request) {
       )
     }
 
-    // More candidates when searching; your client can re-rank & slice to 4
     const pages = q ? 2 : 1
+
+    if (kind === "album") {
+      const items = await searchSpotifyAlbums(token, query, pages)
+
+      const mapped = items.map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        artist: (a.artists || [])
+          .map((x: any) => x?.name)
+          .filter(Boolean)
+          .join(", "),
+        albumArt: a.images?.[0]?.url || "/images/music-placeholder.jpg",
+        external_url: a.external_urls?.spotify || "",
+      }))
+
+      const OUT = q ? 40 : 24
+      const albums = shuffle(mapped).slice(0, OUT)
+
+      return NextResponse.json(
+        {
+          mood,
+          q: q || null,
+          kind: "album",
+          queryUsed: query,
+          albums,
+          message: `Found ${albums.length} albums for mood "${mood}"`,
+        },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=300, stale-while-revalidate=3600",
+          },
+        },
+      )
+    }
+
     const items = await searchSpotifyTracks(token, query, pages)
 
-    // Convert → lightweight Track shape
     const mapped = items.map((t: any) => ({
       id: t.id,
       name: t.name,
@@ -352,7 +493,6 @@ export async function GET(request: Request) {
       external_url: t.external_urls?.spotify || "",
     }))
 
-    // Final pool size for client re-ranker
     const OUT = q ? 40 : 24
     const tracks = shuffle(mapped).slice(0, OUT)
 
@@ -360,6 +500,7 @@ export async function GET(request: Request) {
       {
         mood,
         q: q || null,
+        kind: "track",
         queryUsed: query,
         tracks,
         message: `Found ${tracks.length} tracks for mood "${mood}"`,

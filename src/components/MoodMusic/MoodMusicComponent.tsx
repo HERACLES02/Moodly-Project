@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
 
@@ -14,6 +14,16 @@ interface Track {
   external_url: string
 }
 
+interface Album {
+  id: string
+  name: string
+  artist: string
+  albumArt: string
+  external_url: string
+}
+
+type SectionItem = Track | Album
+
 interface MoodMusicProps {
   mood: string
   onSongClick: (songId: string) => void
@@ -26,15 +36,30 @@ const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> =
       { key: "mellow_dreams", title: "Mellow Dreams" },
       { key: "romanticism_galore", title: "Romanticism Galore" },
       { key: "dancefloor_joy", title: "Dancefloor Joy" },
+      { key: "sunlit_adventures", title: "Sunlit Adventures" },
+      { key: "feel_good_classics", title: "Feel-Good Classics" },
     ],
     sad: [
       { key: "broken_hearts", title: "Broken Hearts" },
       { key: "hard_truths", title: "Life's Hard Truths" },
       { key: "healing_through_pain", title: "Healing Through Pain" },
+      { key: "lonely_nights", title: "Lonely Nights" },
+      { key: "bittersweet_memories", title: "Bittersweet Memories" },
     ],
   }
 
-// ✅ OPTIMIZATION: Debounce helper (same as movies)
+// Album section titles per mood
+const ALBUM_SECTION_TITLES: Record<string, string> = {
+  happy: "Feel-Good Albums",
+  sad: "Melancholic Albums",
+  anxious: "Calming Albums",
+  calm: "Peaceful Albums",
+  energetic: "High-Energy Albums",
+  excited: "Party Albums",
+  tired: "Cozy Albums",
+  grateful: "Heartfelt Albums",
+}
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
@@ -64,8 +89,10 @@ const cosine = (a: number[], b: number[]) => {
   return d ? dot / d : 0
 }
 
-const toText = (t: Track) =>
+const toTrackText = (t: Track) =>
   `${t.name || ""} | ${t.artist || ""} | ${t.album || ""}`
+
+const toAlbumText = (a: Album) => `${a.name || ""} | ${a.artist || ""}`
 
 export default function MoodMusic({
   mood,
@@ -73,19 +100,22 @@ export default function MoodMusic({
   query = "",
 }: MoodMusicProps) {
   const [tracks, setTracks] = useState<Track[]>([])
+  const [albums, setAlbums] = useState<Album[]>([])
   const [visibleTracks, setVisibleTracks] = useState<Track[]>([])
+  const [visibleAlbums, setVisibleAlbums] = useState<Album[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sectionRows, setSectionRows] = useState<
-    { title: string; tracks: Track[] }[]
+    { title: string; items: SectionItem[]; type: "track" | "album" }[]
   >([])
   const [searchingEmbeddings, setSearchingEmbeddings] = useState(false)
 
-  const miniRef = useRef<MiniSearch<Track> | null>(null)
+  const miniTrackRef = useRef<MiniSearch<Track> | null>(null)
+  const miniAlbumRef = useRef<MiniSearch<Album> | null>(null)
   const trackEmbCache = useRef<Map<string, number[]>>(new Map())
+  const albumEmbCache = useRef<Map<string, number[]>>(new Map())
   const fetchingRef = useRef(false)
 
-  // ✅ OPTIMIZATION: Debounce query by 300ms
   const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
@@ -99,38 +129,92 @@ export default function MoodMusic({
     fetchingRef.current = true
     try {
       const normalizedMood = mood.toLowerCase()
+
+      // ✅ EFFICIENT: Default mode - randomly select 2 track sections + fetch albums
       if (!debouncedQuery && DEFAULT_SECTION_CONFIG[normalizedMood]) {
-        const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
-        const rows = await Promise.all(
-          sections.map(async (s) => {
-            const u = `/api/recommendations/songs?mood=${normalizedMood}&section=${encodeURIComponent(s.key)}`
-            const r = await fetch(u)
-            if (!r.ok)
-              throw new Error(`Failed to fetch music (${s.key}): ${r.status}`)
-            const j = await r.json()
-            const list: Track[] = j.tracks || []
-            return { title: s.title, tracks: list.slice(0, 4) }
-          }),
+        const trackSections = DEFAULT_SECTION_CONFIG[normalizedMood]
+
+        // Randomly select 2 track sections from 5
+        const shuffledSections = [...trackSections].sort(
+          () => Math.random() - 0.5,
         )
-        setSectionRows(rows)
+        const selectedTrackSections = shuffledSections.slice(0, 2)
+
+        // Fetch ONLY the 2 selected track sections + albums in parallel (efficient!)
+        const [trackRows, albumData] = await Promise.all([
+          Promise.all(
+            selectedTrackSections.map(async (s) => {
+              const u = `/api/recommendations/songs?mood=${normalizedMood}&section=${encodeURIComponent(s.key)}`
+              const r = await fetch(u)
+              if (!r.ok)
+                throw new Error(
+                  `Failed to fetch tracks (${s.key}): ${r.status}`,
+                )
+              const j = await r.json()
+              const list: Track[] = j.tracks || []
+              return {
+                title: s.title,
+                items: list.slice(0, 4),
+                type: "track" as const,
+              }
+            }),
+          ),
+          (async () => {
+            const albumUrl = `/api/recommendations/songs?mood=${normalizedMood}&kind=album`
+            const albumRes = await fetch(albumUrl)
+            if (!albumRes.ok) throw new Error("Failed to fetch albums")
+            return albumRes.json()
+          })(),
+        ])
+
+        const albumList: Album[] = albumData.albums || []
+        const albumRow = {
+          title: ALBUM_SECTION_TITLES[normalizedMood] || "Albums for You",
+          items: albumList.slice(0, 4),
+          type: "album" as const,
+        }
+
+        // Combine: 2 track sections + 1 album section (total 3)
+        setSectionRows([...trackRows, albumRow])
+
+        // Clear single-row/search state
         setTracks([])
+        setAlbums([])
         setVisibleTracks([])
-        miniRef.current = null
+        setVisibleAlbums([])
+        miniTrackRef.current = null
+        miniAlbumRef.current = null
         trackEmbCache.current.clear()
+        albumEmbCache.current.clear()
+
         return
       }
 
+      // Search mode
       setSectionRows([])
-      const url = `/api/recommendations/songs?mood=${normalizedMood}${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
-      const response = await fetch(url)
-      if (!response.ok)
-        throw new Error(`Failed to fetch music: ${response.status}`)
-      const data = await response.json()
-      const list: Track[] = data.tracks || []
-      setTracks(list)
-      setVisibleTracks(!debouncedQuery ? list.slice(0, 4) : list)
 
-      miniRef.current = new MiniSearch<Track>({
+      // Fetch tracks
+      const trackUrl = `/api/recommendations/songs?mood=${normalizedMood}${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
+      const trackResponse = await fetch(trackUrl)
+      if (!trackResponse.ok)
+        throw new Error(`Failed to fetch tracks: ${trackResponse.status}`)
+      const trackData = await trackResponse.json()
+      const trackList: Track[] = trackData.tracks || []
+      setTracks(trackList)
+      setVisibleTracks(!debouncedQuery ? trackList.slice(0, 4) : trackList)
+
+      // Fetch albums
+      const albumUrl = `/api/recommendations/songs?mood=${normalizedMood}&kind=album${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
+      const albumResponse = await fetch(albumUrl)
+      if (!albumResponse.ok)
+        throw new Error(`Failed to fetch albums: ${albumResponse.status}`)
+      const albumData = await albumResponse.json()
+      const albumList: Album[] = albumData.albums || []
+      setAlbums(albumList)
+      setVisibleAlbums(!debouncedQuery ? albumList.slice(0, 4) : albumList)
+
+      // Build MiniSearch indexes
+      miniTrackRef.current = new MiniSearch<Track>({
         fields: ["name", "artist", "album"],
         storeFields: [
           "id",
@@ -147,7 +231,19 @@ export default function MoodMusic({
           prefix: true,
         },
       })
-      miniRef.current.addAll(list)
+      miniTrackRef.current.addAll(trackList)
+
+      miniAlbumRef.current = new MiniSearch<Album>({
+        fields: ["name", "artist"],
+        storeFields: ["id", "name", "artist", "albumArt", "external_url"],
+        searchOptions: {
+          boost: { name: 3, artist: 2 },
+          fuzzy: 0.2,
+          prefix: true,
+        },
+      })
+      miniAlbumRef.current.addAll(albumList)
+
       if (debouncedQuery) await runSearch(debouncedQuery)
     } catch (err) {
       console.error("Error fetching music:", err)
@@ -161,105 +257,202 @@ export default function MoodMusic({
   const runSearch = async (q: string) => {
     const qq = (q || "").trim()
     if (qq.length < 2) {
-      setVisibleTracks(tracks)
+      setVisibleTracks(tracks.slice(0, 4))
+      setVisibleAlbums(albums.slice(0, 4))
       return
     }
-    if (!miniRef.current || tracks.length === 0) return
 
-    const raw = miniRef.current.search(qq, { limit: 50 })
-    let shortlist: Track[] = raw.map((r) => r as unknown as Track)
-    if (shortlist.length === 0) shortlist = tracks.slice(0, 60)
+    // Search tracks
+    if (miniTrackRef.current && tracks.length > 0) {
+      const rawTracks = miniTrackRef.current.search(qq, { limit: 50 })
+      let trackShortlist: Track[] = rawTracks.map((r) => r as unknown as Track)
+      if (trackShortlist.length === 0) trackShortlist = tracks.slice(0, 60)
 
-    // ✅ OPTIMIZATION: Use server-side embeddings
-    setSearchingEmbeddings(true)
-    try {
-      const textsToEmbed = shortlist
-        .filter((t) => !trackEmbCache.current.has(t.id))
-        .map((t) => toText(t))
+      setSearchingEmbeddings(true)
+      try {
+        const tracksToEmbed = trackShortlist
+          .filter((t) => !trackEmbCache.current.has(t.id))
+          .map((t) => toTrackText(t))
 
-      if (textsToEmbed.length > 0) {
-        const response = await fetch("/api/embeddings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            texts: textsToEmbed,
-            mood: mood,
-            queryText: qq,
-          }),
-        })
+        if (tracksToEmbed.length > 0) {
+          const response = await fetch("/api/embeddings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              texts: tracksToEmbed,
+              mood: mood,
+              queryText: qq,
+            }),
+          })
 
-        if (response.ok) {
-          const { embeddings, moodEmbedding, queryEmbedding } =
-            await response.json()
+          if (response.ok) {
+            const { embeddings, moodEmbedding, queryEmbedding } =
+              await response.json()
 
-          let idx = 0
-          for (const t of shortlist) {
-            if (!trackEmbCache.current.has(t.id)) {
-              trackEmbCache.current.set(t.id, embeddings[idx])
-              idx++
+            let idx = 0
+            for (const t of trackShortlist) {
+              if (!trackEmbCache.current.has(t.id)) {
+                trackEmbCache.current.set(t.id, embeddings[idx])
+                idx++
+              }
             }
+
+            const m = (mood || "").toLowerCase()
+            let alpha = 0.6
+            if (m === "happy") alpha = 0.65
+            if (m === "sad") alpha = 0.35
+
+            const scored = trackShortlist
+              .map((t) => {
+                const v = trackEmbCache.current.get(t.id)!
+                return {
+                  t,
+                  score:
+                    alpha * cosine(queryEmbedding, v) +
+                    (1 - alpha) * cosine(moodEmbedding, v),
+                }
+              })
+              .sort((a, b) => b.score - a.score)
+
+            setVisibleTracks(scored.map((s) => s.t))
+          } else {
+            setVisibleTracks(trackShortlist)
           }
-
-          const m = (mood || "").toLowerCase()
-          let alpha = 0.6
-          if (m === "happy") alpha = 0.65
-          if (m === "sad") alpha = 0.35
-
-          const scored = shortlist
-            .map((t) => {
-              const v = trackEmbCache.current.get(t.id)!
-              return {
-                t,
-                score:
-                  alpha * cosine(queryEmbedding, v) +
-                  (1 - alpha) * cosine(moodEmbedding, v),
-              }
-            })
-            .sort((a, b) => b.score - a.score)
-
-          setVisibleTracks(scored.map((s) => s.t))
         } else {
-          setVisibleTracks(shortlist)
+          const response = await fetch("/api/embeddings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              texts: [],
+              mood: mood,
+              queryText: qq,
+            }),
+          })
+
+          if (response.ok) {
+            const { moodEmbedding, queryEmbedding } = await response.json()
+
+            const m = (mood || "").toLowerCase()
+            let alpha = 0.6
+            if (m === "happy") alpha = 0.65
+            if (m === "sad") alpha = 0.35
+
+            const scored = trackShortlist
+              .map((t) => {
+                const v = trackEmbCache.current.get(t.id)!
+                return {
+                  t,
+                  score:
+                    alpha * cosine(queryEmbedding, v) +
+                    (1 - alpha) * cosine(moodEmbedding, v),
+                }
+              })
+              .sort((a, b) => b.score - a.score)
+
+            setVisibleTracks(scored.map((s) => s.t))
+          }
         }
-      } else {
-        const response = await fetch("/api/embeddings", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            texts: [],
-            mood: mood,
-            queryText: qq,
-          }),
-        })
-
-        if (response.ok) {
-          const { moodEmbedding, queryEmbedding } = await response.json()
-
-          const m = (mood || "").toLowerCase()
-          let alpha = 0.6
-          if (m === "happy") alpha = 0.65
-          if (m === "sad") alpha = 0.35
-
-          const scored = shortlist
-            .map((t) => {
-              const v = trackEmbCache.current.get(t.id)!
-              return {
-                t,
-                score:
-                  alpha * cosine(queryEmbedding, v) +
-                  (1 - alpha) * cosine(moodEmbedding, v),
-              }
-            })
-            .sort((a, b) => b.score - a.score)
-
-          setVisibleTracks(scored.map((s) => s.t))
-        }
+      } catch (error) {
+        console.error("Track search error:", error)
+        setVisibleTracks(trackShortlist)
       }
-    } catch (error) {
-      console.error("Search error:", error)
-      setVisibleTracks(shortlist)
-    } finally {
-      setSearchingEmbeddings(false)
+    }
+
+    // Search albums
+    if (miniAlbumRef.current && albums.length > 0) {
+      const rawAlbums = miniAlbumRef.current.search(qq, { limit: 50 })
+      let albumShortlist: Album[] = rawAlbums.map((r) => r as unknown as Album)
+      if (albumShortlist.length === 0) albumShortlist = albums.slice(0, 60)
+
+      try {
+        const albumsToEmbed = albumShortlist
+          .filter((a) => !albumEmbCache.current.has(a.id))
+          .map((a) => toAlbumText(a))
+
+        if (albumsToEmbed.length > 0) {
+          const response = await fetch("/api/embeddings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              texts: albumsToEmbed,
+              mood: mood,
+              queryText: qq,
+            }),
+          })
+
+          if (response.ok) {
+            const { embeddings, moodEmbedding, queryEmbedding } =
+              await response.json()
+
+            let idx = 0
+            for (const a of albumShortlist) {
+              if (!albumEmbCache.current.has(a.id)) {
+                albumEmbCache.current.set(a.id, embeddings[idx])
+                idx++
+              }
+            }
+
+            const m = (mood || "").toLowerCase()
+            let alpha = 0.6
+            if (m === "happy") alpha = 0.65
+            if (m === "sad") alpha = 0.35
+
+            const scored = albumShortlist
+              .map((a) => {
+                const v = albumEmbCache.current.get(a.id)!
+                return {
+                  a,
+                  score:
+                    alpha * cosine(queryEmbedding, v) +
+                    (1 - alpha) * cosine(moodEmbedding, v),
+                }
+              })
+              .sort((a, b) => b.score - a.score)
+
+            setVisibleAlbums(scored.map((s) => s.a))
+          } else {
+            setVisibleAlbums(albumShortlist)
+          }
+        } else {
+          const response = await fetch("/api/embeddings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              texts: [],
+              mood: mood,
+              queryText: qq,
+            }),
+          })
+
+          if (response.ok) {
+            const { moodEmbedding, queryEmbedding } = await response.json()
+
+            const m = (mood || "").toLowerCase()
+            let alpha = 0.6
+            if (m === "happy") alpha = 0.65
+            if (m === "sad") alpha = 0.35
+
+            const scored = albumShortlist
+              .map((a) => {
+                const v = albumEmbCache.current.get(a.id)!
+                return {
+                  a,
+                  score:
+                    alpha * cosine(queryEmbedding, v) +
+                    (1 - alpha) * cosine(moodEmbedding, v),
+                }
+              })
+              .sort((a, b) => b.score - a.score)
+
+            setVisibleAlbums(scored.map((s) => s.a))
+          }
+        }
+      } catch (error) {
+        console.error("Album search error:", error)
+        setVisibleAlbums(albumShortlist)
+      } finally {
+        setSearchingEmbeddings(false)
+      }
     }
   }
 
@@ -285,44 +478,54 @@ export default function MoodMusic({
     onSongClick(track.id)
   }
 
-  // --- UI COMPONENTS (unchanged) ---
+  const handleAlbumClick = (album: Album) => {
+    if (album.external_url) {
+      window.open(album.external_url, "_blank")
+    }
+  }
 
-  const SongCard = ({ track }: { track: Track }) => (
+  // UI Components
+  const ItemCard = ({
+    item,
+    type,
+  }: {
+    item: SectionItem
+    type: "track" | "album"
+  }) => (
     <div
       className="group relative w-full max-w-[340px] h-28 flex items-center cursor-pointer overflow-hidden transition-all duration-300"
-      onClick={() => handleTrackClick(track)}
+      onClick={() =>
+        type === "track"
+          ? handleTrackClick(item as Track)
+          : handleAlbumClick(item as Album)
+      }
     >
       <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
         <Image
-          src={track.albumArt || "/images/music-placeholder.jpg"}
-          alt={track.name}
+          src={item.albumArt || "/images/music-placeholder.jpg"}
+          alt={item.name}
           fill
           style={{ objectFit: "cover" }}
           className="transition-transform duration-500 group-hover:scale-110"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement
-            target.src = "/images/music-placeholder.jpg"
-          }}
         />
-        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors" />
-
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors" />
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-[var(--accent)]/90 backdrop-blur-sm flex items-center justify-center text-black shadow-lg">
-            <span className="text-lg ml-0.5">▶</span>
+            <span className="text-xs font-black">▶</span>
           </div>
         </div>
       </div>
 
       <div className="flex-1 ml-4 py-2 flex flex-col justify-center border-b border-transparent group-hover:border-[var(--accent)]/10 transition-colors">
         <h3 className="theme-text-foreground text-sm font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
-          {track.name}
+          {item.name}
         </h3>
-        <p className="theme-text-accent text-[10px] font-bold uppercase tracking-widest mt-1 opacity-70">
-          {track.artist}
+        <p className="theme-text-accent text-[10px] font-bold uppercase tracking-widest mt-1">
+          {item.artist}
         </p>
 
         <div className="flex items-end gap-0.5 h-4 mt-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-          {[0.6, 1.0, 0.7, 1.2, 0.5, 0.9].map((h, i) => (
+          {[0.4, 0.9, 0.6, 1.1, 0.5, 0.8].map((h, i) => (
             <div
               key={i}
               className="w-1 bg-[var(--accent)] rounded-full"
@@ -334,7 +537,6 @@ export default function MoodMusic({
           ))}
         </div>
       </div>
-
       <style jsx>{`
         @keyframes bar-bounce {
           0% {
@@ -405,32 +607,49 @@ export default function MoodMusic({
 
       {!debouncedQuery && sectionRows.length > 0 ? (
         <div className="space-y-20">
-          {sectionRows.map((row) => (
-            <section key={row.title} className="w-full">
+          {sectionRows.map((row, idx) => (
+            <section key={`${row.title}-${idx}`} className="w-full">
               <SectionHeader title={row.title} />
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
-                {row.tracks.map((track) => (
-                  <SongCard key={track.id} track={track} />
+                {row.items.map((item) => (
+                  <ItemCard key={item.id} item={item} type={row.type} />
                 ))}
               </div>
             </section>
           ))}
         </div>
       ) : (
-        <section className="w-full">
-          <SectionHeader
-            title={
-              debouncedQuery
-                ? `Search Results: ${debouncedQuery}`
-                : "Top Picks For You"
-            }
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
-            {visibleTracks.map((track) => (
-              <SongCard key={track.id} track={track} />
-            ))}
-          </div>
-        </section>
+        <>
+          <section className="w-full mb-20">
+            <SectionHeader
+              title={
+                debouncedQuery
+                  ? `Track Results: ${debouncedQuery}`
+                  : "Top Tracks For You"
+              }
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+              {visibleTracks.map((track) => (
+                <ItemCard key={track.id} item={track} type="track" />
+              ))}
+            </div>
+          </section>
+
+          <section className="w-full">
+            <SectionHeader
+              title={
+                debouncedQuery
+                  ? `Album Results: ${debouncedQuery}`
+                  : ALBUM_SECTION_TITLES[mood.toLowerCase()] || "Albums For You"
+              }
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
+              {visibleAlbums.map((album) => (
+                <ItemCard key={album.id} item={album} type="album" />
+              ))}
+            </div>
+          </section>
+        </>
       )}
     </div>
   )

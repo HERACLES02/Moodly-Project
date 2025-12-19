@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server"
 
-// TMDB Genres reference:
-// 28 Action, 12 Adventure, 16 Animation, 35 Comedy, 80 Crime, 99 Documentary,
-// 18 Drama, 10751 Family, 14 Fantasy, 36 History, 27 Horror, 10402 Music,
-// 9648 Mystery, 10749 Romance, 878 Science Fiction, 53 Thriller, 10752 War
-
 type Target =
   | "balanced"
   | "peaceful"
@@ -44,8 +39,8 @@ const MOOD_RULES: Record<
         key: "mellow_dreams",
         title: "Mellow Dreams",
         genreCombos: [
-          [16, 10751], // cozy
-          [10402, 35], // music + comedy
+          [16, 10751],
+          [10402, 35],
         ],
         withoutGenres: [27, 53],
       },
@@ -53,18 +48,28 @@ const MOOD_RULES: Record<
         key: "romanticism_galore",
         title: "Romanticism Galore",
         genreCombos: [
-          [35, 10749], // romcom
-          [10749, 10402], // romance + music
+          [35, 10749],
+          [10749, 10402],
         ],
         withoutGenres: [27, 53],
       },
       {
         key: "laugh_out_loud",
         title: "Laugh Out Loud",
-        genreCombos: [
-          [35], // comedy
-          [35, 12], // comedy + adventure
-        ],
+        genreCombos: [[35], [35, 12]],
+        withoutGenres: [27, 53],
+      },
+      {
+        key: "sunlit_adventures",
+        title: "Sunlit Adventures",
+        genreCombos: [[12, 35], [12], [12, 10751]],
+        withoutGenres: [27, 53, 80],
+      },
+      {
+        key: "feel_good_classics",
+        title: "Feel-Good Classics",
+        genreCombos: [[35], [35, 10751], [18, 35]],
+        keywordCombos: [],
         withoutGenres: [27, 53],
       },
     ],
@@ -73,23 +78,23 @@ const MOOD_RULES: Record<
   calm: {
     target: "peaceful",
     genreCombos: [
-      [99, 12], // Documentary + Adventure (nature/travel)
-      [99, 18], // Documentary + Drama (gentle stories)
-      [16, 10751], // Animation + Family (soft tone)
-      [10402, 18], // Music + Drama
+      [99, 12],
+      [99, 18],
+      [16, 10751],
+      [10402, 18],
     ],
-    withoutGenres: [27, 53], // avoid high arousal
+    withoutGenres: [27, 53],
   },
 
   energetic: {
     target: "flow",
     genreCombos: [
-      [28, 12], // Action + Adventure
-      [80, 53], // Crime + Thriller (heist/strategy)
-      [18, 99], // Drama + Documentary (sports/entrepreneurship)
-      [36, 18], // History + Drama (greatness arcs)
+      [28, 12],
+      [80, 53],
+      [18, 99],
+      [36, 18],
     ],
-    withoutGenres: [27], // avoid Horror
+    withoutGenres: [27],
   },
 
   anxious: {
@@ -113,21 +118,16 @@ const MOOD_RULES: Record<
         key: "broken_hearts",
         title: "Broken Hearts",
         genreCombos: [
-          [18, 10749], // Drama + Romance
+          [18, 10749],
           [10749, 18],
         ],
-        keywordCombos: [
-          [10048], // unrequited love
-          [10703], // one-sided love
-          // tragic love + heartbreak IDs
-        ],
+        keywordCombos: [[10048], [10703]],
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
       {
         key: "hard_truths",
-        title: "Life’s Hard Truths",
+        title: "Life's Hard Truths",
         genreCombos: [[18, 80], [18, 36], [18]],
-
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
       {
@@ -136,38 +136,52 @@ const MOOD_RULES: Record<
         genreCombos: [[18, 10402], [18, 9648], [18]],
         withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
       },
+      {
+        key: "shared_loneliness",
+        title: "Shared Loneliness",
+        genreCombos: [[18], [9648], [18, 9648], [18, 10402]],
+        keywordCombos: [],
+        withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+      },
+      {
+        key: "bittersweet_memories",
+        title: "Bittersweet Memories",
+        genreCombos: [[18, 10749], [18, 10402], [18]],
+        keywordCombos: [[278730, 4232, 10738]],
+        withoutGenres: [27, 53, 16, 35, 10751, 12, 14],
+      },
     ],
   },
 
   excited: {
     target: "joyful",
     genreCombos: [
-      [12, 35], // Adventure + Comedy
-      [35, 10402], // Comedy + Music
-      [16, 12], // Animation + Adventure
-      [35, 10751], // Comedy + Family
+      [12, 35],
+      [35, 10402],
+      [16, 12],
+      [35, 10751],
     ],
-    withoutGenres: [27], // keep it light
+    withoutGenres: [27],
   },
 
   tired: {
     target: "rested",
     genreCombos: [
-      [99, 18], // gentle docs/drama
-      [16, 10751], // soft animation/family
-      [10402, 10749], // Music + Romance
-      [99, 36], // soothing historical docs
+      [99, 18],
+      [16, 10751],
+      [10402, 10749],
+      [99, 36],
     ],
-    withoutGenres: [27, 53], // skip intense content
+    withoutGenres: [27, 53],
   },
 
   grateful: {
     target: "connected",
     genreCombos: [
-      [18, 10751], // Drama + Family (gratitude themes)
-      [10749, 35], // Romance + Comedy (warmth)
-      [18, 99], // Drama + Documentary (human stories)
-      [36, 18], // History + Drama (appreciation/perspective)
+      [18, 10751],
+      [10749, 35],
+      [18, 99],
+      [36, 18],
     ],
     withoutGenres: [27],
   },
@@ -205,11 +219,9 @@ export async function GET(request: Request) {
         { status: 500 },
       )
 
-    // NEW: support sub-genre sections
     const sectionKey = (searchParams.get("section") || "").trim()
     const section = rules.sections?.find((s) => s.key === sectionKey)
 
-    // choose combos based on section if provided, otherwise fallback
     const comboSource = section?.genreCombos ?? rules.genreCombos
     const combo = comboSource[Math.floor(Math.random() * comboSource.length)]
     const withGenres = combo.join(",")
@@ -218,12 +230,12 @@ export async function GET(request: Request) {
     const withoutGenres = without?.join(",")
 
     const keywordSource = section?.keywordCombos
-    const keywordCombo =
+    const withKeywords =
       keywordSource && keywordSource.length > 0
-        ? keywordSource[Math.floor(Math.random() * keywordSource.length)]
+        ? keywordSource[Math.floor(Math.random() * keywordSource.length)].join(
+            "|",
+          )
         : null
-
-    const withKeywords = keywordCombo ? keywordCombo.join(",") : null
 
     const randomPage = Math.floor(Math.random() * 5) + 1
 
@@ -237,13 +249,11 @@ export async function GET(request: Request) {
       url.searchParams.set("without_genres", withoutGenres)
     }
     url.searchParams.set("sort_by", "popularity.desc")
-    url.searchParams.set("vote_average.gte", "6.5")
-    url.searchParams.set("vote_count.gte", "100")
+    url.searchParams.set("vote_average.gte", "6.0")
+    url.searchParams.set("vote_count.gte", "90")
     url.searchParams.set("include_adult", "false")
-
     url.searchParams.set("page", "1")
 
-    console.log("Checking URL" + url)
     const response = await fetch(url.toString())
     if (!response.ok) throw new Error(`TMDB ${response.status}`)
 
@@ -259,8 +269,6 @@ export async function GET(request: Request) {
       releaseDate: movie.release_date,
       rating: movie.vote_average,
     }))
-    console.log("checking movie length")
-    console.log("Got Movies: " + movies.length)
 
     return NextResponse.json(
       {
@@ -272,8 +280,6 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          // Cache recommendations for 5 minutes
-          // Stale responses OK for up to 1 hour while revalidating
           "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
         },
       },
