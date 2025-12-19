@@ -32,9 +32,9 @@ export default function ListenSong({ songId }: { songId: string }) {
 
   const fetchSongData = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:9513/api/get-song-data?id=${id}`,
-      )
+      const baseUrl =
+        process.env.NEXT_PUBLIC_PRODUCTION_URL || "http://localhost:9513"
+      const response = await fetch(`${baseUrl}/api/get-song-data?id=${id}`)
       const songData = await response.json()
       setSong(songData)
     } catch (error) {

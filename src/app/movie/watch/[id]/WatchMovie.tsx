@@ -36,11 +36,11 @@ export default function WatchMovies({ movieId }: { movieId: string }) {
   }, [id, hasEarnedWatchPoints])
 
   const fetchMovieData = async () => {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_PRODUCTION_URL || "http://localhost:9513"
     try {
       // ✅ OPTIMIZATION: Fetch movie data immediately, don't wait
-      const response = await fetch(
-        `http://localhost:9513/api/get-movie-data?id=${id}`,
-      )
+      const response = await fetch(`${baseUrl}/api/get-movie-data?id=${id}`)
       const movieData = await response.json()
       setMovie(movieData)
     } catch (error) {
