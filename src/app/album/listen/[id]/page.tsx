@@ -71,7 +71,7 @@ export default function AlbumListen({
     if (!hasEarnedListenPoints && id) {
       const timer = setTimeout(() => {
         console.log("🎵 Adding points for listening to album:", id)
-        addPoints("listen", id, "album").catch((err) => {
+        addPoints("listen", id, "song").catch((err) => {
           console.error("Failed to add points:", err)
         })
         setHasEarnedListenPoints(true)

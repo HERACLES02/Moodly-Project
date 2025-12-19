@@ -1,6 +1,4 @@
 import { use } from "react"
-
-import SyncedMoviePlayer from "@/components/SyncedMoviePlayer"
 import "./page.css"
 
 interface PageProps {
@@ -30,7 +28,13 @@ export default function LiveStreamPage({ params }: PageProps) {
 
   return (
     <div className="livestream-page-container">
-      <SyncedMoviePlayer mood={normalizedMood} />
+      <div className="livestream-content">
+        <h1>Live Stream for {normalizedMood} Mood</h1>
+        <p>
+          Socket.IO movie streaming has been removed. Use /stream or /radio for
+          PartyKit-powered content.
+        </p>
+      </div>
     </div>
   )
 }

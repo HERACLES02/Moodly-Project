@@ -1,10 +1,9 @@
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
-const { initSocket } = require('./src/lib/socket-server')
+const { createServer } = require("http")
+const { parse } = require("url")
+const next = require("next")
 
-const dev = process.env.NODE_ENV !== 'production'
-const hostname = 'localhost'
+const dev = process.env.NODE_ENV !== "production"
+const hostname = "localhost"
 const port = 9513
 
 const app = next({ dev, hostname, port })
@@ -16,12 +15,7 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl)
   })
 
-  // Initialize Socket.IO for synchronization
-  initSocket(server)
-
   server.listen(port, () => {
     console.log(`🚀 Server running on http://${hostname}:${port}`)
-    console.log(`📺 Synchronized watch parties available!`)
-    console.log(`💬 Real-time chat enabled`)
   })
 })
