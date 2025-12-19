@@ -29,10 +29,43 @@ const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> =
     ],
     sad: [
       { key: "broken_hearts", title: "Broken Hearts" },
-      { key: "hard_truths", title: "Life’s Hard Truths" },
+      { key: "hard_truths", title: "Life's Hard Truths" },
       { key: "healing_through_pain", title: "Healing Through Pain" },
     ],
   }
+
+// ✅ OPTIMIZATION: Debounce helper (same as movies)
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+
+const cosine = (a: number[], b: number[]) => {
+  let dot = 0,
+    na = 0,
+    nb = 0
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i]
+    na += a[i] * a[i]
+    nb += b[i] * b[i]
+  }
+  const d = Math.sqrt(na * nb)
+  return d ? dot / d : 0
+}
+
+const toText = (t: Track) =>
+  `${t.name || ""} | ${t.artist || ""} | ${t.album || ""}`
 
 export default function MoodMusic({
   mood,
@@ -46,90 +79,19 @@ export default function MoodMusic({
   const [sectionRows, setSectionRows] = useState<
     { title: string; tracks: Track[] }[]
   >([])
+  const [searchingEmbeddings, setSearchingEmbeddings] = useState(false)
 
   const miniRef = useRef<MiniSearch<Track> | null>(null)
-  const trackEmbCache = useRef<Map<string, Float32Array>>(new Map())
+  const trackEmbCache = useRef<Map<string, number[]>>(new Map())
   const fetchingRef = useRef(false)
-  const modelRef = useRef<any | null>(null)
-  const loadingModelRef = useRef<Promise<any> | null>(null)
-  const moodVecRef = useRef<Float32Array | null>(null)
-  const moodForVecRef = useRef<string | null>(null)
 
-  const loadMiniLM = async () => {
-    if (modelRef.current) return modelRef.current
-    if (!loadingModelRef.current) {
-      loadingModelRef.current = (async () => {
-        const { pipeline } = await import("@xenova/transformers")
-        const pipe = await pipeline(
-          "feature-extraction",
-          "Xenova/all-MiniLM-L6-v2",
-        )
-        modelRef.current = pipe
-        return pipe
-      })()
-    }
-    return loadingModelRef.current
-  }
-
-  const moodIntentTextFor = (m: string) => {
-    switch ((m || "").toLowerCase()) {
-      case "sad":
-        return "sad melancholy heartbreak sorrow low valence emotional reflective vocals"
-      case "happy":
-        return "happy upbeat energetic positive cheerful vocals"
-      case "anxious":
-        return "calming soothing reassuring grounded vocals"
-      case "calm":
-        return "calm peaceful relaxed serene vocals"
-      case "energetic":
-        return "energetic high energy hype intense vocals"
-      case "excited":
-        return "excited celebratory party anthems vocals"
-      case "tired":
-        return "gentle soft relaxing unwind low energy vocals"
-      case "grateful":
-        return "grateful thankful warm heartfelt vocals"
-      default:
-        return "balanced contemporary popular vocals"
-    }
-  }
-
-  const getMoodVec = async (pipe: any, m: string) => {
-    const key = (m || "").toLowerCase()
-    if (!moodVecRef.current || moodForVecRef.current !== key) {
-      const out = await pipe(moodIntentTextFor(key), {
-        pooling: "mean",
-        normalize: true,
-      })
-      const vec = (out?.data ?? out?.[0]) as number[] | Float32Array
-      moodVecRef.current = Float32Array.from(vec as number[])
-      moodForVecRef.current = key
-    }
-    return moodVecRef.current!
-  }
-
-  const cosine = (a: Float32Array, b: Float32Array) => {
-    let dot = 0,
-      na = 0,
-      nb = 0
-    for (let i = 0; i < a.length; i++) {
-      const x = a[i],
-        y = b[i]
-      dot += x * y
-      na += x * x
-      nb += y * y
-    }
-    const d = Math.sqrt(na * nb)
-    return d ? dot / d : 0
-  }
-
-  const toText = (t: Track) =>
-    `${t.name || ""} | ${t.artist || ""} | ${t.album || ""}`
+  // ✅ OPTIMIZATION: Debounce query by 300ms
+  const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
     if (!mood) return
     fetchMusic()
-  }, [mood, query])
+  }, [mood, debouncedQuery])
 
   const fetchMusic = async () => {
     setLoading(true)
@@ -137,7 +99,7 @@ export default function MoodMusic({
     fetchingRef.current = true
     try {
       const normalizedMood = mood.toLowerCase()
-      if (!query && DEFAULT_SECTION_CONFIG[normalizedMood]) {
+      if (!debouncedQuery && DEFAULT_SECTION_CONFIG[normalizedMood]) {
         const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
         const rows = await Promise.all(
           sections.map(async (s) => {
@@ -159,14 +121,14 @@ export default function MoodMusic({
       }
 
       setSectionRows([])
-      const url = `/api/recommendations/songs?mood=${normalizedMood}${query ? `&q=${encodeURIComponent(query)}` : ""}`
+      const url = `/api/recommendations/songs?mood=${normalizedMood}${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
       const response = await fetch(url)
       if (!response.ok)
         throw new Error(`Failed to fetch music: ${response.status}`)
       const data = await response.json()
       const list: Track[] = data.tracks || []
       setTracks(list)
-      setVisibleTracks(!query ? list.slice(0, 4) : list)
+      setVisibleTracks(!debouncedQuery ? list.slice(0, 4) : list)
 
       miniRef.current = new MiniSearch<Track>({
         fields: ["name", "artist", "album"],
@@ -186,7 +148,7 @@ export default function MoodMusic({
         },
       })
       miniRef.current.addAll(list)
-      if (query) await runSearch(query)
+      if (debouncedQuery) await runSearch(debouncedQuery)
     } catch (err) {
       console.error("Error fetching music:", err)
       setError("Failed to load music recommendations")
@@ -203,48 +165,103 @@ export default function MoodMusic({
       return
     }
     if (!miniRef.current || tracks.length === 0) return
+
     const raw = miniRef.current.search(qq, { limit: 50 })
     let shortlist: Track[] = raw.map((r) => r as unknown as Track)
     if (shortlist.length === 0) shortlist = tracks.slice(0, 60)
-    const pipe = await loadMiniLM()
-    const qOut = await pipe(qq, { pooling: "mean", normalize: true })
-    const qEmb = Float32Array.from((qOut?.data ?? qOut?.[0]) as number[])
-    const moodEmb = await getMoodVec(pipe, mood)
-    const toEmbed: { id: string; text: string }[] = []
-    shortlist.forEach((t) => {
-      if (!trackEmbCache.current.has(t.id))
-        toEmbed.push({ id: t.id, text: toText(t) })
-    })
-    for (const it of toEmbed) {
-      const out = await pipe(it.text, { pooling: "mean", normalize: true })
-      const emb = Float32Array.from((out?.data ?? out?.[0]) as number[])
-      trackEmbCache.current.set(it.id, emb)
-    }
-    const m = (mood || "").toLowerCase()
-    let alpha = 0.6
-    if (m === "happy") alpha = 0.65
-    if (m === "sad") alpha = 0.35
-    const scored = shortlist
-      .map((t) => {
-        const v = trackEmbCache.current.get(t.id)!
-        return {
-          t,
-          score: alpha * cosine(qEmb, v) + (1 - alpha) * cosine(moodEmb, v),
-        }
-      })
-      .sort((a, b) => b.score - a.score)
-    setVisibleTracks(scored.map((s) => s.t))
-  }
 
-  useEffect(() => {
-    if (fetchingRef.current) return
-    if (!query) {
-      setVisibleTracks(tracks.slice(0, 4))
-      return
+    // ✅ OPTIMIZATION: Use server-side embeddings
+    setSearchingEmbeddings(true)
+    try {
+      const textsToEmbed = shortlist
+        .filter((t) => !trackEmbCache.current.has(t.id))
+        .map((t) => toText(t))
+
+      if (textsToEmbed.length > 0) {
+        const response = await fetch("/api/embeddings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            texts: textsToEmbed,
+            mood: mood,
+            queryText: qq,
+          }),
+        })
+
+        if (response.ok) {
+          const { embeddings, moodEmbedding, queryEmbedding } =
+            await response.json()
+
+          let idx = 0
+          for (const t of shortlist) {
+            if (!trackEmbCache.current.has(t.id)) {
+              trackEmbCache.current.set(t.id, embeddings[idx])
+              idx++
+            }
+          }
+
+          const m = (mood || "").toLowerCase()
+          let alpha = 0.6
+          if (m === "happy") alpha = 0.65
+          if (m === "sad") alpha = 0.35
+
+          const scored = shortlist
+            .map((t) => {
+              const v = trackEmbCache.current.get(t.id)!
+              return {
+                t,
+                score:
+                  alpha * cosine(queryEmbedding, v) +
+                  (1 - alpha) * cosine(moodEmbedding, v),
+              }
+            })
+            .sort((a, b) => b.score - a.score)
+
+          setVisibleTracks(scored.map((s) => s.t))
+        } else {
+          setVisibleTracks(shortlist)
+        }
+      } else {
+        const response = await fetch("/api/embeddings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            texts: [],
+            mood: mood,
+            queryText: qq,
+          }),
+        })
+
+        if (response.ok) {
+          const { moodEmbedding, queryEmbedding } = await response.json()
+
+          const m = (mood || "").toLowerCase()
+          let alpha = 0.6
+          if (m === "happy") alpha = 0.65
+          if (m === "sad") alpha = 0.35
+
+          const scored = shortlist
+            .map((t) => {
+              const v = trackEmbCache.current.get(t.id)!
+              return {
+                t,
+                score:
+                  alpha * cosine(queryEmbedding, v) +
+                  (1 - alpha) * cosine(moodEmbedding, v),
+              }
+            })
+            .sort((a, b) => b.score - a.score)
+
+          setVisibleTracks(scored.map((s) => s.t))
+        }
+      }
+    } catch (error) {
+      console.error("Search error:", error)
+      setVisibleTracks(shortlist)
+    } finally {
+      setSearchingEmbeddings(false)
     }
-    if (!miniRef.current || tracks.length === 0) return
-    runSearch(query)
-  }, [query])
+  }
 
   const trackInteraction = async (track: Track) => {
     try {
@@ -268,14 +285,13 @@ export default function MoodMusic({
     onSongClick(track.id)
   }
 
-  // --- UI COMPONENTS ---
+  // --- UI COMPONENTS (unchanged) ---
 
   const SongCard = ({ track }: { track: Track }) => (
     <div
       className="group relative w-full max-w-[340px] h-28 flex items-center cursor-pointer overflow-hidden transition-all duration-300"
       onClick={() => handleTrackClick(track)}
     >
-      {/* 🖼️ Album Jacket - Minimal & Static position */}
       <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
         <Image
           src={track.albumArt || "/images/music-placeholder.jpg"}
@@ -290,7 +306,6 @@ export default function MoodMusic({
         />
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors" />
 
-        {/* Simple Play Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
           <div className="w-10 h-10 rounded-full bg-[var(--accent)]/90 backdrop-blur-sm flex items-center justify-center text-black shadow-lg">
             <span className="text-lg ml-0.5">▶</span>
@@ -298,7 +313,6 @@ export default function MoodMusic({
         </div>
       </div>
 
-      {/* 🎵 Track Details */}
       <div className="flex-1 ml-4 py-2 flex flex-col justify-center border-b border-transparent group-hover:border-[var(--accent)]/10 transition-colors">
         <h3 className="theme-text-foreground text-sm font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
           {track.name}
@@ -307,7 +321,6 @@ export default function MoodMusic({
           {track.artist}
         </p>
 
-        {/* 📊 Hover-Only Visualizer */}
         <div className="flex items-end gap-0.5 h-4 mt-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
           {[0.6, 1.0, 0.7, 1.2, 0.5, 0.9].map((h, i) => (
             <div
@@ -359,6 +372,9 @@ export default function MoodMusic({
             />
           ))}
         </div>
+        {searchingEmbeddings && (
+          <p className="text-xs opacity-60">Analyzing mood relevance...</p>
+        )}
       </div>
     )
 
@@ -373,7 +389,6 @@ export default function MoodMusic({
 
   return (
     <div className="w-full py-10 px-4 md:px-8">
-      {/* Editorial Header */}
       <div className="relative mb-20">
         <h1 className="text-7xl md:text-8xl font-black tracking-tighter opacity-5 absolute -top-8 left-0 select-none uppercase pointer-events-none">
           Music
@@ -388,7 +403,7 @@ export default function MoodMusic({
         </div>
       </div>
 
-      {!query && sectionRows.length > 0 ? (
+      {!debouncedQuery && sectionRows.length > 0 ? (
         <div className="space-y-20">
           {sectionRows.map((row) => (
             <section key={row.title} className="w-full">
@@ -404,7 +419,11 @@ export default function MoodMusic({
       ) : (
         <section className="w-full">
           <SectionHeader
-            title={query ? `Search Results: ${query}` : "Top Picks For You"}
+            title={
+              debouncedQuery
+                ? `Search Results: ${debouncedQuery}`
+                : "Top Picks For You"
+            }
           />
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
             {visibleTracks.map((track) => (

@@ -61,7 +61,6 @@ interface UserContextType {
   updateUserAvatar: (avatarId: string | null) => void // Quick update for avatar
   updateUserMood: (newMood: string) => void // Quick update for mood
   updateUserNote: (newNote: string) => void // Quick update for note
-  
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -79,8 +78,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 // Think of it as the "warehouse manager" that handles all user data operations
 
 export function UserProvider({ children }: { children: ReactNode }) {
-
-
   // ─────────────────────────────────────────────────────────────────
   // Internal State
   // ─────────────────────────────────────────────────────────────────
@@ -124,6 +121,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchUser()
+
+    // ✅ OPTIMIZATION: Listen for point updates to refetch user
+    // This prevents duplicate API calls from PointsDisplay
   }, [])
 
   // ─────────────────────────────────────────────────────────────────

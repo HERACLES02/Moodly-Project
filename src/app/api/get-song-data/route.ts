@@ -41,7 +41,14 @@ export async function GET(request: Request) {
 
     const song = await response.json()
 
-    return NextResponse.json(song)
+    // ✅ OPTIMIZATION: Cache song data (song metadata doesn't change)
+    return NextResponse.json(song, {
+      headers: {
+        // Cache for 1 week (song metadata rarely changes)
+        "Cache-Control":
+          "public, s-maxage=604800, stale-while-revalidate=2592000",
+      },
+    })
   } catch (err) {
     console.error("Spotify API Error:", err)
     return NextResponse.json(

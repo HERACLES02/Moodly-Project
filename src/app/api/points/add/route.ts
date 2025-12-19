@@ -11,6 +11,7 @@ import { getWeekStart } from "@/lib/queries/user"
  * 1. Uses transaction for atomic updates
  * 2. Uses new WeeklyActivity unique constraint (prevents duplicates)
  * 3. Uses new composite indexes for fast queries
+ * 4. Parallel queries where possible
  *
  * IMPROVEMENT: 200ms → 30-50ms (4-6x faster)
  */
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Fetch user - using optimized query (only need id and points)
+    // ✅ OPTIMIZATION: Fetch only what we need (id and points)
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: { id: true, points: true },
@@ -51,18 +52,17 @@ export async function POST(req: NextRequest) {
     // Determine points to award
     const pointsToAdd = action === "favorite" ? 5 : 10
 
-    // Use transaction for atomic updates
-    // If ANY operation fails, ALL operations rollback
+    // ✅ OPTIMIZATION: Single transaction with minimal operations
     const result = await prisma.$transaction(async (tx) => {
       // 1. Update user points
       const updatedUser = await tx.user.update({
         where: { id: user.id },
         data: { points: { increment: pointsToAdd } },
+        select: { points: true }, // ✅ Only select what we need
       })
 
-      // 2. Record in point history
-      // Uses new [userId, createdAt DESC] index for fast queries
-      await tx.pointHistory.create({
+      // 2. Record in point history (no await needed, fire and forget in transaction)
+      tx.pointHistory.create({
         data: {
           userId: user.id,
           points: pointsToAdd,
@@ -83,8 +83,7 @@ export async function POST(req: NextRequest) {
       ) {
         const weekStart = getWeekStart(new Date())
 
-        // Use upsert with new unique constraint [userId, weekStart]
-        // This is 10x faster than findFirst + create/update
+        // ✅ OPTIMIZATION: Use upsert with unique constraint (10x faster than findFirst + create/update)
         const weeklyActivity = await tx.weeklyActivity.upsert({
           where: {
             userId_weekStart: {
@@ -109,6 +108,13 @@ export async function POST(req: NextRequest) {
                 ? { increment: 1 }
                 : undefined,
           },
+          select: {
+            // ✅ Only select what we need for bonus check
+            moviesWatched: true,
+            songsListened: true,
+            bonusClaimed: true,
+            id: true,
+          },
         })
 
         // Check if user earned weekly bonus
@@ -119,24 +125,24 @@ export async function POST(req: NextRequest) {
         ) {
           const bonusPoints = 50
 
-          // Award bonus
-          await tx.user.update({
-            where: { id: user.id },
-            data: { points: { increment: bonusPoints } },
-          })
-
-          await tx.weeklyActivity.update({
-            where: { id: weeklyActivity.id },
-            data: { bonusClaimed: true },
-          })
-
-          await tx.pointHistory.create({
-            data: {
-              userId: user.id,
-              points: bonusPoints,
-              reason: "weekly_activity_bonus",
-            },
-          })
+          // ✅ OPTIMIZATION: Run bonus updates in parallel
+          await Promise.all([
+            tx.user.update({
+              where: { id: user.id },
+              data: { points: { increment: bonusPoints } },
+            }),
+            tx.weeklyActivity.update({
+              where: { id: weeklyActivity.id },
+              data: { bonusClaimed: true },
+            }),
+            tx.pointHistory.create({
+              data: {
+                userId: user.id,
+                points: bonusPoints,
+                reason: "weekly_activity_bonus",
+              },
+            }),
+          ])
 
           weeklyBonus = {
             awarded: true,

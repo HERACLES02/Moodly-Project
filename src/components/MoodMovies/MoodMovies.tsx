@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
 
@@ -30,10 +30,44 @@ const DEFAULT_SECTION_CONFIG: Record<string, { key: string; title: string }[]> =
     ],
     sad: [
       { key: "broken_hearts", title: "Broken Hearts" },
-      { key: "hard_truths", title: "Life’s Hard Truths" },
+      { key: "hard_truths", title: "Life's Hard Truths" },
       { key: "healing_through_pain", title: "Healing Through Pain" },
     ],
   }
+
+// ✅ OPTIMIZATION: Debounce helper
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
+
+// ✅ OPTIMIZATION: Cosine similarity (kept client-side, lightweight)
+const cosine = (a: number[], b: number[]) => {
+  let dot = 0,
+    na = 0,
+    nb = 0
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i]
+    na += a[i] * a[i]
+    nb += b[i] * b[i]
+  }
+  const d = Math.sqrt(na * nb)
+  return d ? dot / d : 0
+}
+
+const toText = (m: Movie) =>
+  `${m.title || ""} | ${(m.overview || "").slice(0, 200)} | ${m.releaseDate || ""}`
 
 export default function MoodMovies({
   mood,
@@ -47,90 +81,19 @@ export default function MoodMovies({
   const [sectionRows, setSectionRows] = useState<
     { title: string; movies: Movie[] }[]
   >([])
+  const [searchingEmbeddings, setSearchingEmbeddings] = useState(false)
 
   const miniRef = useRef<MiniSearch<MovieDoc> | null>(null)
-  const movieEmbCache = useRef<Map<number, Float32Array>>(new Map())
+  const movieEmbCache = useRef<Map<number, number[]>>(new Map())
   const fetchingRef = useRef(false)
-  const modelRef = useRef<any | null>(null)
-  const loadingModelRef = useRef<Promise<any> | null>(null)
-  const moodVecRef = useRef<Float32Array | null>(null)
-  const moodForVecRef = useRef<string | null>(null)
 
-  const loadMiniLM = async () => {
-    if (modelRef.current) return modelRef.current
-    if (!loadingModelRef.current) {
-      loadingModelRef.current = (async () => {
-        const { pipeline } = await import("@xenova/transformers")
-        const pipe = await pipeline(
-          "feature-extraction",
-          "Xenova/all-MiniLM-L6-v2",
-        )
-        modelRef.current = pipe
-        return pipe
-      })()
-    }
-    return loadingModelRef.current
-  }
-
-  const moodIntentTextFor = (m: string) => {
-    switch ((m || "").toLowerCase()) {
-      case "sad":
-        return "sad melancholy heartbreak sorrow grief emotional reflective cinema"
-      case "happy":
-        return "happy upbeat energetic positive cheerful feel-good comedy"
-      case "anxious":
-        return "calming soothing reassuring grounded peaceful cinema"
-      case "calm":
-        return "calm peaceful relaxed serene gentle cinema"
-      case "energetic":
-        return "energetic high energy intense action adventure exciting"
-      case "excited":
-        return "excited celebratory party fun thrilling adventurous"
-      case "tired":
-        return "gentle soft relaxing unwind cozy slow cinema"
-      case "grateful":
-        return "grateful thankful warm heartfelt inspiring wholesome"
-      default:
-        return "balanced contemporary popular cinema"
-    }
-  }
-
-  const getMoodVec = async (pipe: any, m: string) => {
-    const key = (m || "").toLowerCase()
-    if (!moodVecRef.current || moodForVecRef.current !== key) {
-      const out = await pipe(moodIntentTextFor(key), {
-        pooling: "mean",
-        normalize: true,
-      })
-      const vec = (out?.data ?? out?.[0]) as number[] | Float32Array
-      moodVecRef.current = Float32Array.from(vec as number[])
-      moodForVecRef.current = key
-    }
-    return moodVecRef.current!
-  }
-
-  const cosine = (a: Float32Array, b: Float32Array) => {
-    let dot = 0,
-      na = 0,
-      nb = 0
-    for (let i = 0; i < a.length; i++) {
-      const x = a[i],
-        y = b[i]
-      dot += x * y
-      na += x * x
-      nb += y * y
-    }
-    const d = Math.sqrt(na * nb)
-    return d ? dot / d : 0
-  }
-
-  const toText = (m: Movie) =>
-    `${m.title || ""} | ${(m.overview || "").slice(0, 200)} | ${m.releaseDate || ""}`
+  // ✅ OPTIMIZATION: Debounce query by 300ms
+  const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
     if (!mood) return
     fetchMovies()
-  }, [mood, query])
+  }, [mood, debouncedQuery])
 
   const fetchMovies = async () => {
     setLoading(true)
@@ -138,7 +101,7 @@ export default function MoodMovies({
     fetchingRef.current = true
     try {
       const normalizedMood = mood.toLowerCase()
-      if (!query && DEFAULT_SECTION_CONFIG[normalizedMood]) {
+      if (!debouncedQuery && DEFAULT_SECTION_CONFIG[normalizedMood]) {
         const sections = DEFAULT_SECTION_CONFIG[normalizedMood]
         const rows = await Promise.all(
           sections.map(async (s) => {
@@ -158,14 +121,14 @@ export default function MoodMovies({
       }
 
       setSectionRows([])
-      const url = `/api/recommendations/movies?mood=${normalizedMood}${query ? `&q=${encodeURIComponent(query)}` : ""}`
+      const url = `/api/recommendations/movies?mood=${normalizedMood}${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
       const response = await fetch(url)
       if (!response.ok) throw new Error(`Status: ${response.status}`)
       const data = await response.json()
       const list: Movie[] = data.movies || []
       setMovies(list)
 
-      setVisibleMovies(!query ? list.slice(0, 4) : list)
+      setVisibleMovies(!debouncedQuery ? list.slice(0, 4) : list)
 
       miniRef.current = new MiniSearch<MovieDoc>({
         fields: ["title", "overview"],
@@ -184,7 +147,7 @@ export default function MoodMovies({
         },
       })
       miniRef.current.addAll(list as unknown as MovieDoc[])
-      if (query) await runSearch(query)
+      if (debouncedQuery) await runSearch(debouncedQuery)
     } catch (err) {
       setError("Failed to load cinema recommendations")
     } finally {
@@ -200,36 +163,98 @@ export default function MoodMovies({
       return
     }
     if (!miniRef.current || movies.length === 0) return
+
     const raw = miniRef.current.search(qq, { limit: 50 })
     let shortlist: Movie[] = raw.map((r) => r as unknown as Movie)
     if (shortlist.length === 0) shortlist = movies.slice(0, 60)
 
-    const pipe = await loadMiniLM()
-    const qOut = await pipe(qq, { pooling: "mean", normalize: true })
-    const qEmb = Float32Array.from((qOut?.data ?? qOut?.[0]) as number[])
-    const moodEmb = await getMoodVec(pipe, mood)
+    // ✅ OPTIMIZATION: Use server-side embeddings
+    setSearchingEmbeddings(true)
+    try {
+      const textsToEmbed = shortlist
+        .filter((m) => !movieEmbCache.current.has(m.id))
+        .map((m) => toText(m))
 
-    for (const m of shortlist) {
-      if (!movieEmbCache.current.has(m.id)) {
-        const out = await pipe(toText(m), { pooling: "mean", normalize: true })
-        movieEmbCache.current.set(
-          m.id,
-          Float32Array.from((out?.data ?? out?.[0]) as number[]),
-        )
-      }
-    }
+      if (textsToEmbed.length > 0) {
+        const response = await fetch("/api/embeddings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            texts: textsToEmbed,
+            mood: mood,
+            queryText: qq,
+          }),
+        })
 
-    const alpha = 0.7
-    const scored = shortlist
-      .map((m) => {
-        const v = movieEmbCache.current.get(m.id)!
-        return {
-          m,
-          score: alpha * cosine(qEmb, v) + (1 - alpha) * cosine(moodEmb, v),
+        if (response.ok) {
+          const { embeddings, moodEmbedding, queryEmbedding } =
+            await response.json()
+
+          // Cache new embeddings
+          let idx = 0
+          for (const m of shortlist) {
+            if (!movieEmbCache.current.has(m.id)) {
+              movieEmbCache.current.set(m.id, embeddings[idx])
+              idx++
+            }
+          }
+
+          // Score and sort
+          const alpha = 0.7
+          const scored = shortlist
+            .map((m) => {
+              const v = movieEmbCache.current.get(m.id)!
+              return {
+                m,
+                score:
+                  alpha * cosine(queryEmbedding, v) +
+                  (1 - alpha) * cosine(moodEmbedding, v),
+              }
+            })
+            .sort((a, b) => b.score - a.score)
+
+          setVisibleMovies(scored.map((s) => s.m))
+        } else {
+          // Fallback to text search only
+          setVisibleMovies(shortlist)
         }
-      })
-      .sort((a, b) => b.score - a.score)
-    setVisibleMovies(scored.map((s) => s.m))
+      } else {
+        // All embeddings cached
+        const response = await fetch("/api/embeddings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            texts: [],
+            mood: mood,
+            queryText: qq,
+          }),
+        })
+
+        if (response.ok) {
+          const { moodEmbedding, queryEmbedding } = await response.json()
+
+          const alpha = 0.7
+          const scored = shortlist
+            .map((m) => {
+              const v = movieEmbCache.current.get(m.id)!
+              return {
+                m,
+                score:
+                  alpha * cosine(queryEmbedding, v) +
+                  (1 - alpha) * cosine(moodEmbedding, v),
+              }
+            })
+            .sort((a, b) => b.score - a.score)
+
+          setVisibleMovies(scored.map((s) => s.m))
+        }
+      }
+    } catch (error) {
+      console.error("Search error:", error)
+      setVisibleMovies(shortlist)
+    } finally {
+      setSearchingEmbeddings(false)
+    }
   }
 
   const handleMovieClick = async (movie: Movie) => {
@@ -248,7 +273,7 @@ export default function MoodMovies({
     onMovieClick(movie.id)
   }
 
-  // --- UI COMPONENTS ---
+  // --- UI COMPONENTS (unchanged) ---
 
   const MovieCard = ({ movie }: { movie: Movie }) => (
     <div
@@ -329,6 +354,9 @@ export default function MoodMovies({
             />
           ))}
         </div>
+        {searchingEmbeddings && (
+          <p className="text-xs opacity-60">Analyzing mood relevance...</p>
+        )}
       </div>
     )
 
@@ -343,7 +371,6 @@ export default function MoodMovies({
 
   return (
     <div className="w-full py-10 px-4 md:px-8">
-      {/* Editorial Header - Matches Music perfectly */}
       <div className="relative mb-20">
         <h1 className="text-7xl md:text-8xl font-black tracking-tighter opacity-5 absolute -top-8 left-0 select-none uppercase pointer-events-none">
           Movies
@@ -358,7 +385,7 @@ export default function MoodMovies({
         </div>
       </div>
 
-      {!query && sectionRows.length > 0 ? (
+      {!debouncedQuery && sectionRows.length > 0 ? (
         <div className="space-y-20">
           {sectionRows.map((row) => (
             <section key={row.title} className="w-full">
@@ -374,7 +401,11 @@ export default function MoodMovies({
       ) : (
         <section className="w-full">
           <SectionHeader
-            title={query ? `Search Results: ${query}` : "Top Picks For You"}
+            title={
+              debouncedQuery
+                ? `Search Results: ${debouncedQuery}`
+                : "Top Picks For You"
+            }
           />
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12">
             {visibleMovies.map((movie) => (

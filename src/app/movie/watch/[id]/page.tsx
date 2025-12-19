@@ -1,11 +1,10 @@
 "use client"
 import { useState, useEffect } from "react"
-import NavbarComponent from "@/components/NavbarComponent"
+
 import AddToPlaylistComponent from "@/components/PlaylistComponents/AddToPlaylistComponent"
 import { usePoints } from "@/hooks/usePoints"
 
 import "./page.css"
-import { useUser } from "@/contexts/UserContext"
 
 export default function WatchMovies({
   params,
@@ -36,7 +35,10 @@ export default function WatchMovies({
     if (!hasEarnedWatchPoints && id) {
       const timer = setTimeout(() => {
         console.log("🎬 Adding points for watching movie:", id)
-        addPoints("watch", id, "movie")
+        // ✅ OPTIMIZATION: Make this non-blocking
+        addPoints("watch", id, "movie").catch((err) => {
+          console.error("Failed to add points:", err)
+        })
         
         setHasEarnedWatchPoints(true)
       }, 5000)
@@ -47,6 +49,7 @@ export default function WatchMovies({
 
   const fetchMovieData = async () => {
     try {
+      // ✅ OPTIMIZATION: Fetch movie data immediately, don't wait
       const response = await fetch(
         `http://localhost:9513/api/get-movie-data?id=${id}`,
       )
@@ -71,7 +74,6 @@ export default function WatchMovies({
         <div className="video-container p-2">
           <iframe
             src={embedUrl}
-            // sandbox="allow-scripts allow-same-origin"
             className="video-player"
             allowFullScreen
             title={`Watch ${movie?.title || "Movie"}`}

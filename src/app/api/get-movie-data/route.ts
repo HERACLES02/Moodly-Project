@@ -15,7 +15,15 @@ export async function GET(request: NextRequest) {
 
     const movieData = await response.json()
     console.log(movieData)
-    return NextResponse.json(movieData)
+
+    // ✅ OPTIMIZATION: Cache movie data aggressively (movies don't change)
+    return NextResponse.json(movieData, {
+      headers: {
+        // Cache for 1 week (movie metadata rarely changes)
+        "Cache-Control":
+          "public, s-maxage=604800, stale-while-revalidate=2592000",
+      },
+    })
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to get movie data" },
