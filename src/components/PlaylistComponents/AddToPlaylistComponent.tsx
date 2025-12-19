@@ -12,6 +12,14 @@ interface AddtoPlaylistProps {
   itemId: string
 }
 
+interface Playlist {
+  id: string
+  name: string
+  type: string
+  isShared?: boolean
+  isPrivate?: boolean
+}
+
 export default function AddToPlaylistComponent({
   itemId,
   type,
@@ -21,8 +29,11 @@ export default function AddToPlaylistComponent({
   const [favoritesPlaylistId, setFavoritesPlaylistId] = useState<string | null>(
     null,
   )
+  const [playlists, setPlaylists] = useState<Playlist[]>([])
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false)
   // ✅ OPTIMIZATION: Prevent duplicate API calls with ref
   const hasFetchedFavoriteStatus = useRef(false)
+  const hasFetchedPlaylists = useRef(false)
 
   const { user } = useUser()
   const { addPoints, deductPoints, isAdding } = usePoints()
@@ -35,6 +46,31 @@ export default function AddToPlaylistComponent({
     hasFetchedFavoriteStatus.current = true
     checkFavoriteStatus()
   }, [user?.id, itemId, type])
+
+  // Fetch playlists on mount (in background while user sees button)
+  useEffect(() => {
+    if (!user?.id || hasFetchedPlaylists.current) return
+
+    hasFetchedPlaylists.current = true
+    fetchPlaylists()
+  }, [user?.id, type])
+
+  const fetchPlaylists = async () => {
+    if (!user?.id) return
+
+    setIsLoadingPlaylists(true)
+    try {
+      const response = await fetch(
+        `/api/playlist/get-playlist?userid=${user.id}&type=${type}`,
+      )
+      const returned_playlists = await response.json()
+      setPlaylists(returned_playlists || [])
+    } catch (error) {
+      console.error("Error fetching playlists:", error)
+    } finally {
+      setIsLoadingPlaylists(false)
+    }
+  }
 
   const checkFavoriteStatus = async () => {
     if (!user?.id || !itemId) return
@@ -147,6 +183,9 @@ export default function AddToPlaylistComponent({
         <PlaylistComponent
           itemId={itemId}
           type={type}
+          playlists={playlists}
+          isLoadingPlaylists={isLoadingPlaylists}
+          onPlaylistsChange={(newPlaylists) => setPlaylists(newPlaylists)}
           onClose={() => setShowPlaylist(false)}
         />
       )}

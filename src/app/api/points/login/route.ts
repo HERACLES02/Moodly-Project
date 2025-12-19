@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
 import { auth } from "@/auth"
+import { inngest } from "@/inngest/client"
 import prisma from "@/lib/prisma" // ✅ CORRECT
 
+/**
+ * POST /api/points/login
+ * Awards login bonus points and tracks login streak
+ *
+ * OPTIMIZATION: Point history logging is deferred to Inngest (async)
+ * User sees points updated immediately, history is logged in background
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -68,7 +75,10 @@ export async function POST(req: NextRequest) {
         },
       })
 
-      await prisma.pointHistory.create({
+      // ✅ NEW: Queue point history logging to Inngest (ASYNC)
+      // User gets response immediately, history is logged in background
+      inngest.send({
+        name: "log-point-history-trigger",
         data: {
           userId: user.id,
           points: pointsToAdd,

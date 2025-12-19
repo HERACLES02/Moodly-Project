@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { auth } from "@/auth"
+import { inngest } from "@/inngest/client"
 import { getWeekStart } from "@/lib/queries/user"
 
 /**
@@ -11,7 +12,8 @@ import { getWeekStart } from "@/lib/queries/user"
  * 1. Uses transaction for atomic updates
  * 2. Uses new WeeklyActivity unique constraint (prevents duplicates)
  * 3. Uses new composite indexes for fast queries
- * 4. Parallel queries where possible
+ * 4. Point history logging deferred to Inngest (async)
+ * 5. Parallel queries where possible
  *
  * IMPROVEMENT: 200ms → 30-50ms (4-6x faster)
  */
@@ -52,31 +54,18 @@ export async function POST(req: NextRequest) {
     // Determine points to award
     const pointsToAdd = action === "favorite" ? 5 : 10
 
-    // ✅ OPTIMIZATION: Single transaction with minimal operations
+    // ✅ OPTIMIZATION: Single transaction with ONLY critical sync operations
+    // Bonus checking moved to Inngest (see below)
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Update user points
+      // 1. Update user points (SYNC - critical for user to see immediately)
       const updatedUser = await tx.user.update({
         where: { id: user.id },
         data: { points: { increment: pointsToAdd } },
         select: { points: true }, // ✅ Only select what we need
       })
 
-      // 2. Record in point history (no await needed, fire and forget in transaction)
-      tx.pointHistory.create({
-        data: {
-          userId: user.id,
-          points: pointsToAdd,
-          reason: `${action}_${mediaType || "content"}`,
-        },
-      })
-
-      // 3. Update weekly activity (if applicable)
-      let weeklyBonus: {
-        awarded: boolean
-        points: number
-        message: string
-      } | null = null
-
+      // 2. Update weekly activity counter only (if applicable)
+      // Bonus checking logic is NOW ASYNC in Inngest
       if (
         (action === "watch" || action === "listen") &&
         ["movie", "song"].includes(mediaType)
@@ -84,7 +73,7 @@ export async function POST(req: NextRequest) {
         const weekStart = getWeekStart(new Date())
 
         // ✅ OPTIMIZATION: Use upsert with unique constraint (10x faster than findFirst + create/update)
-        const weeklyActivity = await tx.weeklyActivity.upsert({
+        await tx.weeklyActivity.upsert({
           where: {
             userId_weekStart: {
               userId: user.id,
@@ -108,58 +97,39 @@ export async function POST(req: NextRequest) {
                 ? { increment: 1 }
                 : undefined,
           },
-          select: {
-            // ✅ Only select what we need for bonus check
-            moviesWatched: true,
-            songsListened: true,
-            bonusClaimed: true,
-            id: true,
-          },
         })
-
-        // Check if user earned weekly bonus
-        if (
-          !weeklyActivity.bonusClaimed &&
-          weeklyActivity.moviesWatched >= 3 &&
-          weeklyActivity.songsListened >= 3
-        ) {
-          const bonusPoints = 50
-
-          // ✅ OPTIMIZATION: Run bonus updates in parallel
-          await Promise.all([
-            tx.user.update({
-              where: { id: user.id },
-              data: { points: { increment: bonusPoints } },
-            }),
-            tx.weeklyActivity.update({
-              where: { id: weeklyActivity.id },
-              data: { bonusClaimed: true },
-            }),
-            tx.pointHistory.create({
-              data: {
-                userId: user.id,
-                points: bonusPoints,
-                reason: "weekly_activity_bonus",
-              },
-            }),
-          ])
-
-          weeklyBonus = {
-            awarded: true,
-            points: bonusPoints,
-            message: "Weekly challenge complete! +50 bonus points!",
-          }
-        }
       }
 
-      return { updatedUser, weeklyBonus }
+      return { updatedUser }
+    })
+
+    // ✅ NEW: Queue point history logging to Inngest (non-blocking)
+    // This runs AFTER the transaction succeeds, so points are guaranteed to be updated
+    // User gets their response immediately, history is logged in background
+    inngest.send({
+      name: "log-point-history-trigger",
+      data: {
+        userId: user.id,
+        points: pointsToAdd,
+        reason: `${action}_${mediaType || "content"}`,
+      },
+    })
+
+    // ✅ NEW: Queue bonus checking to Inngest (non-blocking)
+    // This runs asynchronously in the background
+    // User doesn't wait for bonus eligibility check
+    inngest.send({
+      name: "check-weekly-bonus-trigger",
+      data: {
+        userId: user.id,
+      },
     })
 
     return NextResponse.json({
       success: true,
       pointsAdded: pointsToAdd,
       totalPoints: result.updatedUser.points,
-      ...(result.weeklyBonus && { weeklyBonus: result.weeklyBonus }),
+      message: "Points awarded! Bonus eligibility checked in background.",
     })
   } catch (error) {
     console.error("Error adding points:", error)

@@ -12,17 +12,19 @@ import LoginBonus from "@/components/LoginBonus"
 import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
 import { useUser } from "@/contexts/UserContext"
 import { useEffect, useState } from "react"
-import { redirect } from "next/navigation"
+
 import { setUserMood } from "@/lib/userActions"
 import { useTheme } from "next-themes"
 import { useSearchStore } from "@/lib/store"
 import SearchBar from "./SearchBar"
+import { useRouter } from "next/navigation"
 
 export default function NavbarComponent({
   isLoggedIn,
 }: {
   isLoggedIn?: boolean
 }) {
+  const router = useRouter()
   const { user, updateUserAvatar, updateUserTheme, updateUserMood } = useUser()
   const { theme, setTheme } = useTheme()
   const [moodSelected, setMoodSelected] = useState(false)
@@ -109,7 +111,7 @@ export default function NavbarComponent({
         <div
           className="moodlyImage"
           onClick={() => {
-            redirect(`/dashboard`)
+            router.push(`/dashboard`)
           }}
         >
           <img

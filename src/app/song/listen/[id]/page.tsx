@@ -4,6 +4,7 @@ import NavbarComponent from "@/components/NavbarComponent"
 import AddToPlaylistComponent from "@/components/PlaylistComponents/AddToPlaylistComponent"
 import { usePoints } from "@/hooks/usePoints"
 import "./page.css"
+import TestIcon from "@/components/icons/TestIcon"
 
 export default function ListenMusic({
   params,
@@ -89,6 +90,7 @@ export default function ListenMusic({
           <div className="next-up-section">
             <AddToPlaylistComponent type="SONG" itemId={id} />
           </div>
+          <TestIcon />
         </div>
       </div>
     </>

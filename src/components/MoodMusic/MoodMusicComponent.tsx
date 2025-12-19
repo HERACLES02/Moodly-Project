@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
+import { useRouter } from "next/navigation"
 
 interface Track {
   id: string
@@ -99,6 +100,7 @@ export default function MoodMusic({
   onSongClick,
   query = "",
 }: MoodMusicProps) {
+  const router = useRouter()
   const [tracks, setTracks] = useState<Track[]>([])
   const [albums, setAlbums] = useState<Album[]>([])
   const [visibleTracks, setVisibleTracks] = useState<Track[]>([])
@@ -479,9 +481,8 @@ export default function MoodMusic({
   }
 
   const handleAlbumClick = (album: Album) => {
-    if (album.external_url) {
-      window.open(album.external_url, "_blank")
-    }
+    // Navigate to our custom album listen page instead of opening Spotify
+    router.push(`/album/listen/${album.id}`)
   }
 
   // UI Components
