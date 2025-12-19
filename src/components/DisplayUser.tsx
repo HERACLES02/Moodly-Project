@@ -52,10 +52,11 @@ export default function DisplayUser({
   const [imgPath, setimgPath] = useState("")
   useEffect(() => {
     if (currentUser?.currentAvatar)
+      console.log("Setting current avatar", currentUser?.currentAvatar)
       setimgPath(
         currentUser?.unlockedAvatars?.find(
           (a) => a.id === currentUser?.currentAvatarId,
-        ).imagePath,
+        )?.imagePath,
       )
   }, [currentUser?.currentAvatarId])
   useEffect(() => {

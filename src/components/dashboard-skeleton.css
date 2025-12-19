@@ -1,0 +1,141 @@
+/* Dashboard Skeleton Styles */
+
+/* Base skeleton styling - faded background */
+.skeleton-text,
+.skeleton-button,
+.skeleton-card,
+.skeleton-hero-bg,
+.skeleton-indicator {
+  background-color: var(--secondary);
+  border-radius: 0.5rem;
+  opacity: 0.4;
+}
+
+/* Text skeletons */
+.skeleton-text {
+  height: 1rem;
+  margin: 0.5rem 0;
+  opacity: 0.4;
+}
+
+.skeleton-text-sm {
+  width: 150px;
+  height: 0.875rem;
+}
+
+.skeleton-text-lg {
+  width: 280px;
+  height: 1.75rem;
+  margin: 0.5rem 0;
+}
+
+.skeleton-text-xs {
+  width: 120px;
+  height: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Hero skeleton */
+.skeleton-hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background-color: var(--secondary);
+  opacity: 0.4;
+}
+
+.skeleton-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Indicator skeletons */
+.skeleton-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+  background-color: var(--secondary);
+  opacity: 0.4;
+}
+
+/* Button skeleton */
+.skeleton-button {
+  width: 200px;
+  height: 44px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--secondary);
+  opacity: 0.4;
+}
+
+.skeleton-button span {
+  display: inline-block;
+}
+
+/* Grid of cards */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Skeleton card */
+.skeleton-card {
+  background: transparent;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.skeleton-card-image {
+  width: 100%;
+  height: 300px;
+  background-color: var(--secondary);
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.4;
+}
+
+.skeleton-card-content {
+  padding: 0.5rem 0;
+}
+
+/* Responsive grid */
+@media (max-width: 1024px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .skeleton-card-image {
+    height: 200px;
+  }
+
+  .skeleton-text-lg {
+    width: 200px;
+    height: 1.5rem;
+  }
+
+  .skeleton-button {
+    width: 150px;
+    height: 40px;
+  }
+}
+
+/* Theme-specific colors are inherited from CSS variables */

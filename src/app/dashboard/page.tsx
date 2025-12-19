@@ -1,23 +1,19 @@
 import { auth } from "@/auth"
+import { Suspense } from "react"
 import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import DashboardComponent from "@/components/DashboardComponent"
+import DashboardSkeleton from "@/components/DashboardSkeleton"
 import MobileDashboard from "@/components/MobileDashboard"
 import { fetchPoster, fetchRecommendations } from "@/lib/fetchRecommendations"
 import { getUserMood } from "@/lib/userActions"
 import { redirect } from "next/navigation"
 
-const page = async () => {
-  const mood = await getUserMood()
-  console.log("Mood", mood)
-
-  if (!mood) {
-    redirect("/firstmoodselection")
-  }
+// Separate async component that fetches data INSIDE Suspense boundary
+async function DashboardContent() {
   const { movies, songs } = await fetchRecommendations()
   if (!movies) {
     return <div>no fetch</div>
   }
-  await fetchPoster("3 Idiots")
 
   return (
     <>
@@ -31,6 +27,21 @@ const page = async () => {
         <MobileDashboard movies={movies} songs={songs} />
       </div>
     </>
+  )
+}
+
+const page = async () => {
+  const mood = await getUserMood()
+  console.log("Mood", mood)
+
+  if (!mood) {
+    redirect("/firstmoodselection")
+  }
+
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
 

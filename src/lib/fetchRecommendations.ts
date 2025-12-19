@@ -25,20 +25,19 @@ export async function fetchRecommendations(mood?: string) {
   const normalizedMood = (mood || "happy").toLowerCase()
 
   try {
-    // Fetch movies
-    const moviesResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recommendations/movies?mood=${normalizedMood}`,
-      { cache: "no-store" },
-    )
+    const [moviesResponse, songsResponse] = await Promise.all([
+      fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recommendations/movies?mood=${normalizedMood}`,
+        { cache: "no-store" },
+      ),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recommendations/songs?mood=${normalizedMood}`,
+        { cache: "no-store" },
+      ),
+    ])
 
     const moviesData = await moviesResponse.json()
     const movies: Movie[] = moviesData.movies || []
-
-    // Fetch songs
-    const songsResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/recommendations/songs?mood=${normalizedMood}`,
-      { cache: "no-store" },
-    )
 
     const songsData = await songsResponse.json()
     const songs: Track[] = songsData.tracks || []
