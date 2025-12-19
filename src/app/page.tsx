@@ -24,5 +24,5 @@ export default async function Home() {
   // } else {
   //   redirect("/login")
   // }
-  return <MoodlyLanding />
+  return <MoodlyLanding session={session} />
 }

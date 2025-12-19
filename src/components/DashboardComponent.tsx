@@ -16,7 +16,7 @@ import "ldrs/react/Ring2.css"
 import Image from "next/image"
 
 // Import the new mobile component
-import MobileDashboard from "@/components/MobileDashboard/MobileDashboard"
+
 import { Play } from "lucide-react"
 import SearchBar from "./SearchBar"
 import { useSearchStore } from "@/lib/store"
@@ -78,7 +78,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
       refetchUserInfo(user.mood)
 
       if (user?.currentTheme != "default") {
-        setTheme(user?.currentTheme?.toLowerCase())
+        setTheme(user?.currentTheme?.toLowerCase() || "")
       } else {
         setTheme(user.mood.toLowerCase())
       }
@@ -172,28 +172,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
     normalizedMood && supportedMoods.includes(normalizedMood)
 
   if (!isMounted) return null
-
-  // Render mobile layout for screens < 768px
-  if (isMobile) {
-    return (
-      <>
-        {/* Mobile doesn't need the full navbar - it has bottom nav */}
-        <div className="mobile-top-bar">
-          <div
-            className="mobile-logo"
-            onClick={() => router.push("/dashboard")}
-          >
-            <img
-              src="/images/moodly-logo.gif"
-              alt="Moodly"
-              style={{ height: "40px", width: "auto" }}
-            />
-          </div>
-        </div>
-        <MobileDashboard movies={moviesState} songs={songState} />
-      </>
-    )
-  }
 
   // Desktop layout with hero poster
   return (

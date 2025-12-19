@@ -5,7 +5,7 @@ import Image from "next/image"
 import MiniSearch from "minisearch"
 import { useRouter } from "next/navigation"
 
-interface Track {
+export interface Track {
   id: string
   name: string
   artist: string
@@ -266,7 +266,7 @@ export default function MoodMusic({
 
     // Search tracks
     if (miniTrackRef.current && tracks.length > 0) {
-      const rawTracks = miniTrackRef.current.search(qq, { limit: 50 })
+      const rawTracks = miniTrackRef.current.search(qq)
       let trackShortlist: Track[] = rawTracks.map((r) => r as unknown as Track)
       if (trackShortlist.length === 0) trackShortlist = tracks.slice(0, 60)
 
@@ -362,7 +362,7 @@ export default function MoodMusic({
 
     // Search albums
     if (miniAlbumRef.current && albums.length > 0) {
-      const rawAlbums = miniAlbumRef.current.search(qq, { limit: 50 })
+      const rawAlbums = miniAlbumRef.current.search(qq)
       let albumShortlist: Album[] = rawAlbums.map((r) => r as unknown as Album)
       if (albumShortlist.length === 0) albumShortlist = albums.slice(0, 60)
 

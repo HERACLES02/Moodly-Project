@@ -1,8 +1,10 @@
 "use client"
-import { redirect, useRouter } from "next/navigation"
+
+import { Session } from "next-auth"
+import { useRouter } from "next/navigation"
 import React, { useState, useEffect } from "react"
 
-const MoodlyLanding = () => {
+const MoodlyLanding = ({ session }: { session: Session | null }) => {
   const [movies, setMovies] = useState([])
   const router = useRouter()
 
@@ -83,29 +85,42 @@ const MoodlyLanding = () => {
       </div>
 
       {/* ========== ALL CONTENT BELOW RESTORED TO ORIGINAL ========== */}
-      <nav className="w-full flex justify-between items-center px-8 py-6 relative z-20 bg-[#ffe6f6] shadow shadow-[#dfb7d2] ">
-        <div className="moodlyImage">
-          <img
-            src="/images/moodly-logo.gif"
-            alt="Moodly Logo"
-            className="logo-gif"
-          />
-        </div>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push("/login")}
-            className="text-[#2a2a2a] bg-white px-8 py-3 rounded-full font-bold text-base tracking-wide shadow-lg hover:bg-gray-300 transition-all hover:cursor-pointer"
-          >
-            LOGIN
-          </button>
-          <button
-            onClick={() => router.push("/register")}
-            className="bg-[#2a2a2a] text-white px-8 py-3 rounded-full font-bold text-base tracking-wide shadow-lg hover:bg-black transition-colors hover:cursor-pointer"
-          >
-            CREATE ACCOUNT
-          </button>
-        </div>
-      </nav>
+      {session?.user ? (
+        ""
+      ) : (
+        <nav className="w-full flex justify-between items-center px-8 py-6 relative z-20 bg-[#ffe6f6] shadow shadow-[#dfb7d2] ">
+          <div className="moodlyImage">
+            <img
+              src="/images/moodly-logo.gif"
+              alt="Moodly Logo"
+              className="logo-gif"
+            />
+          </div>
+          {session?.user ? (
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="bg-[#2a2a2a] text-white px-8 py-3 rounded-full font-bold text-base tracking-wide shadow-lg hover:bg-black transition-colors hover:cursor-pointer"
+            >
+              DASHBOARD
+            </button>
+          ) : (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.push("/login")}
+                className="text-[#2a2a2a] bg-white px-8 py-3 rounded-full font-bold text-base tracking-wide shadow-lg hover:bg-gray-300 transition-all hover:cursor-pointer"
+              >
+                LOGIN
+              </button>
+              <button
+                onClick={() => router.push("/register")}
+                className="bg-[#2a2a2a] text-white px-8 py-3 rounded-full font-bold text-base tracking-wide shadow-lg hover:bg-black transition-colors hover:cursor-pointer"
+              >
+                CREATE ACCOUNT
+              </button>
+            </div>
+          )}
+        </nav>
+      )}
 
       {/* TOP SECTION: HERO WITH MOVIE POSTERS */}
       <section className="w-full flex justify-center pt-16 pb-12 relative z-10">
