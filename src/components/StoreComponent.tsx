@@ -10,8 +10,6 @@ import React, { useState } from "react"
 import StoreCardComponent from "./StoreCardComponent"
 import { useUser } from "@/contexts/UserContext"
 import { toast } from "sonner"
-import { taintObjectReference } from "next/dist/server/app-render/entry-base"
-import { objectEnumValues } from "@prisma/client/runtime/library"
 import { useTheme } from "next-themes"
 import { STORE_EXTRAS } from "@/lib/storeItems"
 

@@ -3,7 +3,8 @@
   "name": "moodly-party",
   "main": "party/index.ts",
   "parties": {
-    "radio": "party/radio.ts"
+    "radio": "party/radio.ts",
+    "customroom": "party/customroom.ts"
   },
   "compatibilityDate": "2025-10-25"
 }

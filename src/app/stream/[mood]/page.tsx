@@ -1,4 +1,3 @@
-import React, { useState } from "react"
 import WatchPage from "./WatchPage"
 
 interface PageProps {

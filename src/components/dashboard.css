@@ -298,6 +298,26 @@
   font-weight: 600;
   margin-bottom: 1rem;
 }
+.party-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.party-btn-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
 
 .coming-soon-text {
   color: var(--foreground);

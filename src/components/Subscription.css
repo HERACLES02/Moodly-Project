@@ -1,0 +1,111 @@
+/* Layout Containers */
+.sub-container {
+  min-height: 100vh;
+  width: 100%;
+  padding: 6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+}
+
+.sub-header-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  height: 350px;
+  background: var(--accent);
+  opacity: 0.1;
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+.sub-title {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 900;
+  text-align: center;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 3rem; /* Increased gap to prevent cards touching */
+  width: 100%;
+  max-width: 1150px;
+  align-items: stretch;
+  padding-top: 2rem; /* Space for the badges */
+}
+
+/* Feature List Styling */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex: 1;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.feature-disabled {
+  opacity: 0.25;
+}
+
+.text-accent-dynamic {
+  color: var(--accent);
+  transition: color 0.4s ease;
+}
+
+/* THE FIX: PREMIUM CARD OVERFLOW */
+.premium-card {
+  border: 2px solid var(--accent) !important;
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 20px 60px var(--shadow-color) !important;
+  /* Crucial: allow the badge to peek out */
+  overflow: visible !important;
+}
+
+/* Ensure the textures inside the card stay rounded but don't clip the badge */
+.premium-card::after,
+.premium-card::before {
+  border-radius: inherit;
+}
+
+/* --- THEME SPECIFIC OVERRIDES --- */
+
+/* VANGOGH FIX */
+:global(.vangogh) .premium-card {
+  box-shadow: 0 0 50px rgba(210, 215, 240, 0.25) !important;
+  background: radial-gradient(
+    circle at top right,
+    var(--primary),
+    var(--background)
+  ) !important;
+}
+
+/* CAT FIX */
+:global(.cat) .premium-card {
+  background: linear-gradient(
+    to bottom,
+    var(--componentbg),
+    var(--primary)
+  ) !important;
+  border-width: 4px !important;
+  border-radius: 24px !important;
+}
+
+/* Responsive fix: disable scale on mobile so cards don't overlap edges */
+@media (max-width: 768px) {
+  .premium-card {
+    transform: scale(1);
+    margin-top: 1.5rem;
+  }
+}

@@ -20,6 +20,7 @@ import Image from "next/image"
 import { Play } from "lucide-react"
 import SearchBar from "./SearchBar"
 import { useSearchStore } from "@/lib/store"
+import { randomUUID } from "crypto"
 
 const movieCache = new Map<string, Movie[]>()
 const songCache = new Map<string, Track[]>()
@@ -235,7 +236,20 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                     </div>
 
                     <div className="magazine-hero-right">
-                      <div className={`magazine-featured ${activeTab}`}>
+                      <div className="party-controls">
+                        <button
+                          onClick={() =>
+                            router.push(
+                              activeTab === "movies"
+                                ? `/stream/${normalizedMood}/${randomUUID()}`
+                                : `/radio/${normalizedMood}/${randomUUID()}`,
+                            )
+                          }
+                          className="theme-button-variant-2-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"
+                        >
+                          <Play size={18} />
+                          <span>Create Party</span>
+                        </button>
                         <button
                           onClick={() =>
                             router.push(
@@ -244,15 +258,10 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                                 : `/radio/${normalizedMood}`,
                             )
                           }
-                          className="theme-button-variant-1 flex gap-2 items-center text-center"
+                          className="theme-button-variant-1-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"
                         >
-                          <Play
-                            color="var(--foreground)"
-                            fill="var(--foreground)"
-                          />
-                          {activeTab === "movies"
-                            ? "Join Live TV"
-                            : "Join Radio Station"}
+                          <Play size={18} />
+                          <span>Join Others</span>
                         </button>
                       </div>
                     </div>

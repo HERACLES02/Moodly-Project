@@ -228,11 +228,25 @@ function getCatVideos() {
   return catvideo
 }
 
-function getMovies() {
+function getSadMovie() {
+  const movie: MovieParams[] = [
+    {
+      name: "The Pursit of Happyness",
+      url: "ThreeIdiots.mkv",
+      duration: 7044,
+    },
+  ]
+  for (let i = 0; i < movie.length; i++) {
+    movie[i].url = CLOUD + `/movies/${movie[i].url}`
+  }
+
+  return movie
+}
+function getHappyMovie() {
   const movie: MovieParams[] = [
     {
       name: "3 Idiots",
-      url: "ThreeIdiots.mkv",
+      url: "3Idiots.mkv",
       duration: 10267,
     },
   ]
@@ -288,6 +302,10 @@ export function getRandomIndex<T>(arr: T[]): number {
 }
 
 export const catVideoQueue: CatVideoParams[] = getCatVideos()
-export const movieQueue: MovieParams[] = getMovies()
+export const sadMovieQueue: MovieParams[] = getSadMovie()
+export const happyMovieQueue: MovieParams[] = getHappyMovie()
 export const sadSongQueue: SongParams[] = getSadSongs()
 export const happySongQueue: SongParams[] = getHappySongs()
+export const allSongQueue: SongParams[] = sadSongQueue.concat(happySongQueue)
+export const allMovieQueue: MovieParams[] =
+  sadMovieQueue.concat(happyMovieQueue)

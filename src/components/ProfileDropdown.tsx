@@ -50,6 +50,10 @@ export default function ProfileDropdown({
     router.push("/store")
   }
 
+  const handleGetPremium = () => {
+    router.push("/subscription")
+  }
+
   const menuItems = [
     { label: "Add/Update Notes", action: onAddNote },
     { label: "Select Mood", action: onSelectMood },
@@ -58,6 +62,7 @@ export default function ProfileDropdown({
     { label: "Dashboard", action: handleDashboard },
     { label: "User Page", action: handleUserPage },
     { label: "Redeem Your Mood Points", action: handleRedeemPoints },
+    { label: "Get Moodly Premium", action: handleGetPremium },
   ]
   if (isAdmin) {
     menuItems.push({ label: "Admin Panel", action: handleAdmin })
