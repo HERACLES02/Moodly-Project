@@ -1,4 +1,6 @@
+import { auth } from "@/auth"
 import prisma from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 
 export async function getOptimizedUser(email: string) {
   const weekStart = getWeekStart(new Date())
@@ -90,3 +92,24 @@ export async function getUserBasic(email: string) {
     },
   })
 }
+
+export const getLoginStreak = unstable_cache(
+  async (userId?: string) => {
+    if (!userId || userId === "") {
+      const session = auth()
+      userId = session?.user?.id
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { loginStreak: true },
+    })
+
+    return user?.loginStreak ?? 0
+  },
+  ["loginStreak"],
+  {
+    revalidate: 60 * 60 * 12, // 12 hours
+    tags: ["loginStreak"],
+  },
+)

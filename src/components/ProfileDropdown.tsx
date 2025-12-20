@@ -24,7 +24,7 @@ export default function ProfileDropdown({
   onSelectAvatar, // ADD THIS PARAMETER
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { setUser } = useUser()
+  const { user, setUser } = useUser()
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -43,7 +43,7 @@ export default function ProfileDropdown({
   }
 
   const handleUserPage = () => {
-    router.push("/userpage")
+    router.push("/userpage?id=" + user?.id)
   }
 
   const handleRedeemPoints = () => {

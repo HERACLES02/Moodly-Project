@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { inngest } from "@/inngest/client"
 import prisma from "@/lib/prisma" // ✅ CORRECT
+import { revalidateTag } from "next/cache"
 
 /**
  * POST /api/points/login
@@ -74,6 +75,8 @@ export async function POST(req: NextRequest) {
           loginStreak: newStreak,
         },
       })
+
+      revalidateTag("loginStreak")
 
       // ✅ NEW: Queue point history logging to Inngest (ASYNC)
       // User gets response immediately, history is logged in background
