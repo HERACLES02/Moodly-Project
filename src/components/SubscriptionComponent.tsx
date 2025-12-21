@@ -67,7 +67,7 @@ const SubscriptionComponent = () => {
         {tiers.map((tier, idx) => (
           <div
             key={idx}
-            className={`theme-card relative flex flex-col p-8 ${
+            className={`theme-card-variant-3 relative flex flex-col p-8 ${
               tier.highlight ? "premium-card" : "opacity-90"
             }`}
           >
@@ -78,27 +78,27 @@ const SubscriptionComponent = () => {
               </div>
             )}
 
-            <h2 className="text-2xl font-bold">{tier.name}</h2>
+            <h2 className="text-2xl font-bold text-accent">{tier.name}</h2>
 
             <div className="flex flex-col mt-4">
               <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-black">{tier.price}</span>
+                <span className="text-5xl font-black text-accent">{tier.price}</span>
                 {tier.priceCut && (
-                  <span className="text-xl line-through opacity-40 decoration-[var(--accent)] decoration-2">
+                  <span className="text-xl line-through opacity-40 text-accent decoration-[var(--accent)] decoration-2">
                     {tier.priceCut}
                   </span>
                 )}
               </div>
-              <span className="opacity-50 text-sm font-bold tracking-widest uppercase mt-1">
+              <span className="opacity-50 text-sm font-bold tracking-widest uppercase mt-1 text-accent/75">
                 {tier.name === "Yearly" ? "per year" : "per month"}
               </span>
             </div>
 
-            <p className="text-sm opacity-70 mt-4 leading-relaxed">
+            <p className="text-sm opacity-70 mt-4 leading-relaxed text-accent">
               {tier.description}
             </p>
 
-            <ul className="feature-list">
+            <ul className="feature-list text-accent font-semibold">
               {tier.features.map((feature, fIdx) => (
                 <li
                   key={fIdx}

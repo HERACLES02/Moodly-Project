@@ -213,7 +213,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                           )
                         }
                       >
-                        <p className="magazine-label">Curated for you</p>
+                        <p className="magazine-label ">Curated for you</p>
                         <h2
                           className={`magazine-title ${activeTab === "movies" ? "active" : "inactive"}`}
                         >
@@ -241,8 +241,8 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                           onClick={() =>
                             router.push(
                               activeTab === "movies"
-                                ? `/stream/${normalizedMood}/${randomUUID()}`
-                                : `/radio/${normalizedMood}/${randomUUID()}`,
+                                ? `custom-party/stream/${crypto.randomUUID()}`
+                                : `custom-party/radio/${crypto.randomUUID()}`,
                             )
                           }
                           className="theme-button-variant-2-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"

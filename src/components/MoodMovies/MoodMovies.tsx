@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
+import { Play } from "lucide-react"
 
 export interface Movie {
   id: number
@@ -283,10 +284,10 @@ export default function MoodMovies({
 
   const MovieCard = ({ movie }: { movie: Movie }) => (
     <div
-      className="group relative w-full max-w-[340px] h-28 flex items-center cursor-pointer overflow-hidden transition-all duration-300"
+      className="group relative w-full max-w-[450px] flex items-center cursor-pointer overflow-hidden transition-all duration-300 bg-white/5 hover:bg-white/10 rounded-2xl pr-4"
       onClick={() => handleMovieClick(movie)}
     >
-      <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
+      <div className="relative z-10 w-48 h-72 rounded-xl flex-shrink-0 overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
         <Image
           src={movie.poster || "/images/movie-placeholder.jpg"}
           alt={movie.title}
@@ -297,16 +298,16 @@ export default function MoodMovies({
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-[var(--accent)]/90 backdrop-blur-sm flex items-center justify-center text-black shadow-lg">
-            <span className="text-xs font-black">▶</span>
+            <span className="text-xs font-black"><Play/></span>
           </div>
         </div>
       </div>
 
       <div className="flex-1 ml-4 py-2 flex flex-col justify-center border-b border-transparent group-hover:border-[var(--accent)]/10 transition-colors">
-        <h3 className="theme-text-foreground text-sm font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
+        <h3 className="theme-text-foreground text-xl font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors flex flex-wrap">
           {movie.title}
         </h3>
-        <p className="theme-text-accent text-[10px] font-bold uppercase tracking-widest mt-1 ">
+        <p className="theme-text-accent text-md font-bold uppercase tracking-widest mt-1 ">
           {movie.releaseDate?.split("-")[0]} • ⭐ {movie.rating.toFixed(1)}
         </p>
 
@@ -378,9 +379,7 @@ export default function MoodMovies({
   return (
     <div className="w-full py-10 px-4 md:px-8">
       <div className="relative mb-20">
-        <h1 className="text-7xl md:text-8xl font-black tracking-tighter opacity-5 absolute -top-8 left-0 select-none uppercase pointer-events-none">
-          Movies
-        </h1>
+
         <div className="relative z-10 pt-4">
           <span className="theme-text-accent text-[10px] font-black uppercase tracking-[0.6em] block mb-2">
             <br />

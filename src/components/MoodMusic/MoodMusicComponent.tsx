@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import Image from "next/image"
 import MiniSearch from "minisearch"
 import { useRouter } from "next/navigation"
+import { Play } from "lucide-react"
 
 export interface Track {
   id: string
@@ -494,14 +495,14 @@ export default function MoodMusic({
     type: "track" | "album"
   }) => (
     <div
-      className="group relative w-full max-w-[340px] h-28 flex items-center cursor-pointer overflow-hidden transition-all duration-300"
+      className="group relative w-full flex items-center cursor-pointer overflow-hidden transition-all duration-300 bg-white/5 hover:bg-white/10 rounded-2xl pr-4"
       onClick={() =>
         type === "track"
           ? handleTrackClick(item as Track)
           : handleAlbumClick(item as Album)
       }
     >
-      <div className="relative z-10 w-28 h-28 rounded-xl overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
+      <div className="relative z-10 w-56 h-56 flex-shrink-0 rounded-xl overflow-hidden shadow-xl theme-card-variant-1-no-hover p-0 border-none bg-[var(--background)]">
         <Image
           src={item.albumArt || "/images/music-placeholder.jpg"}
           alt={item.name}
@@ -512,16 +513,16 @@ export default function MoodMusic({
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/40 transition-colors" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
           <div className="w-10 h-10 rounded-full bg-[var(--accent)]/90 backdrop-blur-sm flex items-center justify-center text-black shadow-lg">
-            <span className="text-xs font-black">▶</span>
+            <span className="text-xs "><Play/></span>
           </div>
         </div>
       </div>
 
       <div className="flex-1 ml-4 py-2 flex flex-col justify-center border-b border-transparent group-hover:border-[var(--accent)]/10 transition-colors">
-        <h3 className="theme-text-foreground text-sm font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
+        <h3 className="theme-text-foreground text-xl flex flex-wrap font-black tracking-tight leading-tight line-clamp-1 group-hover:theme-text-accent transition-colors">
           {item.name}
         </h3>
-        <p className="theme-text-accent text-[10px] font-bold uppercase tracking-widest mt-1">
+        <p className="theme-text-accent text-md font-bold  mt-1">
           {item.artist}
         </p>
 
@@ -593,9 +594,7 @@ export default function MoodMusic({
   return (
     <div className="w-full py-10 px-4 md:px-8">
       <div className="relative mb-20">
-        <h1 className="text-7xl md:text-8xl font-black tracking-tighter opacity-5 absolute -top-8 left-0 select-none uppercase pointer-events-none">
-          Music
-        </h1>
+
         <div className="relative z-10 pt-4">
           <span className="theme-text-accent text-[10px] font-black uppercase tracking-[0.6em] block mb-2">
             <br />

@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react"
 import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import { useRouter } from "next/navigation"
 import ChatComponent from "@/app/stream/[mood]/ChatComponent"
+import { CopyButton } from "@/components/CopyButton"
 
 interface SongState {
   name: string
@@ -96,8 +97,9 @@ const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
           <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
             Radio
           </h1>
-          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1">
+          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1 flex flex-col justify-center items-center">
             {songState.name || "Syncing..."}
+            <CopyButton groupId={groupId} type="radio" />
           </p>
         </div>
         <div className="w-[80px]" />

@@ -1,14 +1,14 @@
 "use client"
-import { useUser } from "@/contexts/UserContext"
 import usePartySocket from "partysocket/react"
 import React, { useEffect, useRef, useState } from "react"
 
 import CustomVideoPlayer from "@/components/CustomVideoPlayer"
-import { useRouter } from "next/navigation"
-import CustomAudioPlayer from "@/components/CustomAudioPlayer"
+
 import { Message } from "@/components/SyncedRadioPlayer"
 import { VideoState } from "../../../../../party"
-import ChatComponent from "../ChatComponent"
+import ChatComponent from "../../../stream/[mood]/ChatComponent"
+import { CopyButton } from "@/components/CopyButton"
+
 
 interface watchProps {
   groupId: string
@@ -74,8 +74,9 @@ const CustomWatchPage = ({ groupId }: watchProps) => {
       {/* 1. MINIMAL FLOATING HEADER */}
       <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
         <div className="text-center">
-          <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
+          <h1 className="text-xs font-black uppercase tracking-[0.4em] flex flex-col justify-center items-center theme-text-accent opacity-80">
             LIVE TV
+            <CopyButton groupId={groupId} type="stream" />
           </h1>
           <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1"></p>
         </div>
