@@ -6,6 +6,7 @@ import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import { useRouter } from "next/navigation"
 import ChatComponent from "@/app/stream/[mood]/ChatComponent"
 import { CopyButton } from "@/components/CopyButton"
+import { Message } from "@/components/SyncedRadioPlayer"
 
 interface SongState {
   name: string
@@ -18,11 +19,7 @@ interface CustomRadioPageProps {
   groupId: string
 }
 
-export interface Message {
-  message: string
-  anonymousName: string
-  avatar_img_path: string
-}
+
 
 const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
   const router = useRouter()
@@ -51,6 +48,8 @@ const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
               anonymousName: parsed?.userData?.anonymousName,
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
+              note: parsed?.userData?.note || "",
+              userId: parsed?.userData?.userId || ""
             },
           ]
           setMessages(newMessages)

@@ -1,5 +1,6 @@
 import { Message } from "@/components/SyncedRadioPlayer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import UserNoteTooltip from "@/components/UserNoteTooltip"
 import { useUser } from "@/contexts/UserContext"
 import Image from "next/image"
 import PartySocket from "partysocket"
@@ -34,6 +35,8 @@ const ChatComponent = ({
       message: message,
       anonymousName: user?.anonymousName || "Listener",
       avatar_img_path: user?.currentAvatar?.imagePath || "",
+      note: user?.note || "",
+      userId: user?.id || ""
     }
     ws.send(JSON.stringify(userMessage))
     setMessages((prev: Message[]) => [...prev, userMessage])
@@ -43,7 +46,7 @@ const ChatComponent = ({
   return (
     <div className="h-full flex flex-col theme-card !bg-black/20 !backdrop-blur-xl border-[var(--glass-border)] !p-0 rounded-3xl overflow-hidden shadow-2xl">
       {/* HEADER */}
-      <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+      <div className="hidden md:block px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
         <span className="theme-text-contrast text-[10px] font-black uppercase tracking-[0.2em]">
           Live Feed
         </span>
@@ -78,13 +81,16 @@ const ChatComponent = ({
               </div>
               <div className="theme-text-contrast text-sm leading-relaxed pl-3 border-l border-white/10 group-hover:border-[var(--accent)] transition-colors flex gap-3">
                 <div className="max-h-5 max-w-5 h-full w-full rounded-full">
-                  <Avatar className="rounded-full size-6 ">
-                    <AvatarImage src={m.avatar_img_path} />
-                    <AvatarFallback>{"👤"}</AvatarFallback>
-                  </Avatar>
+                <UserNoteTooltip note={m.note || ""}>
+    <Avatar className="rounded-full hover:cursor-default size-6 cursor-help transition-transform hover:scale-110">
+      <AvatarImage src={m.avatar_img_path} />
+      <AvatarFallback>{"👤"}</AvatarFallback>
+    </Avatar>
+  </UserNoteTooltip>
+            
                 </div>
 
-                {m.message}
+                {m.message} 
               </div>
             </div>
           ))
@@ -96,7 +102,7 @@ const ChatComponent = ({
       <div className="p-6 bg-white/5">
         <form onSubmit={handleSubmit} className="flex gap-2 items-center">
           <input
-            className="theme-input !bg-black/20 !border-white/10 h-11 !rounded-xl !text-xs italic"
+            className="theme-input !bg-black/20 !border-white/10 h-11 !rounded-xl !text-xs"
             placeholder="Share a thought..."
             value={message ?? ""}
             onChange={(e) => setMessage(e.target.value)}

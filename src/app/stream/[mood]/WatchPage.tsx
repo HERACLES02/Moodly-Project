@@ -41,6 +41,8 @@ const WatchPage = ({ mood }: watchProps) => {
               anonymousName: parsed?.userData?.anonymousName,
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
+              note: parsed?.userData?.note || "",
+              userId: parsed?.userData?.userId || ""
             },
           ]
           setMessages(newMessages)

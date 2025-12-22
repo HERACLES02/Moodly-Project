@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   FIRST MOOD SELECTION - Light Pastel Default with Theme Transitions
+   ═══════════════════════════════════════════════════════════════ */
+
 /* Main Container */
 .first-mood-container {
   min-height: 100vh;
@@ -16,7 +20,9 @@
   min-height: 100vh;
 }
 
-/* Base background layer */
+/* ═══════════════════════════════════════════════════════════════
+   DEFAULT THEME BACKGROUND (Light Pastel)
+   ═══════════════════════════════════════════════════════════════ */
 .first-mood-background::before {
   content: "";
   position: fixed;
@@ -24,18 +30,45 @@
   left: 0;
   right: 0;
   bottom: 0;
+  /* Light pastel gradient matching new default theme */
   background: linear-gradient(
     135deg,
-    #000000 0%,
-    #1a1a3a 25%,
-    #2d1b69 50%,
-    #4169e1 75%,
-    #1e3a8a 100%
+    rgb(248, 250, 252) 0%,
+    rgb(241, 245, 249) 25%,
+    rgb(236, 242, 248) 50%,
+    rgb(243, 244, 246) 75%,
+    rgb(248, 250, 252) 100%
   );
   z-index: -2;
 }
 
-/* Transitioning background layer */
+/* Soft floating particles for default theme */
+.first-mood-background::before {
+  background-image:
+    linear-gradient(
+      135deg,
+      rgb(248, 250, 252) 0%,
+      rgb(241, 245, 249) 25%,
+      rgb(236, 242, 248) 50%,
+      rgb(243, 244, 246) 75%,
+      rgb(248, 250, 252) 100%
+    ),
+    radial-gradient(
+      2px 2px at 20% 30%,
+      rgba(139, 92, 246, 0.08),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 60% 70%,
+      rgba(139, 92, 246, 0.06),
+      transparent
+    );
+  background-size: 100% 100%, 300px 300px, 250px 250px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TRANSITIONING BACKGROUND LAYER (for Happy/Sad themes)
+   ═══════════════════════════════════════════════════════════════ */
 .first-mood-background::after {
   content: "";
   position: fixed;
@@ -44,14 +77,13 @@
   right: 0;
   bottom: 0;
   opacity: 0;
-  transition: opacity 2s ease-in-out;
+  transition: opacity 2s ease-in-out; /* Smooth 2-second transition */
   z-index: -1;
 }
 
-/* Happy background appears when theme changes */
-/* Replace the :global(.happy) and :global(.sad) selectors with: */
-
-/* Happy background appears when theme changes */
+/* ═══════════════════════════════════════════════════════════════
+   HAPPY THEME BACKGROUND (appears smoothly)
+   ═══════════════════════════════════════════════════════════════ */
 .happy .first-mood-background::after {
   background:
     linear-gradient(
@@ -64,25 +96,50 @@
     ),
     url("/images/moods/happy/background.jpg");
   background-size: cover;
-  opacity: 1;
+  background-position: center;
+  opacity: 1; /* Fades in over 2 seconds */
 }
 
-/* Sad background appears when theme changes */
+/* ═══════════════════════════════════════════════════════════════
+   SAD THEME BACKGROUND (appears smoothly)
+   ═══════════════════════════════════════════════════════════════ */
 .sad .first-mood-background::after {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(74, 74, 122, 0.9) 0%,
-      rgba(90, 90, 138, 0.9) 30%,
-      rgba(106, 90, 205, 0.9) 60%,
-      rgba(72, 61, 139, 0.9) 80%,
-      rgba(47, 47, 95, 0.9) 100%
-    ),
-    url("/images/moods/sad/background.jpg");
-  background-size: cover;
+  background: linear-gradient(
+    180deg,
+    rgb(155, 180, 215) 0%,
+    rgb(125, 160, 205) 25%,
+    rgb(95, 135, 185) 50%,
+    rgb(75, 115, 170) 75%,
+    rgb(60, 95, 150) 100%
+  ) !important;
+  background-size: cover !important;
   background-position: center;
-  opacity: 1;
+  background-attachment: fixed;
+  min-height: 100vh;
+  position: relative;
+  opacity: 1; /* Fades in over 2 seconds */
+}.sad body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(35, 65, 110, 0.25) 70%,
+    rgba(35, 65, 110, 0.45) 100%
+  );
+  pointer-events: none;
+  opacity: 1; /* Fades in over 2 seconds */
+  z-index: 1;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTENT STYLING (adapts to theme)
+   ═══════════════════════════════════════════════════════════════ */
 
 /* Content Wrapper */
 .first-mood-content {
@@ -99,28 +156,30 @@
   transform: translateY(0);
 }
 
-/* Title */
+/* Title - Uses theme accent color */
 .first-mood-title {
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
-  color: var(--accent, #667eea);
+  color: var(--accent); /* Soft purple in default, adapts to theme */
   margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: color 0.5s ease;
 }
 
-/* Subtitle */
+/* Subtitle - Uses theme foreground color */
 .first-mood-subtitle {
   font-size: 1.2rem;
-  color: var(--foreground, #1f2937);
+  color: var(--foreground); /* Soft charcoal in default, adapts to theme */
   text-align: center;
   margin-bottom: 3rem;
   opacity: 0.9;
   transition: color 0.5s ease;
 }
 
-/* Mood Options Grid */
+/* ═══════════════════════════════════════════════════════════════
+   MOOD OPTIONS GRID
+   ═══════════════════════════════════════════════════════════════ */
 .mood-options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -138,53 +197,102 @@
   transform: translateY(0);
 }
 
-/* Individual Mood Button */
+/* ═══════════════════════════════════════════════════════════════
+   INDIVIDUAL MOOD BUTTONS - Light Pastel Colors
+   ═══════════════════════════════════════════════════════════════ */
 .mood-option-button {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem 1.5rem;
-
   border-radius: 0.75rem;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   min-height: 60px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
+  background-color: var(--card-surface); /* White cards */
 }
 
+/* Mood-specific button colors (light pastels) */
+.mood-option-button.happy {
+  background: var(--mood-happy);
+  border-color: color-mix(in srgb, var(--mood-happy) 80%, black);
+}
+
+.mood-option-button.calm {
+  background: var(--mood-calm);
+  border-color: color-mix(in srgb, var(--mood-calm) 80%, black);
+}
+
+.mood-option-button.energetic {
+  background: var(--mood-energetic);
+  border-color: color-mix(in srgb, var(--mood-energetic) 80%, black);
+}
+
+.mood-option-button.anxious {
+  background: var(--mood-anxious);
+  border-color: color-mix(in srgb, var(--mood-anxious) 80%, black);
+}
+
+.mood-option-button.sad {
+  background: var(--mood-sad);
+  border-color: color-mix(in srgb, var(--mood-sad) 80%, black);
+}
+
+.mood-option-button.excited {
+  background: var(--mood-excited);
+  border-color: color-mix(in srgb, var(--mood-excited) 80%, black);
+}
+
+.mood-option-button.tired {
+  background: var(--mood-tired);
+  border-color: color-mix(in srgb, var(--mood-tired) 80%, black);
+}
+
+.mood-option-button.grateful {
+  background: var(--mood-grateful);
+  border-color: color-mix(in srgb, var(--mood-grateful) 80%, black);
+}
+
+/* Hover state */
 .mood-option-button:hover:not(:disabled) {
-  background-color: var(--accent, #667eea);
-  color: var(--primary, #ffffff);
-  border-color: var(--accent, #667eea);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent);
 }
 
+/* Disabled state */
 .mood-option-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-/* Mood Name Text */
+/* ═══════════════════════════════════════════════════════════════
+   MOOD NAME TEXT
+   ═══════════════════════════════════════════════════════════════ */
 .mood-name {
   font-size: 1rem;
-  color: #21273b;
+  color: var(--dark-text); /* Soft charcoal for readability */
   font-weight: 800;
   transition: color 0.3s ease;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
-/* Loading Overlay */
+/* ═══════════════════════════════════════════════════════════════
+   LOADING OVERLAY
+   ═══════════════════════════════════════════════════════════════ */
 .loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(248, 250, 252, 0.9); /* Light background for loading */
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -193,7 +301,9 @@
   z-index: 1000;
 }
 
-/* Responsive Design */
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .first-mood-title {
     font-size: 2rem;

@@ -50,3 +50,16 @@
   font-size: 16px;
   color: #000;
 }
+@media (max-width: 768px) {
+  .theme-navbar {
+    height: 60px;
+    padding: 0 10px;
+  }
+  
+  .moodlyImage {
+    width: 100px; /* Even smaller logo for phones */
+  }
+
+  /* If you want the search bar on mobile, it usually needs to be its own row, 
+     but for now we hide it to keep the header clean. */
+}

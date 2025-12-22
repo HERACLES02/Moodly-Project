@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useUser } from "@/contexts/UserContext" // ← CHANGED: Import from context
+import { useUser } from "@/contexts/UserContext"
 import { useTheme } from "next-themes"
 import "./FirstMoodSelection.css"
 import { useRouter } from "next/navigation"
@@ -17,40 +17,34 @@ export default function FirstMoodSelection() {
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
 
-  // This array contains all the mood options
+  // Mood options with CSS class names for styling
   const moodOptions = [
-    { name: "Happy", color: "bg-yellow-300" },
-    { name: "Calm", color: "bg-blue-300" },
-    { name: "Energetic", color: "bg-red-300" },
-    { name: "Anxious", color: "bg-purple-300" },
-    { name: "Sad", color: "bg-gray-400" },
-    { name: "Excited", color: "bg-orange-300" },
-    { name: "Tired", color: "bg-indigo-300" },
-    { name: "Grateful", color: "bg-green-300" },
+    { name: "Happy", className: "happy" },
+    { name: "Calm", className: "calm" },
+    { name: "Energetic", className: "energetic" },
+    { name: "Anxious", className: "anxious" },
+    { name: "Sad", className: "sad" },
+    { name: "Excited", className: "excited" },
+    { name: "Tired", className: "tired" },
+    { name: "Grateful", className: "grateful" },
   ]
 
-  // useEffect(() => {
-  //   if (user?.mood != "default") {
-  //     router.push("/dashboard")
-  //   }
-  // }, [])
   useEffect(() => {
+    // Always start with default theme (light pastel)
     setTheme("default")
     setIsMounted(true)
   }, [])
 
   useEffect(() => {
-    // First, show the title with animation
+    // Animate content entrance
     const titleTimer = setTimeout(() => {
       setShowTitle(true)
     }, 300)
 
-    // Then, show the mood buttons
     const moodsTimer = setTimeout(() => {
       setShowMoods(true)
     }, 1200)
 
-    // Cleanup function to clear timers if component unmounts
     return () => {
       clearTimeout(titleTimer)
       clearTimeout(moodsTimer)
@@ -77,17 +71,13 @@ export default function FirstMoodSelection() {
     )
   }
 
-  // ══════════════════════════════════════════════════════════════════
-  // This function handles when user clicks a mood button
-  // ══════════════════════════════════════════════════════════════════
   const handleMoodSelect = async (moodName: string) => {
+    // Change theme (triggers smooth background transition via CSS)
     setTheme(moodName.toLowerCase())
 
     setIsLoading(true)
 
     try {
-      // Send the mood to the API
-
       const response = await fetch("/api/moods", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -100,6 +90,7 @@ export default function FirstMoodSelection() {
         updateUserMood(moodName)
         console.log("✅ First mood saved and updated in context:", moodName)
 
+        // Navigate to dashboard after theme transition
         router.push("/dashboard")
       } else {
         console.error("Failed to save mood:", data.error)
@@ -109,6 +100,7 @@ export default function FirstMoodSelection() {
       console.error("Error saving first mood:", error)
       alert("Error saving mood. Please try again.")
     } finally {
+      // Keep loading state to show transition
     }
   }
 
@@ -130,7 +122,7 @@ export default function FirstMoodSelection() {
                   key={mood.name}
                   onClick={() => handleMoodSelect(mood.name)}
                   disabled={isLoading}
-                  className={`mood-option-button ${mood.color}`}
+                  className={`mood-option-button ${mood.className}`}
                   style={{
                     animationDelay: `${index * 0.1}s`,
                   }}

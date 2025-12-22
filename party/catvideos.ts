@@ -246,13 +246,11 @@ function getHappyMovie() {
   const movie: MovieParams[] = [
     {
       name: "3 Idiots",
-      url: "3Idiots.mkv",
+      url: "https://pub-5028b4904eef4a52961fb036dec5fe6d.r2.dev/movies/3Idiots.mkv",
       duration: 10267,
     },
   ]
-  for (let i = 0; i < movie.length; i++) {
-    movie[i].url = CLOUD + `/movies/${movie[i].url}`
-  }
+
 
   return movie
 }

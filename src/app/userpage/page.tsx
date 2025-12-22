@@ -1,5 +1,7 @@
+// src/app/userpage/page.tsx
 import { getLoginStreak } from "@/lib/queries/user"
-import UserPage from "./UserPageComponent"
+import UserPageRevamped from "./UserPageRevamped"
+import { auth } from "@/auth"
 
 export default async function page({
   searchParams,
@@ -7,8 +9,13 @@ export default async function page({
   searchParams: Record<string, string | string[] | undefined>
 }) {
   const param = await searchParams
-  const userId = (param.id as string) || ""
-  const streak = await getLoginStreak(userId)
+  const session = await auth()
+  
+  // Get userId from URL param or from session
+  const userId = (param.id as string) || session?.user?.id || ""
+  
+  // Pass userId explicitly to avoid auth() call inside cached function
+  const streak = userId ? await getLoginStreak(userId) : null
 
-  return <UserPage streak={streak} />
+  return <UserPageRevamped streak={streak} />
 }

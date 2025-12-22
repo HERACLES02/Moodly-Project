@@ -121,7 +121,7 @@ export default function MoodMovies({
             const r = await fetch(u)
             if (!r.ok) throw new Error(`Failed to fetch movies (${s.key})`)
             const j = await r.json()
-            return { title: s.title, movies: (j.movies || []).slice(0, 4) }
+            return { title: s.title, movies: (j.movies || []).slice(0, 6) }
           }),
         )
 
@@ -142,7 +142,7 @@ export default function MoodMovies({
       const list: Movie[] = data.movies || []
       setMovies(list)
 
-      setVisibleMovies(!debouncedQuery ? list.slice(0, 4) : list)
+      setVisibleMovies(!debouncedQuery ? list.slice(0, 6) : list)
 
       miniRef.current = new MiniSearch<MovieDoc>({
         fields: ["title", "overview"],

@@ -21,6 +21,9 @@ export interface Message {
   message: string
   anonymousName: string
   avatar_img_path: string
+  note? : string
+  userId?: string
+
 }
 
 const SyncedRadioPlayer = ({ mood }: SyncedRadioPlayerProps) => {
@@ -51,6 +54,8 @@ const SyncedRadioPlayer = ({ mood }: SyncedRadioPlayerProps) => {
               anonymousName: parsed?.userData?.anonymousName,
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
+              note: parsed?.userData?.note || "",
+              userId: parsed?.userData?.userId || ""
             },
           ]
           setMessages(newMessages)

@@ -1,0 +1,331 @@
+/* ═══════════════════════════════════════════════════════════════
+   USER PAGE REVAMPED - Magazine-Style Layout with STRONG Card Contrast
+   ═══════════════════════════════════════════════════════════════ */
+
+.userpage-revamped {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL CARD STYLING - Makes cards POP with distinct surface color
+   ═══════════════════════════════════════════════════════════════ */
+.userpage-revamped .theme-card-variant-1-no-hover,
+.userpage-revamped .theme-card-variant-1 {
+  background: var(--card-surface) !important;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.userpage-revamped .theme-card-variant-1:hover {
+  background: var(--card-surface-hover) !important;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   HERO PROFILE SECTION - Distinct elevated surface
+   ───────────────────────────────────────────────────────────────── */
+.profile-hero {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  background: var(--card-surface);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 1rem 1rem;
+}
+
+.profile-hero-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Avatar with Glow Effect */
+.profile-avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  position: relative;
+  z-index: 2;
+}
+
+.avatar-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--accent) 0%,
+    transparent 70%
+  );
+  opacity: 0.3;
+  z-index: 1;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+/* Profile Info */
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.profile-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-icon {
+  color: var(--accent);
+}
+
+.stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--glass-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   MAIN LAYOUT - Sidebar + Content
+   ───────────────────────────────────────────────────────────────── */
+.userpage-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  min-height: calc(100vh - 180px);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TAB SIDEBAR - Vertical Navigation
+   ───────────────────────────────────────────────────────────────── */
+.tab-sidebar {
+  position: sticky;
+  top: 180px;
+  height: fit-content;
+}
+
+.tab-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tab-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  overflow: hidden;
+}
+
+.tab-button:hover {
+  background: var(--card-surface);
+  border-color: var(--glass-border);
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-button.active {
+  background: var(--card-surface);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tab-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.tab-button.active .tab-icon {
+  transform: scale(1.1);
+}
+
+.tab-label {
+  flex: 1;
+}
+
+.tab-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: 2px 0 0 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TAB CONTENT AREA
+   ───────────────────────────────────────────────────────────────── */
+.tab-content {
+  min-height: 500px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RESPONSIVE DESIGN
+   ───────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .userpage-main {
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-hero {
+    padding: 1rem;
+  }
+
+  .profile-hero-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .profile-stats {
+    justify-content: center;
+  }
+
+  .userpage-main {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .tab-sidebar {
+    position: static;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .tab-button {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .tab-label {
+    font-size: 0.75rem;
+  }
+
+  .tab-indicator {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   SCROLLBAR STYLING
+   ───────────────────────────────────────────────────────────────── */
+.tab-nav::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tab-nav::-webkit-scrollbar-track {
+  background: var(--glass-bg);
+  border-radius: 2px;
+}
+
+.tab-nav::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.tab-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  opacity: 0.8;
+}

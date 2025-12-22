@@ -3,7 +3,7 @@ import "./CustomVideoPlayer.css"
 
 interface CustomVideoPlayerProps {
   videoUrl: string | null
-  onVideoEnd: () => void
+  onVideoEnd?: () => void
   livetime: number | null
 }
 

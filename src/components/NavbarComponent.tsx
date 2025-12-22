@@ -122,7 +122,7 @@ export default function NavbarComponent({
         </div>
 
         {/* SearchBar - Styled to match dashboard */}
-        <section className="w-full max-w-3xl">
+        <section className="hidden md:block w-full max-w-xl lg:max-w-3xl px-4">
           <SearchBar
             placeholder="What's on your mood today?"
             onModeChange={(m) => setSearchMode(m)}
@@ -138,10 +138,14 @@ export default function NavbarComponent({
 
         {/* User Section - WeeklyProgressCompact moved here for right alignment */}
         <div className="UserSection h-full px-5 flex justify-center items-center gap-6">
-          <WeeklyProgressCompact />
+         <div className="hidden sm:block">
+            <WeeklyProgressCompact />
+          </div>
 
           <div className="flex items-center gap-2">
+            <div className="hidden sm:block"> 
             <PointsDisplay />
+            </div>
           </div>
 
           <div className="h-full w-full ">

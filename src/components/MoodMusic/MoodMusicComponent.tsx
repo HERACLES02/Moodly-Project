@@ -157,7 +157,7 @@ export default function MoodMusic({
               const list: Track[] = j.tracks || []
               return {
                 title: s.title,
-                items: list.slice(0, 4),
+                items: list.slice(0, 6),
                 type: "track" as const,
               }
             }),
@@ -173,7 +173,7 @@ export default function MoodMusic({
         const albumList: Album[] = albumData.albums || []
         const albumRow = {
           title: ALBUM_SECTION_TITLES[normalizedMood] || "Albums for You",
-          items: albumList.slice(0, 4),
+          items: albumList.slice(0, 6),
           type: "album" as const,
         }
 
@@ -204,7 +204,7 @@ export default function MoodMusic({
       const trackData = await trackResponse.json()
       const trackList: Track[] = trackData.tracks || []
       setTracks(trackList)
-      setVisibleTracks(!debouncedQuery ? trackList.slice(0, 4) : trackList)
+      setVisibleTracks(!debouncedQuery ? trackList.slice(0, 6) : trackList)
 
       // Fetch albums
       const albumUrl = `/api/recommendations/songs?mood=${normalizedMood}&kind=album${debouncedQuery ? `&q=${encodeURIComponent(debouncedQuery)}` : ""}`
@@ -214,7 +214,7 @@ export default function MoodMusic({
       const albumData = await albumResponse.json()
       const albumList: Album[] = albumData.albums || []
       setAlbums(albumList)
-      setVisibleAlbums(!debouncedQuery ? albumList.slice(0, 4) : albumList)
+      setVisibleAlbums(!debouncedQuery ? albumList.slice(0, 6) : albumList)
 
       // Build MiniSearch indexes
       miniTrackRef.current = new MiniSearch<Track>({
@@ -260,8 +260,8 @@ export default function MoodMusic({
   const runSearch = async (q: string) => {
     const qq = (q || "").trim()
     if (qq.length < 2) {
-      setVisibleTracks(tracks.slice(0, 4))
-      setVisibleAlbums(albums.slice(0, 4))
+      setVisibleTracks(tracks.slice(0, 6))
+      setVisibleAlbums(albums.slice(0, 6))
       return
     }
 
