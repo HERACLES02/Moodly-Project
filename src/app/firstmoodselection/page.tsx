@@ -7,6 +7,7 @@ import "./FirstMoodSelection.css"
 import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { Spinner } from "@/components/ui/spinner"
+import Image from "next/image"
 
 export default function FirstMoodSelection() {
   const { theme, setTheme } = useTheme()
@@ -17,16 +18,49 @@ export default function FirstMoodSelection() {
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
 
-  // Mood options with CSS class names for styling
+  // Mood options with placeholder images (4:3 aspect ratio)
   const moodOptions = [
-    { name: "Happy", className: "happy" },
-    { name: "Calm", className: "calm" },
-    { name: "Energetic", className: "energetic" },
-    { name: "Anxious", className: "anxious" },
-    { name: "Sad", className: "sad" },
-    { name: "Excited", className: "excited" },
-    { name: "Tired", className: "tired" },
-    { name: "Grateful", className: "grateful" },
+    {
+      name: "Happy",
+      className: "happy",
+      // Placeholder image - replace with actual mood images
+      image: "https://placehold.co/800x600/fef08a/1e293b?text=Happy",
+    },
+    {
+      name: "Calm",
+      className: "calm",
+      image: "https://placehold.co/800x600/bfdbfe/1e293b?text=Calm",
+    },
+    {
+      name: "Energetic",
+      className: "energetic",
+      image: "https://placehold.co/800x600/fca5a5/1e293b?text=Energetic",
+    },
+    {
+      name: "Anxious",
+      className: "anxious",
+      image: "https://placehold.co/800x600/d8b4fe/1e293b?text=Anxious",
+    },
+    {
+      name: "Sad",
+      className: "sad",
+      image: "https://placehold.co/800x600/cbd5e1/1e293b?text=Sad",
+    },
+    {
+      name: "Excited",
+      className: "excited",
+      image: "https://placehold.co/800x600/fdba74/1e293b?text=Excited",
+    },
+    {
+      name: "Tired",
+      className: "tired",
+      image: "https://placehold.co/800x600/c7d2fe/1e293b?text=Tired",
+    },
+    {
+      name: "Grateful",
+      className: "grateful",
+      image: "https://placehold.co/800x600/a7f3d0/1e293b?text=Grateful",
+    },
   ]
 
   useEffect(() => {
@@ -108,8 +142,26 @@ export default function FirstMoodSelection() {
     <div className="first-mood-background">
       <div className="first-mood-container">
         <div className={`first-mood-content ${showTitle ? "show" : ""}`}>
-          <h1 className="first-mood-title">Welcome to Moodly! 🎭</h1>
-          <p className="first-mood-subtitle">How are you feeling today?</p>
+          <h1 className="first-mood-title flex">
+            Welcome to
+            <div className="moodlyImage mt-3">
+              <img
+                src="/images/moodly-logo.gif"
+                alt="Moodly Logo"
+                className="logo-gif"
+              />
+            </div>
+          </h1>
+
+          {/* Animated subtitle with dots */}
+          <p className="first-mood-subtitle italic font-bold">
+            How are you feeling today
+            <span className="animated-dots">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </p>
 
           {isLoading ? (
             <div className="size-2">
@@ -122,12 +174,12 @@ export default function FirstMoodSelection() {
                   key={mood.name}
                   onClick={() => handleMoodSelect(mood.name)}
                   disabled={isLoading}
-                  className={`mood-option-button ${mood.className}`}
+                  className={`theme-btn hover:scale-105 transition-transform duration-200 hover:bg-${mood.className} `}
                   style={{
                     animationDelay: `${index * 0.1}s`,
                   }}
                 >
-                  <span className="mood-name">{mood.name}</span>
+                  {mood.name}
                 </button>
               ))}
             </div>

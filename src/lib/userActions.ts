@@ -59,6 +59,16 @@ export async function setUserMood(mood: string) {
   return null
 }
 
-export async function fetchUserData() {
-  
+export async function fetchUserData() {}
+
+export async function setUserTheme(theme: string) {
+  const session = await auth()
+  if (session) {
+    const user = await prisma.user.update({
+      where: { email: session?.user?.email! },
+      data: { currentTheme: theme },
+    })
+    return user?.currentTheme
+  }
+  return null
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import NavbarComponent from "@/components/NavbarComponent"
+
 import MoodMovies, { Movie } from "@/components/MoodMovies/MoodMovies"
 import MoodMusic, { Track } from "@/components/MoodMusic/MoodMusicComponent"
 import { useRouter } from "next/navigation"
@@ -11,7 +11,6 @@ import { useUser } from "@/contexts/UserContext"
 import "./dashboard.css"
 import { setUserMood } from "@/lib/userActions"
 import { fetchRecommendations } from "@/lib/fetchRecommendations"
-import { Ring2 } from "ldrs/react"
 import "ldrs/react/Ring2.css"
 import Image from "next/image"
 
@@ -213,7 +212,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                           )
                         }
                       >
-                        <p className="magazine-label ">Curated for you</p>
+                        <p className="magazine-label">Curated for you</p>
                         <h2
                           className={`magazine-title ${activeTab === "movies" ? "active" : "inactive"}`}
                         >
@@ -241,8 +240,8 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                           onClick={() =>
                             router.push(
                               activeTab === "movies"
-                                ? `custom-party/stream/${crypto.randomUUID()}`
-                                : `custom-party/radio/${crypto.randomUUID()}`,
+                                ? `/stream/${normalizedMood}/${crypto.randomUUID()}`
+                                : `/radio/${normalizedMood}/${crypto.randomUUID()}`,
                             )
                           }
                           className="theme-button-variant-2-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"
@@ -255,7 +254,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                             router.push(
                               activeTab === "movies"
                                 ? `/stream/${normalizedMood}`
-                                : `/radio/${normalizedMood}`,
+                                : `/radio/mood/${normalizedMood}`,
                             )
                           }
                           className="theme-button-variant-1-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"
@@ -268,7 +267,7 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                   </div>
                 </section>
 
-                <section className="magazine-rows w-full max-w-5xl">
+                <section className="magazine-rows w-full max-w-6xl">
                   {activeTab === "movies" ? (
                     <MoodMovies
                       mood={normalizedMood!}

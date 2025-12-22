@@ -251,7 +251,6 @@ function getHappyMovie() {
     },
   ]
 
-
   return movie
 }
 
@@ -265,6 +264,16 @@ function getSadSongs() {
     {
       name: "Tumi",
       url: "TUMI.mp3",
+      duration: 15,
+    },
+    {
+      name: "My Heart Will Go On",
+      url: "my_heart_will_go_on.mp3",
+      duration: 15,
+    },
+    {
+      name: "Kal Ho Naa Ho",
+      url: "kal_ho_na_ho.mp3",
       duration: 15,
     },
   ]
@@ -285,6 +294,21 @@ function getHappySongs() {
     {
       name: "Satellite",
       url: "Satellite.mp3",
+      duration: 15,
+    },
+    {
+      name: "Waving Flag",
+      url: "wavin_flag.mp3",
+      duration: 15,
+    },
+    {
+      name: "Deewngi Deewangi - Om Shanti Om",
+      url: "deewangi_deewangi.mp3",
+      duration: 15,
+    },
+    {
+      name: "Bye Bye Bye",
+      url: "bye_bye_bye.mp3",
       duration: 15,
     },
   ]

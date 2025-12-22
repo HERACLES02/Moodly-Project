@@ -10,7 +10,6 @@ import ChatComponent from "../../../stream/[mood]/ChatComponent"
 import { CopyButton } from "@/components/CopyButton"
 import MobileLayout from "./MobileLayout"
 
-
 interface watchProps {
   groupId: string
   isMobile: boolean
@@ -44,7 +43,7 @@ const CustomWatchPage = ({ groupId, isMobile }: watchProps) => {
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
               note: parsed?.userData?.note || "",
-              userId: parsed?.userData?.userId || ""
+              userId: parsed?.userData?.userId || "",
             },
           ]
           setMessages(newMessages)
@@ -72,11 +71,20 @@ const CustomWatchPage = ({ groupId, isMobile }: watchProps) => {
   useEffect(() => setMount(true), [])
 
   if (!mount) return null
-  const sharedProps = { ws, videoState, messages, setMessages, message, setMessage, livetime, groupId }
+  const sharedProps = {
+    ws,
+    videoState,
+    messages,
+    setMessages,
+    message,
+    setMessage,
+    livetime,
+    groupId,
+  }
   if (isMobile) return <MobileLayout {...sharedProps} />
 
   return (
-   <>
+    <>
       {/* 📱 MOBILE VERSION: Hidden on Desktop (md: 768px+) */}
       <div className="md:hidden">
         <MobileLayout {...sharedProps} />
@@ -87,7 +95,7 @@ const CustomWatchPage = ({ groupId, isMobile }: watchProps) => {
         <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
           <div className="text-center">
             <h1 className="text-xs font-black uppercase tracking-[0.4em] flex flex-col justify-center items-center theme-text-accent opacity-80">
-              LIVE TV 
+              LIVE TV
               <CopyButton groupId={groupId} type="stream" />
             </h1>
           </div>

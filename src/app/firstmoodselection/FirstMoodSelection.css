@@ -53,17 +53,12 @@
       rgb(243, 244, 246) 75%,
       rgb(248, 250, 252) 100%
     ),
-    radial-gradient(
-      2px 2px at 20% 30%,
-      rgba(139, 92, 246, 0.08),
-      transparent
-    ),
-    radial-gradient(
-      1px 1px at 60% 70%,
-      rgba(139, 92, 246, 0.06),
-      transparent
-    );
-  background-size: 100% 100%, 300px 300px, 250px 250px;
+    radial-gradient(2px 2px at 20% 30%, rgba(139, 92, 246, 0.08), transparent),
+    radial-gradient(1px 1px at 60% 70%, rgba(139, 92, 246, 0.06), transparent);
+  background-size:
+    100% 100%,
+    300px 300px,
+    250px 250px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -82,7 +77,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HAPPY THEME BACKGROUND (appears smoothly)
+   HAPPY THEME BACKGROUND (with image overlay)
    ═══════════════════════════════════════════════════════════════ */
 .happy .first-mood-background::after {
   background:
@@ -101,7 +96,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SAD THEME BACKGROUND (appears smoothly)
+   SAD THEME BACKGROUND - New Blue Palette (gradient only, no image)
    ═══════════════════════════════════════════════════════════════ */
 .sad .first-mood-background::after {
   background: linear-gradient(
@@ -111,31 +106,11 @@
     rgb(95, 135, 185) 50%,
     rgb(75, 115, 170) 75%,
     rgb(60, 95, 150) 100%
-  ) !important;
-  background-size: cover !important;
-  background-position: center;
-  background-attachment: fixed;
-  min-height: 100vh;
-  position: relative;
-  opacity: 1; /* Fades in over 2 seconds */
-}.sad body::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 30%,
-    rgba(35, 65, 110, 0.25) 70%,
-    rgba(35, 65, 110, 0.45) 100%
   );
-  pointer-events: none;
-  opacity: 1; /* Fades in over 2 seconds */
-  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  opacity: 1;
 }
-
 
 /* ═══════════════════════════════════════════════════════════════
    CONTENT STYLING (adapts to theme)
@@ -149,6 +124,8 @@
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.8s ease-out;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .first-mood-content.show {
@@ -162,31 +139,70 @@
   font-weight: 700;
   text-align: center;
   color: var(--accent); /* Soft purple in default, adapts to theme */
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: color 0.5s ease;
 }
 
-/* Subtitle - Uses theme foreground color */
+/* Subtitle with animated dots */
 .first-mood-subtitle {
   font-size: 1.2rem;
-  color: var(--foreground); /* Soft charcoal in default, adapts to theme */
+  color: var(--foreground);
   text-align: center;
   margin-bottom: 3rem;
   opacity: 0.9;
   transition: color 0.5s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Animated dots container */
+.animated-dots {
+  display: inline-flex;
+  gap: 0.15rem;
+}
+
+/* Individual animated dot */
+.animated-dots span {
+  animation: dotBlink 1.4s infinite;
+  opacity: 0;
+}
+
+.animated-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.animated-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animated-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotBlink {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOOD OPTIONS GRID
+   MOOD OPTIONS GRID - Image-based cards
    ═══════════════════════════════════════════════════════════════ */
 .mood-options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  grid-template-rows: 1fr 1fr;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 1000px;
   opacity: 0;
   transform: translateY(30px);
   transition: all 0.6s ease-out;
@@ -198,70 +214,112 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INDIVIDUAL MOOD BUTTONS - Light Pastel Colors
+   INDIVIDUAL MOOD CARDS - Image-based with hover effects
    ═══════════════════════════════════════════════════════════════ */
 .mood-option-button {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem 1.5rem;
-  border-radius: 0.75rem;
+  padding: 0;
+  border-radius: 1rem;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 60px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 2px solid transparent;
-  background-color: var(--card-surface); /* White cards */
+  overflow: hidden;
+  background: var(--card-surface);
+  border: 3px solid transparent;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  aspect-ratio: 4 / 3;
 }
 
-/* Mood-specific button colors (light pastels) */
-.mood-option-button.happy {
-  background: var(--mood-happy);
-  border-color: color-mix(in srgb, var(--mood-happy) 80%, black);
+/* Mood image placeholder */
+.mood-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.mood-option-button.calm {
-  background: var(--mood-calm);
-  border-color: color-mix(in srgb, var(--mood-calm) 80%, black);
+/* Mood label overlay */
+.mood-label-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
 }
 
-.mood-option-button.energetic {
-  background: var(--mood-energetic);
-  border-color: color-mix(in srgb, var(--mood-energetic) 80%, black);
+.mood-name {
+  font-size: 1.125rem;
+  color: white;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
 }
 
-.mood-option-button.anxious {
-  background: var(--mood-anxious);
-  border-color: color-mix(in srgb, var(--mood-anxious) 80%, black);
+/* Hover states for each mood - light border with scale */
+.mood-option-button.happy:hover {
+  border-color: var(--mood-happy);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.mood-option-button.sad {
-  background: var(--mood-sad);
-  border-color: color-mix(in srgb, var(--mood-sad) 80%, black);
+.mood-option-button.calm:hover {
+  border-color: var(--mood-calm);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.mood-option-button.excited {
-  background: var(--mood-excited);
-  border-color: color-mix(in srgb, var(--mood-excited) 80%, black);
+.mood-option-button.energetic:hover {
+  border-color: var(--mood-energetic);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.mood-option-button.tired {
-  background: var(--mood-tired);
-  border-color: color-mix(in srgb, var(--mood-tired) 80%, black);
+.mood-option-button.anxious:hover {
+  border-color: var(--mood-anxious);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.mood-option-button.grateful {
-  background: var(--mood-grateful);
-  border-color: color-mix(in srgb, var(--mood-grateful) 80%, black);
+.mood-option-button.sad:hover {
+  border-color: var(--mood-sad);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Hover state */
-.mood-option-button:hover:not(:disabled) {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border-color: var(--accent);
+.mood-option-button.excited:hover {
+  border-color: var(--mood-excited);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mood-option-button.tired:hover {
+  border-color: var(--mood-tired);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mood-option-button.grateful:hover {
+  border-color: var(--mood-grateful);
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mood-option-button:hover .mood-image {
+  transform: scale(1.1);
+}
+
+.mood-option-button:hover .mood-label-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
 }
 
 /* Disabled state */
@@ -271,15 +329,9 @@
   transform: none;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   MOOD NAME TEXT
-   ═══════════════════════════════════════════════════════════════ */
-.mood-name {
-  font-size: 1rem;
-  color: var(--dark-text); /* Soft charcoal for readability */
-  font-weight: 800;
-  transition: color 0.3s ease;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+.mood-option-button:disabled:hover {
+  transform: none;
+  border-color: transparent;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -307,7 +359,7 @@
 @media (max-width: 768px) {
   .first-mood-title {
     font-size: 2rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .first-mood-subtitle {
@@ -316,17 +368,33 @@
   }
 
   .mood-options-grid {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     max-width: 600px;
-    gap: 0.75rem;
-  }
-
-  .mood-option-button {
-    padding: 0.875rem 1.25rem;
-    min-height: 56px;
+    gap: 1rem;
   }
 
   .first-mood-container {
     padding: 1.5rem;
   }
+}
+
+@media (max-width: 480px) {
+  .mood-options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+.moodlyImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px; /* Fixed width container */
+  height: 50px; /* Fixed height container */
+  overflow: hidden; /* Hide the extra transparent parts */
+}
+.logo-gif {
+  width: 350; /* Make image wider than container */
+  height: auto;
+  object-fit: cover; /* This crops the image */
+  object-position: center; /* Centers the logo part */
 }

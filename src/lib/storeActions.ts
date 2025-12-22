@@ -160,9 +160,9 @@ export async function applySelection(
       })
     }
 
-    // ✅ Invalidate cache when user applies selection
     revalidateTag("store-items")
     revalidatePath("/store")
+    revalidatePath("/")
     return { success: true }
   } catch (error) {
     return { success: false, error: "Failed to apply selection" }

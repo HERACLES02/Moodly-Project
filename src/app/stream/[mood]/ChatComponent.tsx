@@ -1,3 +1,4 @@
+import UserProfileDialog from "@/components/IserProfileDialog"
 import { Message } from "@/components/SyncedRadioPlayer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import UserNoteTooltip from "@/components/UserNoteTooltip"
@@ -36,7 +37,7 @@ const ChatComponent = ({
       anonymousName: user?.anonymousName || "Listener",
       avatar_img_path: user?.currentAvatar?.imagePath || "",
       note: user?.note || "",
-      userId: user?.id || ""
+      userId: user?.id || "",
     }
     ws.send(JSON.stringify(userMessage))
     setMessages((prev: Message[]) => [...prev, userMessage])
@@ -81,16 +82,18 @@ const ChatComponent = ({
               </div>
               <div className="theme-text-contrast text-sm leading-relaxed pl-3 border-l border-white/10 group-hover:border-[var(--accent)] transition-colors flex gap-3">
                 <div className="max-h-5 max-w-5 h-full w-full rounded-full">
-                <UserNoteTooltip note={m.note || ""}>
-    <Avatar className="rounded-full hover:cursor-default size-6 cursor-help transition-transform hover:scale-110">
-      <AvatarImage src={m.avatar_img_path} />
-      <AvatarFallback>{"👤"}</AvatarFallback>
-    </Avatar>
-  </UserNoteTooltip>
-            
+                  <UserProfileDialog user={m}>
+                    <Avatar className="size-6 border border-[var(--glass-border)] rounded-full">
+                      <AvatarImage
+                        src={m.avatar_img_path}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="text-[8px]">👤</AvatarFallback>
+                    </Avatar>
+                  </UserProfileDialog>
                 </div>
 
-                {m.message} 
+                {m.message}
               </div>
             </div>
           ))

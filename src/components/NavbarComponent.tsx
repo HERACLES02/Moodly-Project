@@ -13,7 +13,7 @@ import WeeklyProgressCompact from "@/components/WeeklyProgressCompact"
 import { useUser } from "@/contexts/UserContext"
 import { useEffect, useState } from "react"
 
-import { setUserMood } from "@/lib/userActions"
+import { setUserMood, setUserTheme } from "@/lib/userActions"
 import { useTheme } from "next-themes"
 import { useSearchStore } from "@/lib/store"
 import SearchBar from "./SearchBar"
@@ -53,6 +53,22 @@ export default function NavbarComponent({
       }
     }
   }, [user?.mood])
+  useEffect(() => {
+    async function themeSet(themeName: string) {
+      try {
+        await setUserTheme(themeName)
+      } catch (error) {
+        throw error
+      }
+    }
+    if (theme) {
+      themeSet(theme)
+    }
+  }, [theme])
+
+  if (!user || !user.mood) {
+    return
+  }
 
   if (!user || !user.mood) {
     return
@@ -138,13 +154,13 @@ export default function NavbarComponent({
 
         {/* User Section - WeeklyProgressCompact moved here for right alignment */}
         <div className="UserSection h-full px-5 flex justify-center items-center gap-6">
-         <div className="hidden sm:block">
+          <div className="hidden sm:block">
             <WeeklyProgressCompact />
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="hidden sm:block"> 
-            <PointsDisplay />
+            <div className="hidden sm:block">
+              <PointsDisplay />
             </div>
           </div>
 

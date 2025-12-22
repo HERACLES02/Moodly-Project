@@ -8,6 +8,7 @@ import CustomVideoPlayer from "@/components/CustomVideoPlayer"
 import { useRouter } from "next/navigation"
 import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import { Message } from "@/components/SyncedRadioPlayer"
+import MobileLayout from "@/app/custom-party/stream/[groupId]/MobileLayout"
 
 interface watchProps {
   mood: string
@@ -42,7 +43,7 @@ const WatchPage = ({ mood }: watchProps) => {
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
               note: parsed?.userData?.note || "",
-              userId: parsed?.userData?.userId || ""
+              userId: parsed?.userData?.userId || "",
             },
           ]
           setMessages(newMessages)
@@ -70,51 +71,65 @@ const WatchPage = ({ mood }: watchProps) => {
   useEffect(() => setMount(true), [])
 
   if (!mount) return null
+  const sharedProps = {
+    ws,
+    videoState,
+    messages,
+    setMessages,
+    message,
+    setMessage,
+    livetime,
+  }
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-transparent overflow-hidden">
-      {/* 1. MINIMAL FLOATING HEADER */}
-      <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
-        <div className="text-center">
-          <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
-            LIVE TV
-          </h1>
-          <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1"></p>
-        </div>
-        <div className="w-[80px]" />
-      </header>
-
-      {/* 2. UPDATED GRID: Forced to fill available space */}
-      <main className="flex-1 flex px-10 pb-10 gap-10 min-h-0">
-        {/* PLAYER SECTION: Full Expansion */}
-        <div className="flex-[2.5] flex flex-col min-h-0 min-w-0">
-          <div className="flex-1 w-full relative group">
-            {/* Subtle Outer Glow */}
-            <div className="absolute -inset-1 bg-[var(--accent)] opacity-5 blur-2xl rounded-2xl group-hover:opacity-10 transition-opacity" />
-            {/* The Container - Set to h-full w-full */}
-            <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black">
-              <CustomVideoPlayer
-                videoUrl={videoState.videoUrl}
-                onVideoEnd={() => {}}
-                livetime={livetime}
-              />
-            </div>
-            ...
+    <>
+      <div className="md:hidden">
+        <MobileLayout {...sharedProps} />
+      </div>
+      <div className="hidden md:flex flex-col h-screen w-screen bg-transparent overflow-hidden">
+        {/* 1. MINIMAL FLOATING HEADER */}
+        <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
+          <div className="text-center">
+            <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
+              LIVE TV
+            </h1>
+            <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1"></p>
           </div>
-        </div>
+          <div className="w-[80px]" />
+        </header>
 
-        {/* CHAT SECTION */}
-        <aside className="flex-1 max-w-sm h-full">
-          <ChatComponent
-            ws={ws}
-            message={message}
-            messages={messages}
-            setMessage={setMessage}
-            setMessages={setMessages}
-          />
-        </aside>
-      </main>
-    </div>
+        {/* 2. UPDATED GRID: Forced to fill available space */}
+        <main className="flex-1 flex px-10 pb-10 gap-10 min-h-0">
+          {/* PLAYER SECTION: Full Expansion */}
+          <div className="flex-[2.5] flex flex-col min-h-0 min-w-0">
+            <div className="flex-1 w-full relative group">
+              {/* Subtle Outer Glow */}
+              <div className="absolute -inset-1 bg-[var(--accent)] opacity-5 blur-2xl rounded-2xl group-hover:opacity-10 transition-opacity" />
+              {/* The Container - Set to h-full w-full */}
+              <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black">
+                <CustomVideoPlayer
+                  videoUrl={videoState.videoUrl}
+                  onVideoEnd={() => {}}
+                  livetime={livetime}
+                />
+              </div>
+              ...
+            </div>
+          </div>
+
+          {/* CHAT SECTION */}
+          <aside className="flex-1 max-w-sm h-full">
+            <ChatComponent
+              ws={ws}
+              message={message}
+              messages={messages}
+              setMessage={setMessage}
+              setMessages={setMessages}
+            />
+          </aside>
+        </main>
+      </div>
+    </>
   )
 }
 
