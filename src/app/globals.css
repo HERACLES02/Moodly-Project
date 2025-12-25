@@ -612,6 +612,185 @@
   body {
     @apply bg-[var(--background)] text-[var(--foreground)];
   }
+  /* ============================================
+   ENERGETIC THEME - SUNRISE FIERY ENERGY
+   ============================================ */
+  .energetic {
+    /* Warm Sunrise Palette: Coral, Golden, Amber, Deep Brown */
+    --background: rgb(255, 245, 235); /* Soft peachy cream */
+    --foreground: rgb(60, 40, 30); /* Deep charcoal brown */
+    --primary: rgb(255, 235, 205); /* Golden cream */
+    --secondary: rgb(255, 160, 100); /* Rich amber orange */
+    --accent: rgb(90, 40, 20); /* Deep mahogany brown */
+
+    --primary-foreground: rgb(60, 40, 30);
+    --secondary-foreground: rgb(255, 255, 255);
+    --componentbg: rgba(255, 250, 240, 0.85);
+    --glass-bg: rgba(255, 245, 230, 0.6);
+    --glass-border: rgba(255, 160, 100, 0.4);
+
+    --shadow-color: rgba(255, 120, 60, 0.25);
+    --glow-color: rgba(255, 160, 100, 0.3);
+
+    --gradient-start: rgb(255, 200, 150);
+    --gradient-end: rgb(255, 240, 200);
+    --nav-bg: rgba(255, 245, 235, 0.9);
+    --card-surface: rgb(255, 250, 245);
+    --card-surface-hover: rgb(255, 245, 235);
+    --muted-bg: rgb(255, 240, 220);
+    --dark-text: rgb(60, 40, 30);
+  }
+
+  .energetic .theme-navbar {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 2px solid rgba(255, 160, 100, 0.3);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 15px rgba(255, 120, 60, 0.15);
+  }
+
+  .energetic body {
+    background: linear-gradient(
+      135deg,
+      rgb(255, 230, 200) 0%,
+      rgb(255, 210, 160) 25%,
+      rgb(255, 190, 130) 50%,
+      rgb(255, 215, 170) 75%,
+      rgb(255, 235, 205) 100%
+    ) !important;
+    background-size: cover !important;
+    background-attachment: fixed;
+    color: var(--foreground);
+    min-height: 100vh;
+  }
+
+  .energetic .theme-card,
+  .energetic .theme-card-variant-1,
+  .energetic .dashboard-hero {
+    background: var(--componentbg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 30px var(--shadow-color);
+  }
+
+  .energetic .theme-button-variant-2 {
+    background: linear-gradient(
+      135deg,
+      var(--secondary) 0%,
+      rgb(255, 140, 80) 100%
+    );
+    color: white;
+    font-weight: 800;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 120, 60, 0.3);
+  }
+
+  .energetic .theme-button-variant-2:hover {
+    background: linear-gradient(
+      135deg,
+      rgb(255, 140, 80) 0%,
+      var(--accent) 100%
+    );
+    box-shadow: 0 6px 20px rgba(255, 120, 60, 0.4);
+  }
+
+  /* ============================================
+   RESTLESS THEME - MIDNIGHT INSOMNIA
+   ============================================ */
+  .restless {
+    /* Deep Midnight Palette: Navy, Slate Purple, Electric Violet */
+    --background: rgb(15, 18, 35); /* Very deep midnight navy */
+    --foreground: rgb(245, 248, 255); /* Crisp off-white */
+    --primary: rgb(30, 35, 60); /* Dark slate blue */
+    --secondary: rgb(50, 45, 85); /* Muted twilight purple */
+    --accent: rgb(150, 80, 255); /* Sharp electric violet */
+
+    --primary-foreground: rgb(245, 248, 255);
+    --secondary-foreground: rgb(245, 248, 255);
+    --componentbg: rgba(25, 30, 50, 0.8);
+    --glass-bg: rgba(20, 25, 45, 0.6);
+    --glass-border: rgba(150, 80, 255, 0.3);
+
+    --shadow-color: rgba(150, 80, 255, 0.2);
+    --glow-color: rgba(150, 80, 255, 0.15);
+
+    --gradient-start: rgb(20, 25, 45);
+    --gradient-end: rgb(35, 30, 60);
+    --nav-bg: rgba(15, 18, 35, 0.95);
+    --card-surface: rgb(25, 30, 50);
+    --card-surface-hover: rgb(30, 35, 60);
+    --muted-bg: rgb(20, 25, 45);
+    --dark-text: rgb(245, 248, 255);
+  }
+
+  .restless .theme-navbar {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 1px solid rgba(150, 80, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+  }
+
+  .restless body {
+    background: linear-gradient(
+      180deg,
+      rgb(15, 18, 35) 0%,
+      rgb(25, 22, 50) 25%,
+      rgb(30, 25, 55) 50%,
+      rgb(20, 20, 45) 75%,
+      rgb(15, 18, 35) 100%
+    ) !important;
+    background-size: cover !important;
+    background-attachment: fixed;
+    color: var(--foreground);
+    min-height: 100vh;
+  }
+
+  .restless body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 40%,
+      rgba(150, 80, 255, 0.03) 70%,
+      rgba(150, 80, 255, 0.05) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .restless body > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .restless .theme-card,
+  .restless .theme-card-variant-1,
+  .restless .dashboard-hero {
+    background: var(--componentbg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 30px var(--shadow-color);
+  }
+
+  .restless .theme-button-variant-2 {
+    background: linear-gradient(
+      135deg,
+      var(--secondary) 0%,
+      rgb(60, 50, 100) 100%
+    );
+    color: var(--foreground);
+    font-weight: 800;
+    border: 1px solid rgba(150, 80, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(150, 80, 255, 0.2);
+  }
+
+  .restless .theme-button-variant-2:hover {
+    background: linear-gradient(
+      135deg,
+      rgb(60, 50, 100) 0%,
+      var(--accent) 100%
+    );
+    box-shadow: 0 6px 20px rgba(150, 80, 255, 0.4);
+    border-color: var(--accent);
+  }
 }
 
 /* THEMED COMPONENT CLASSES - The hybrid approach */

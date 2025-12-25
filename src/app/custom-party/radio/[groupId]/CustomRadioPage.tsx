@@ -19,8 +19,6 @@ interface CustomRadioPageProps {
   groupId: string
 }
 
-
-
 const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
   const router = useRouter()
   const [songState, setSongState] = useState<SongState>({
@@ -49,7 +47,7 @@ const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
               message: parsed.data,
               avatar_img_path: parsed?.userData?.avatar_img_path,
               note: parsed?.userData?.note || "",
-              userId: parsed?.userData?.userId || ""
+              userId: parsed?.userData?.userId || "",
             },
           ]
           setMessages(newMessages)
@@ -85,20 +83,13 @@ const CustomRadioPage = ({ groupId }: CustomRadioPageProps) => {
   return (
     <div className="flex flex-col h-screen w-screen bg-transparent overflow-hidden">
       {/* MINIMAL FLOATING HEADER */}
-      <header className="z-20 flex items-center justify-between px-10 py-6 shrink-0">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="theme-button-variant-2 btn-small !px-4 !rounded-full transition-transform active:scale-95"
-        >
-          Back
-        </button>
+      <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
         <div className="text-center">
           <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
             Radio
           </h1>
           <p className="theme-text-contrast text-[10px] font-bold opacity-40 uppercase tracking-widest mt-1 flex flex-col justify-center items-center">
-            {songState.name || "Syncing..."}
-            <CopyButton groupId={groupId} type="radio" />
+            Energetic MOrning
           </p>
         </div>
         <div className="w-[80px]" />

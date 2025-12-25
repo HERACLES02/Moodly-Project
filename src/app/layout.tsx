@@ -57,7 +57,16 @@ export default async function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme=""
-            themes={["vangogh", "cat", "default", "happy", "sad", "test"]}
+            themes={[
+              "vangogh",
+              "cat",
+              "default",
+              "happy",
+              "sad",
+              "test",
+              "restless",
+              "energetic",
+            ]}
           >
             <NavbarComponent />
 

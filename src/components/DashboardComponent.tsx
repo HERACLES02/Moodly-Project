@@ -20,6 +20,7 @@ import { Play } from "lucide-react"
 import SearchBar from "./SearchBar"
 import { useSearchStore } from "@/lib/store"
 import { randomUUID } from "crypto"
+import { Button } from "./ui/button"
 
 const movieCache = new Map<string, Movie[]>()
 const songCache = new Map<string, Track[]>()
@@ -240,8 +241,8 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                           onClick={() =>
                             router.push(
                               activeTab === "movies"
-                                ? `/stream/${normalizedMood}/${crypto.randomUUID()}`
-                                : `/radio/${normalizedMood}/${crypto.randomUUID()}`,
+                                ? `/custom-party/stream/${crypto.randomUUID()}`
+                                : `custom-party/radio/${crypto.randomUUID()}`,
                             )
                           }
                           className="theme-button-variant-2-no-hover btn-small !px-4 !rounded-full flex items-center gap-1 font-black"
@@ -266,6 +267,8 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                     </div>
                   </div>
                 </section>
+                <Button onClick={() => setTheme("restless")}>Restless</Button>
+                <Button onClick={() => setTheme("energetic")}>Energetic</Button>
 
                 <section className="magazine-rows w-full max-w-6xl">
                   {activeTab === "movies" ? (

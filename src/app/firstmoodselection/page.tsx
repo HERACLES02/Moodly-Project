@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { Spinner } from "@/components/ui/spinner"
 import Image from "next/image"
+import { LoaderFive } from "@/components/ui/loader"
 
 export default function FirstMoodSelection() {
   const { theme, setTheme } = useTheme()
@@ -16,6 +17,8 @@ export default function FirstMoodSelection() {
   const [showMoods, setShowMoods] = useState(false)
   const { user, updateUserMood } = useUser()
   const [isMounted, setIsMounted] = useState(false)
+  const [fadeTitle, setFadeTitle] = useState(false)
+
   const router = useRouter()
 
   // Mood options with placeholder images (4:3 aspect ratio)
@@ -37,8 +40,8 @@ export default function FirstMoodSelection() {
       image: "https://placehold.co/800x600/fca5a5/1e293b?text=Energetic",
     },
     {
-      name: "Anxious",
-      className: "anxious",
+      name: "Restless",
+      className: "restless",
       image: "https://placehold.co/800x600/d8b4fe/1e293b?text=Anxious",
     },
     {
@@ -50,16 +53,6 @@ export default function FirstMoodSelection() {
       name: "Excited",
       className: "excited",
       image: "https://placehold.co/800x600/fdba74/1e293b?text=Excited",
-    },
-    {
-      name: "Tired",
-      className: "tired",
-      image: "https://placehold.co/800x600/c7d2fe/1e293b?text=Tired",
-    },
-    {
-      name: "Grateful",
-      className: "grateful",
-      image: "https://placehold.co/800x600/a7f3d0/1e293b?text=Grateful",
     },
   ]
 
@@ -107,6 +100,7 @@ export default function FirstMoodSelection() {
 
   const handleMoodSelect = async (moodName: string) => {
     // Change theme (triggers smooth background transition via CSS)
+    setFadeTitle(true)
     setTheme(moodName.toLowerCase())
 
     setIsLoading(true)
@@ -142,7 +136,14 @@ export default function FirstMoodSelection() {
     <div className="first-mood-background">
       <div className="first-mood-container">
         <div className={`first-mood-content ${showTitle ? "show" : ""}`}>
-          <h1 className="first-mood-title flex">
+          <h1
+            className={`first-mood-title flex ${fadeTitle ? "fade-out-force" : ""}`}
+            style={{
+              transition: "opacity 1s ease-in-out",
+              opacity: fadeTitle ? 0 : 1,
+              visibility: fadeTitle && !isLoading ? "hidden" : "visible",
+            }}
+          >
             Welcome to
             <div className="moodlyImage mt-3">
               <img
@@ -152,10 +153,10 @@ export default function FirstMoodSelection() {
               />
             </div>
           </h1>
-
           {/* Animated subtitle with dots */}
+
           <p className="first-mood-subtitle italic font-bold">
-            How are you feeling today
+            How are you feeling tonight
             <span className="animated-dots">
               <span>.</span>
               <span>.</span>
@@ -164,9 +165,7 @@ export default function FirstMoodSelection() {
           </p>
 
           {isLoading ? (
-            <div className="size-2">
-              <Spinner />
-            </div>
+            <LoaderFive text="Curating for you" />
           ) : (
             <div className={`mood-options-grid ${showMoods ? "show" : ""}`}>
               {moodOptions.map((mood, index) => (

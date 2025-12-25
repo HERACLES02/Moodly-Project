@@ -71,7 +71,7 @@ const MobileRadioLayout = ({
               Radio
             </h1>
             <p className="text-[9px] opacity-60 uppercase tracking-wider mt-0.5 truncate">
-              {songState.name || "Syncing..."}
+              ENERGETIC MORNING
             </p>
           </div>
           <button

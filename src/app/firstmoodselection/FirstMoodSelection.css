@@ -111,6 +111,38 @@
   background-position: center;
   opacity: 1;
 }
+.energetic .first-mood-background::after {
+  background: linear-gradient(
+    135deg,
+    rgb(255, 230, 200) 0%,
+    rgb(255, 210, 160) 25%,
+    rgb(255, 190, 130) 50%,
+    rgb(255, 215, 170) 75%,
+    rgb(255, 235, 205) 100%
+  );
+  background-size: cover;
+  background-position: center;
+  opacity: 1;
+}
+.fade-out-force {
+  /* This kills any entry animations (slideIn, fadeIn, etc.) from your CSS */
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+.restless .first-mood-background::after {
+  background: linear-gradient(
+    180deg,
+    rgb(15, 18, 35) 0%,
+    rgb(25, 22, 50) 25%,
+    rgb(30, 25, 55) 50%,
+    rgb(20, 20, 45) 75%,
+    rgb(15, 18, 35) 100%
+  );
+  background-size: cover;
+  background-position: center;
+  opacity: 1;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    CONTENT STYLING (adapts to theme)

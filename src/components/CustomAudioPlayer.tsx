@@ -140,7 +140,7 @@ const CustomAudioPlayer: React.FC<CustomAudioPlayerProps> = ({
           className="group relative px-14 py-5 bg-[var(--accent)] text-[var(--background)] rounded-2xl flex items-center gap-5 transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_var(--shadow-color)]"
         >
           <span className="text-[11px] font-black uppercase tracking-[0.2em]">
-            {isMuted ? "Enable Monitor" : "Mute Stream"}
+            {isMuted ? "Unmute" : "Mute"}
           </span>
           <div className="w-8 h-8 rounded-lg bg-black/5 flex items-center justify-center">
             {isMuted ? (
