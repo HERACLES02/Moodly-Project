@@ -6,9 +6,8 @@ import ChatComponent from "./ChatComponent"
 import { VideoState } from "../../../../party"
 import CustomVideoPlayer from "@/components/CustomVideoPlayer"
 import { useRouter } from "next/navigation"
-import CustomAudioPlayer from "@/components/CustomAudioPlayer"
 import { Message } from "@/components/SyncedRadioPlayer"
-import MobileLayout from "@/app/custom-party/stream/[groupId]/MobileLayout"
+import MobileStreamLayout from "./MobileStreamLayout"
 
 interface watchProps {
   mood: string
@@ -71,6 +70,7 @@ const WatchPage = ({ mood }: watchProps) => {
   useEffect(() => setMount(true), [])
 
   if (!mount) return null
+
   const sharedProps = {
     ws,
     videoState,
@@ -83,11 +83,14 @@ const WatchPage = ({ mood }: watchProps) => {
 
   return (
     <>
-      <div className="md:hidden">
-        <MobileLayout {...sharedProps} />
+      {/* MOBILE & TABLET LAYOUT (< 1024px) */}
+      <div className="lg:hidden">
+        <MobileStreamLayout {...sharedProps} />
       </div>
-      <div className="hidden md:flex flex-col h-screen w-screen bg-transparent overflow-hidden">
-        {/* 1. MINIMAL FLOATING HEADER */}
+
+      {/* DESKTOP LAYOUT (>= 1024px) */}
+      <div className="hidden lg:flex flex-col h-screen w-screen bg-transparent overflow-hidden">
+        {/* MINIMAL FLOATING HEADER */}
         <header className="z-20 flex items-center justify-center px-10 py-6 shrink-0">
           <div className="text-center">
             <h1 className="text-xs font-black uppercase tracking-[0.4em] theme-text-accent opacity-80">
@@ -98,14 +101,14 @@ const WatchPage = ({ mood }: watchProps) => {
           <div className="w-[80px]" />
         </header>
 
-        {/* 2. UPDATED GRID: Forced to fill available space */}
+        {/* GRID: Player + Chat */}
         <main className="flex-1 flex px-10 pb-10 gap-10 min-h-0">
-          {/* PLAYER SECTION: Full Expansion */}
+          {/* PLAYER SECTION */}
           <div className="flex-[2.5] flex flex-col min-h-0 min-w-0">
             <div className="flex-1 w-full relative group">
-              {/* Subtle Outer Glow */}
+              {/* Outer Glow */}
               <div className="absolute -inset-1 bg-[var(--accent)] opacity-5 blur-2xl rounded-2xl group-hover:opacity-10 transition-opacity" />
-              {/* The Container - Set to h-full w-full */}
+              {/* Container */}
               <div className="relative h-full w-full rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black">
                 <CustomVideoPlayer
                   videoUrl={videoState.videoUrl}
@@ -113,7 +116,6 @@ const WatchPage = ({ mood }: watchProps) => {
                   livetime={livetime}
                 />
               </div>
-              ...
             </div>
           </div>
 

@@ -246,7 +246,7 @@ function getHappyMovie() {
   const movie: MovieParams[] = [
     {
       name: "3 Idiots",
-      url: "https://pub-5028b4904eef4a52961fb036dec5fe6d.r2.dev/movies/3Idiots.mkv",
+      url: "https://pub-5028b4904eef4a52961fb036dec5fe6d.r2.dev/movies/Three_Idiots.mp4",
       duration: 10267,
     },
   ]
@@ -299,7 +299,7 @@ function getHappySongs() {
     {
       name: "Waving Flag",
       url: "wavin_flag.mp3",
-      duration: 15,
+      duration: 20,
     },
     {
       name: "Deewngi Deewangi - Om Shanti Om",

@@ -88,7 +88,7 @@ const CustomWatchPage = ({ groupId, isMobile }: watchProps) => {
       {/* 📱 MOBILE VERSION: Hidden on Desktop (md: 768px+) */}
       <div className="md:hidden">
         <MobileLayout {...sharedProps} />
-      </div>
+      </div>  
 
       {/* 💻 DESKTOP VERSION: Hidden on Mobile */}
       <div className="hidden md:flex flex-col h-screen w-screen bg-transparent overflow-hidden">
