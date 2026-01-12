@@ -267,8 +267,6 @@ export default function Dashboard({ movies, songs }: DashboardProps) {
                     </div>
                   </div>
                 </section>
-                <Button onClick={() => setTheme("restless")}>Restless</Button>
-                <Button onClick={() => setTheme("energetic")}>Energetic</Button>
 
                 <section className="magazine-rows w-full max-w-6xl">
                   {activeTab === "movies" ? (
